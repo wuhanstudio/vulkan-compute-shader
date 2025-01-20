@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-gray-scott", "hello-g
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-fractal", "hello-fractal\hello-fractal.vcxproj", "{8BE3EAD9-B506-4B00-844F-72989C354F68}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-shadertoy", "hello-shadertoy\hello-shadertoy.vcxproj", "{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x64.Build.0 = Release|x64
 		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x86.ActiveCfg = Release|Win32
 		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x86.Build.0 = Release|Win32
+		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Debug|x64.ActiveCfg = Debug|x64
+		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Debug|x64.Build.0 = Debug|x64
+		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Debug|x86.ActiveCfg = Debug|Win32
+		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Debug|x86.Build.0 = Debug|Win32
+		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Release|x64.ActiveCfg = Release|x64
+		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Release|x64.Build.0 = Release|x64
+		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Release|x86.ActiveCfg = Release|Win32
+		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
