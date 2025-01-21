@@ -1,0 +1,29 @@
+#version 450
+
+layout( local_size_x = 1000, local_size_y = 1, local_size_z = 1 ) in;
+
+layout( binding = 0 ) buffer inputBuffer
+{
+    uint valuesIn[];
+};
+
+layout( binding = 1 ) buffer outputBuffer
+{
+    uint valuesOut[1000][1000];
+};
+
+void main()
+{
+    float r = gl_WorkGroupID.x / 500.0f - 1.0f;
+    float i = gl_LocalInvocationID.x / 500.0f - 1.0f;
+
+    uint cnt = 0;
+    while (((r * r + i * i) < 4.0f) && (cnt < 63))
+    {
+        float temp = r * r - i * i + 0.17f;
+        i = 2 * r * i + 0.57f;
+        r = temp;
+        cnt++;
+    }
+    valuesOut[gl_WorkGroupID.x][gl_LocalInvocationID.x] = (cnt << 2) | 0xff000000;
+}
