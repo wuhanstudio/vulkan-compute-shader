@@ -51,4 +51,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\fractal.comp">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
