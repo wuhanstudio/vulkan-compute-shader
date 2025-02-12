@@ -3,6 +3,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <fmt/core.h>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -246,6 +247,18 @@ private:
         if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
             throw std::runtime_error("failed to create instance!");
         }
+
+        uint32_t extensionCount = 0;
+        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+
+        std::vector<VkExtensionProperties> vk_extensions(extensionCount);
+        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, vk_extensions.data());
+
+        fmt::println("Available extensions:");
+        for (const auto& extension : vk_extensions) {
+            fmt::print("{}\t", extension.extensionName);
+        }
+		fmt::print("\n");
     }
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
@@ -284,12 +297,22 @@ private:
         std::vector<VkPhysicalDevice> devices(deviceCount);
         vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
+		fmt::println("Available devices:");
+        for (const auto& device : devices) {
+            isDeviceSuitable(device);
+        }
+
         for (const auto& device : devices) {
             if (isDeviceSuitable(device)) {
                 physicalDevice = device;
                 break;
             }
         }
+        VkPhysicalDeviceProperties deviceProperties;
+        VkPhysicalDeviceFeatures deviceFeatures;
+        vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+        vkGetPhysicalDeviceFeatures(physicalDevice, &deviceFeatures);
+        fmt::println("Selected device: {}", deviceProperties.deviceName);
 
         if (physicalDevice == VK_NULL_HANDLE) {
             throw std::runtime_error("failed to find a suitable GPU!");
@@ -828,6 +851,13 @@ private:
     }
 
     bool isDeviceSuitable(VkPhysicalDevice device) {
+        VkPhysicalDeviceProperties deviceProperties;
+        VkPhysicalDeviceFeatures deviceFeatures;
+        vkGetPhysicalDeviceProperties(device, &deviceProperties);
+        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+		fmt::println("Device name: {}", deviceProperties.deviceName);
+
         QueueFamilyIndices indices = findQueueFamilies(device);
 
         bool extensionsSupported = checkDeviceExtensionSupport(device);
