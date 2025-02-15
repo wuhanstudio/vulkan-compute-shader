@@ -248,6 +248,7 @@ private:
             throw std::runtime_error("failed to create instance!");
         }
 
+		// Print available extensions
         uint32_t extensionCount = 0;
         vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
@@ -299,7 +300,12 @@ private:
 
 		fmt::println("Available devices:");
         for (const auto& device : devices) {
-            isDeviceSuitable(device);
+            VkPhysicalDeviceProperties deviceProperties;
+            VkPhysicalDeviceFeatures deviceFeatures;
+            vkGetPhysicalDeviceProperties(device, &deviceProperties);
+            vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+            fmt::println("Device name: {}", deviceProperties.deviceName);
         }
 
         for (const auto& device : devices) {
@@ -851,13 +857,6 @@ private:
     }
 
     bool isDeviceSuitable(VkPhysicalDevice device) {
-        VkPhysicalDeviceProperties deviceProperties;
-        VkPhysicalDeviceFeatures deviceFeatures;
-        vkGetPhysicalDeviceProperties(device, &deviceProperties);
-        vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-		fmt::println("Device name: {}", deviceProperties.deviceName);
-
         QueueFamilyIndices indices = findQueueFamilies(device);
 
         bool extensionsSupported = checkDeviceExtensionSupport(device);
