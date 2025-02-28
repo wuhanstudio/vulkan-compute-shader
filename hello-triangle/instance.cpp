@@ -74,4 +74,14 @@ void createInstance() {
     if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create instance!");
     }
+
+	// Set up debug messenger
+    if (enableValidationLayers) {
+        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+        populateDebugMessengerCreateInfo(debugCreateInfo);
+
+        if (CreateDebugUtilsMessengerEXT(instance, &debugCreateInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to set up debug messenger!");
+        }
+    }
 }

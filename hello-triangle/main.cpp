@@ -27,7 +27,6 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 
 GLFWwindow* window;
 
-VkDebugUtilsMessengerEXT debugMessenger;
 VkSurfaceKHR surface;
 
 VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -84,17 +83,6 @@ static std::vector<char> readFile(const std::string& filename) {
     return buffer;
 }
 
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-    if (func != nullptr) {
-        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-    }
-    else {
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
-}
-
-
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
     SwapChainSupportDetails details;
 
@@ -117,13 +105,6 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) {
     }
 
     return details;
-}
-
-void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) {
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-    if (func != nullptr) {
-        func(instance, debugMessenger, pAllocator);
-    }
 }
 
 struct QueueFamilyIndices {
@@ -162,17 +143,6 @@ struct QueueFamilyIndices {
         //createSwapChain();
         //createImageViews();
         //createFramebuffers();
-    }
-
-    void setupDebugMessenger() {
-        if (!enableValidationLayers) return;
-
-        VkDebugUtilsMessengerCreateInfoEXT createInfo;
-        populateDebugMessengerCreateInfo(createInfo);
-
-        if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
-            throw std::runtime_error("failed to set up debug messenger!");
-        }
     }
 
     void createSurface() {
@@ -797,7 +767,6 @@ int main() {
         printExtensions();
         createInstance();
 
-        //setupDebugMessenger();
         //createSurface();
         //pickPhysicalDevice();
 
@@ -836,9 +805,9 @@ int main() {
 
         //vkDestroyDevice(device, nullptr);
 
-        //if (enableValidationLayers) {
-        //    DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-        //}
+        if (enableValidationLayers) {
+            DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+        }
 
         //vkDestroySurfaceKHR(instance, surface, nullptr);
         vkDestroyInstance(instance, nullptr);
