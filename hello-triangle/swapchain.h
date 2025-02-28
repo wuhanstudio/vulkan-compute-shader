@@ -25,3 +25,5 @@ struct SwapChainSupportDetails {
 
 void createSwapChain(GLFWwindow* window);
 void cleanupSwapChain();
+
+void createImageViews();
