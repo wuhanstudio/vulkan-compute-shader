@@ -138,6 +138,7 @@
     <ClCompile Include="instance.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="swapchain.cpp" />
+    <ClCompile Include="validation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\triangle.frag" />
@@ -147,6 +148,7 @@
     <ClInclude Include="device.h" />
     <ClInclude Include="instance.h" />
     <ClInclude Include="swapchain.h" />
+    <ClInclude Include="validation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

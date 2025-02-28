@@ -783,7 +783,6 @@ static void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, in
 }
 
 int main() {
-
     try {
         glfwInit();
 
@@ -795,7 +794,9 @@ int main() {
         //glfwSetWindowUserPointer(window, this);
         //glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
+        printExtensions();
         createInstance();
+
         //setupDebugMessenger();
         //createSurface();
         //pickPhysicalDevice();
@@ -843,11 +844,10 @@ int main() {
         vkDestroyInstance(instance, nullptr);
 
         glfwDestroyWindow(window);
-
         glfwTerminate();
     }
     catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
+		fmt::print("Exception: {}\n", e.what());
         return EXIT_FAILURE;
     }
 
