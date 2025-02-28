@@ -18,7 +18,7 @@ const std::vector<const char*> deviceExtensions = {
 
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
-    //std::optional<uint32_t> presentFamily;
+    std::optional<uint32_t> presentFamily;
 
     bool isComplete() {
         return graphicsFamily.has_value();
@@ -30,3 +30,4 @@ bool isDeviceSuitable(VkPhysicalDevice device);
 bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
 void pickPhysicalDevice();
+void createLogicalDevice();
