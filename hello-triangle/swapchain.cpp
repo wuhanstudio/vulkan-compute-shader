@@ -45,22 +45,22 @@ void cleanupSwapChain() {
     vkDestroySwapchainKHR(device, swapChain, nullptr);
 }
 
-//void recreateSwapChain() {
-//    int width = 0, height = 0;
-//    glfwGetFramebufferSize(window, &width, &height);
-//    while (width == 0 || height == 0) {
-//        glfwGetFramebufferSize(window, &width, &height);
-//        glfwWaitEvents();
-//    }
-//
-//    vkDeviceWaitIdle(device);
-//
-//    cleanupSwapChain();
-//
-//    //createSwapChain();
-//    //createImageViews();
-//    //createFramebuffers();
-//}
+void recreateSwapChain(GLFWwindow* window) {
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(window, &width, &height);
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(window, &width, &height);
+        glfwWaitEvents();
+    }
+
+    vkDeviceWaitIdle(device);
+
+    cleanupSwapChain();
+
+    createSwapChain(window);
+    createImageViews();
+    createFramebuffers();
+}
 
 VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
     for (const auto& availableFormat : availableFormats) {

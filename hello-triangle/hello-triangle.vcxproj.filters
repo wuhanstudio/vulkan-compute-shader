@@ -42,6 +42,9 @@
     <ClCompile Include="imageview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="command.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\triangle.frag">
@@ -74,6 +77,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="imageview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="command.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

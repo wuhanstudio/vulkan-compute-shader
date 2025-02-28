@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="command.cpp" />
     <ClCompile Include="device.cpp" />
     <ClCompile Include="framebuffer.cpp" />
     <ClCompile Include="imageview.cpp" />
@@ -149,6 +150,7 @@
     <None Include="shader\triangle.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="command.h" />
     <ClInclude Include="device.h" />
     <ClInclude Include="framebuffer.h" />
     <ClInclude Include="imageview.h" />

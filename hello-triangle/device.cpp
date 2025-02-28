@@ -3,7 +3,7 @@
 #include <fmt/core.h>
 #include <set>
 
-//#include "swapchain.h"
+#include "swapchain.h"
 
 VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 VkDevice device;
@@ -73,14 +73,13 @@ bool isDeviceSuitable(VkPhysicalDevice device) {
 
     bool extensionsSupported = checkDeviceExtensionSupport(device);
 
-    //bool swapChainAdequate = false;
-    //if (extensionsSupported) {
-    //    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
-    //    swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
-    //}
+    bool swapChainAdequate = false;
+    if (extensionsSupported) {
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+    }
 
-    return indices.isComplete() && extensionsSupported;
-    //return indices.isComplete() && extensionsSupported && swapChainAdequate;
+    return indices.isComplete() && extensionsSupported && swapChainAdequate;
 }
 
 void pickPhysicalDevice() {
@@ -120,37 +119,26 @@ void pickPhysicalDevice() {
 void createLogicalDevice() {
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
-    VkDeviceQueueCreateInfo queueCreateInfo{};
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
-    queueCreateInfo.queueCount = 1;
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
     float queuePriority = 1.0f;
-    queueCreateInfo.pQueuePriorities = &queuePriority;
-
-    //std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    //std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
-
-    //float queuePriority = 1.0f;
-    //for (uint32_t queueFamily : uniqueQueueFamilies) {
-    //    VkDeviceQueueCreateInfo queueCreateInfo{};
-    //    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    //    queueCreateInfo.queueFamilyIndex = queueFamily;
-    //    queueCreateInfo.queueCount = 1;
-    //    queueCreateInfo.pQueuePriorities = &queuePriority;
-    //    queueCreateInfos.push_back(queueCreateInfo);
-    //}
+    for (uint32_t queueFamily : uniqueQueueFamilies) {
+        VkDeviceQueueCreateInfo queueCreateInfo{};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfos.push_back(queueCreateInfo);
+    }
 
     VkPhysicalDeviceFeatures deviceFeatures{};
 
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-    createInfo.pQueueCreateInfos = &queueCreateInfo;
-    createInfo.queueCreateInfoCount = 1;
-
-    //createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-    //createInfo.pQueueCreateInfos = queueCreateInfos.data();
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
     createInfo.pEnabledFeatures = &deviceFeatures;
 
@@ -170,5 +158,5 @@ void createLogicalDevice() {
     }
 
     vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-    //vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+    vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 }
