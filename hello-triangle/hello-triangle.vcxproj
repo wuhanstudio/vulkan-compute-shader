@@ -135,9 +135,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="device.cpp" />
+    <ClCompile Include="framebuffer.cpp" />
+    <ClCompile Include="imageview.cpp" />
     <ClCompile Include="instance.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="pipline.cpp" />
+    <ClCompile Include="pipeline.cpp" />
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="swapchain.cpp" />
     <ClCompile Include="validation.cpp" />
@@ -148,8 +150,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="device.h" />
+    <ClInclude Include="framebuffer.h" />
+    <ClInclude Include="imageview.h" />
     <ClInclude Include="instance.h" />
-    <ClInclude Include="pipline.h" />
+    <ClInclude Include="pipeline.h" />
     <ClInclude Include="surface.h" />
     <ClInclude Include="swapchain.h" />
     <ClInclude Include="validation.h" />

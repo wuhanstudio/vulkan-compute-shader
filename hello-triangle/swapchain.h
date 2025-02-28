@@ -1,21 +1,20 @@
 #pragma once
-#include "surface.h"
-#include "device.h"
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 
 #include <vector>
 
+#include "surface.h"
+#include "device.h"
+
+#include "imageview.h"
+#include "framebuffer.h"
+
 extern VkSwapchainKHR swapChain;
 
-extern std::vector<VkImage> swapChainImages;
-extern VkFormat swapChainImageFormat;
-
 extern VkExtent2D swapChainExtent;
-
-extern std::vector<VkImageView> swapChainImageViews;
-extern std::vector<VkFramebuffer> swapChainFramebuffers;
+extern VkFormat swapChainImageFormat;
 
 struct SwapChainSupportDetails {
     VkSurfaceCapabilitiesKHR capabilities;

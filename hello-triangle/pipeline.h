@@ -1,9 +1,9 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
+
 #include "device.h"
 #include "swapchain.h"
-
-#include <vulkan/vulkan.h>
 
 extern VkRenderPass renderPass;
 extern VkPipelineLayout pipelineLayout;

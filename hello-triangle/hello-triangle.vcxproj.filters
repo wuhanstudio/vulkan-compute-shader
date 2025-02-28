@@ -33,7 +33,13 @@
     <ClCompile Include="surface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pipline.cpp">
+    <ClCompile Include="pipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="imageview.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -61,7 +67,13 @@
     <ClInclude Include="surface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pipline.h">
+    <ClInclude Include="pipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="framebuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imageview.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
