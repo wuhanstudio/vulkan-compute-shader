@@ -4,7 +4,7 @@
 #include <optional>
 
 #include "instance.h"
-//#include "surface.h"
+#include "surface.h"
 
 extern VkPhysicalDevice physicalDevice;
 extern VkDevice device;
@@ -21,8 +21,7 @@ struct QueueFamilyIndices {
     std::optional<uint32_t> presentFamily;
 
     bool isComplete() {
-        return graphicsFamily.has_value();
-        //return graphicsFamily.has_value() && presentFamily.has_value();
+        return graphicsFamily.has_value() && presentFamily.has_value();
     }
 };
 

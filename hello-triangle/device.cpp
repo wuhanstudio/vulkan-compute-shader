@@ -35,12 +35,12 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) {
             indices.graphicsFamily = i;
         }
 
-        //VkBool32 presentSupport = false;
-        //vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
 
-        //if (presentSupport) {
-        //    indices.presentFamily = i;
-        //}
+        if (presentSupport) {
+            indices.presentFamily = i;
+        }
 
         if (indices.isComplete()) {
             break;

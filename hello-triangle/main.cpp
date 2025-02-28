@@ -554,7 +554,7 @@ int main() {
         printExtensions();
         createInstance();
 
-        //createSurface(window);
+        createSurface(window);
         pickPhysicalDevice();
         createLogicalDevice();
 
@@ -596,7 +596,7 @@ int main() {
             DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
         }
 
-        //vkDestroySurfaceKHR(instance, surface, nullptr);
+        vkDestroySurfaceKHR(instance, surface, nullptr);
         vkDestroyInstance(instance, nullptr);
 
         glfwDestroyWindow(window);
