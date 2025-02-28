@@ -42,7 +42,7 @@ static std::vector<char> readFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
-        throw std::runtime_error("failed to open file!");
+        throw std::runtime_error("Failed to open file!");
     }
 
     size_t fileSize = (size_t)file.tellg();
@@ -72,7 +72,7 @@ void createSyncObjects() {
         if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
             vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
             vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create synchronization objects for a frame!");
+            throw std::runtime_error("Failed to create synchronization objects for a frame!");
         }
     }
 }
@@ -88,7 +88,7 @@ void drawFrame() {
         return;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        throw std::runtime_error("failed to acquire swap chain image!");
+        throw std::runtime_error("Failed to acquire swap chain image!");
     }
 
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
@@ -113,7 +113,7 @@ void drawFrame() {
     submitInfo.pSignalSemaphores = signalSemaphores;
 
     if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
-        throw std::runtime_error("failed to submit draw command buffer!");
+        throw std::runtime_error("Failed to submit draw command buffer!");
     }
 
     VkPresentInfoKHR presentInfo{};
@@ -135,7 +135,7 @@ void drawFrame() {
         recreateSwapChain(window);
     }
     else if (result != VK_SUCCESS) {
-        throw std::runtime_error("failed to present swap chain image!");
+        throw std::runtime_error("Failed to present swap chain image!");
     }
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -169,13 +169,13 @@ int main() {
 
         createSwapChain(window);
         createImageViews();
- 
+
         createRenderPass();
 
         auto vertShaderCode = readFile("shader/triangle.vert.spv");
         auto fragShaderCode = readFile("shader/triangle.frag.spv");
         createGraphicsPipeline(vertShaderCode, fragShaderCode);
- 
+
         createFramebuffers();
 
         createCommandPool();
@@ -219,7 +219,7 @@ int main() {
         glfwTerminate();
     }
     catch (const std::exception& e) {
-		fmt::print("Exception: {}\n", e.what());
+        fmt::print("Exception: {}\n", e.what());
         return EXIT_FAILURE;
     }
 
