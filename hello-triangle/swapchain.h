@@ -1,4 +1,6 @@
 #pragma once
+#include "surface.h"
+
 #include <vulkan/vulkan.h>
 
 #include <vector>
