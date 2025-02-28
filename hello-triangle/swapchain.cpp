@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <stdexcept>
 #include <algorithm>
+#include <limits>
 
 VkSwapchainKHR swapChain;
 std::vector<VkImage> swapChainImages;
