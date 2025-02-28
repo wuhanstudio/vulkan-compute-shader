@@ -30,3 +30,5 @@ bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
 void pickPhysicalDevice();
 void createLogicalDevice();
+
+QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
