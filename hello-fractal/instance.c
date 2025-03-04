@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include "instance.h"
@@ -39,3 +43,7 @@ void CreateInstance(void)
         printf("Instance not created\n");
     }
 }
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include "device.h"
@@ -114,3 +118,7 @@ void DestroyCommandPoolAndLogicalDevice(void)
         vkDestroyDevice(LogicalDevice, NULL);
     }
 }
+
+#ifdef __cplusplus
+}
+#endif

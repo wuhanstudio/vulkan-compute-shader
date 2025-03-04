@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef VULKAN_COMPTE_H
 #define VULKAN_COMPTE_H
 
@@ -11,3 +15,6 @@ void CreateDescriptorSet(void);
 
 #endif // VULKAN_COMPTE_H
 
+#ifdef __cplusplus
+}
+#endif

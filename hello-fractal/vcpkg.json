@@ -1,8 +1,5 @@
 {
   "dependencies": [
-    "fmt",
-    "glm",
-    "glfw3",
     "stb",
     "vulkan"
   ],

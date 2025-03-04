@@ -1,4 +1,4 @@
-#include <GLFW/glfw3.h>
+#include <chrono>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
@@ -18,6 +18,21 @@
 
 uint32_t InputData[width];
 uint32_t OutputData[height][width];
+
+
+double getTime()
+{
+     // Get the current time from the system clock
+     auto now = std::chrono::high_resolution_clock::now();
+
+     // Convert the current time to time since epoch
+     auto duration = now.time_since_epoch();
+
+     // Convert duration to microseconds
+     auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+
+	 return microseconds;
+}
 
 void generate()
 {
@@ -43,10 +58,6 @@ void generate()
 
 int main(int ac, char** av)
 {
-    if (!glfwInit()) {
-        return -1;
-    }
-
     CreateInstance();
     GetPhysicalDevice();
     CreateDeviceAndComputeQueue();
@@ -57,10 +68,10 @@ int main(int ac, char** av)
     PrepareCommandBuffer();
     CopyToInputBuffer(InputData, sizeof(InputData));
 
-    double time = glfwGetTime();
+    double time = getTime();
     generate();
-    time = glfwGetTime() - time;
-    printf("CPU fractal: %f ms.\n", time * 1000.0f);
+    time = getTime() - time;
+    printf("CPU fractal: %f ms.\n", time / 1000.0f);
 
     // Allocate memory for the image data in RGBA format (4 channels per pixel)
     unsigned char* image_data = (unsigned char*)malloc(width * height * 4);
@@ -82,10 +93,10 @@ int main(int ac, char** av)
     stbi_write_png("fractal_cpu.png", width, height, 4, image_data, width * 4);
 
     memset(OutputData, 0, sizeof(OutputData));
-    time = glfwGetTime();
+    time = getTime();
     Compute();
-    time = glfwGetTime() - time;
-    printf("GPU fractal: %f ms.\n", time * 1000.0f);
+    time = getTime() - time;
+    printf("GPU fractal: %f ms.\n", time / 1000.0f);
 
     CopyFromOutputBuffer(OutputData, sizeof(OutputData));
 

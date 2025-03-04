@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "memory.h"
 #include "device.h"
 #include "instance.h"
@@ -138,3 +142,7 @@ void CopyFromOutputBuffer(void *data, uint32_t size)
 
     vkUnmapMemory(LogicalDevice, OutputBufferMemory);
 }
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "compute.h"
 #include <string.h>
 #include <stdio.h>
@@ -94,3 +98,7 @@ void CreateDescriptorSet(void)
         printf("Failed to allocate the descriptor set.");
     }
 }
+
+#ifdef __cplusplus
+}
+#endif

@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "pipeline.h"
 #include <stdio.h>
 #include <string.h>
@@ -118,3 +122,7 @@ void DestroyPipeline(void)
         vkDestroyPipeline(LogicalDevice, Pipeline, NULL);
     }
 }
+
+#ifdef __cplusplus
+}
+#endif
