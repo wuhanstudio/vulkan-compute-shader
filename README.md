@@ -2,7 +2,7 @@
 
 ## Windows Users
 
-Install Visual Studio and open `vulkan-compute-shader.sln`.
+Install the [Vulkan SDK](https://vulkan.lunarg.com/) (only required for debugging) and Visual Studio, and then open `vulkan-compute-shader.sln`.
 
 ## Prerequisites (Linux)
 
@@ -30,6 +30,8 @@ $ sudo apt install vulkan-validationlayers
 
 ## Project 1: hello-vkinfo
 
+This project prints out the Vulkan API version and available GPUs and supported Vulkan versions.
+
 ```
 $ cd hello-vkinfo
 $ cmake -B build --preset vcpkg
@@ -52,4 +54,58 @@ API version: 1.3.277
 Device name: NVIDIA RTX 1000 Ada Generation Laptop GPU
 Device type: Discrete GPU
 API version: 1.3.277
+```
+
+## Project 2: hello-validation
+
+To debug Vulkan applications, you need to install the Vulkan SDK and enable validation layers.
+
+```
+$ cd hello-validation
+$ cmake -B build --preset vcpkg
+$ cmake --build build
+$ ./build/hello-validation
+```
+
+Output:
+
+```
+Available extensions:
+
+VK_KHR_surface
+VK_KHR_win32_surface
+VK_KHR_external_memory_capabilities
+VK_KHR_external_semaphore_capabilities
+VK_KHR_external_fence_capabilities
+VK_KHR_get_physical_device_properties2
+VK_KHR_get_surface_capabilities2
+VK_KHR_device_group_creation
+VK_EXT_swapchain_colorspace
+VK_EXT_debug_utils
+VK_KHR_display
+VK_KHR_get_display_properties2
+VK_KHR_surface_protected_capabilities
+VK_EXT_debug_report
+VK_EXT_direct_mode_display
+VK_EXT_surface_maintenance1
+VK_NV_external_memory_capabilities
+VK_KHR_portability_enumeration
+VK_LUNARG_direct_driver_loading
+
+Validation layers available
+
+Validation layer: windows_get_device_registry_files: GUID for 5 is not SoftwareComponent skipping
+Validation layer: windows_get_device_registry_files: GUID for 6 is not SoftwareComponent skipping
+Validation layer: Searching for ICD drivers named .\igvk64.dll
+Validation layer: Searching for ICD drivers named .\nvoglv64.dll
+Validation layer: Loading layer library D:\VulkanSDK\1.4.304.1\Bin\.\VkLayer_khronos_validation.dll
+Validation layer: Loading layer library C:\Windows\System32\DriverStore\FileRepository\nvdm.inf_amd64_6471f03c03d2b425\.\nvoglv64.dll
+
+...
+
+Validation layer: Unloading layer library C:\Windows\System32\DriverStore\FileRepository\nvdm.inf_amd64_6471f03c03d2b425\.\nvoglv64.dll
+Validation layer: Unloading layer library D:\VulkanSDK\1.4.304.1\Bin\.\VkLayer_khronos_validation.dll
+
+D:\vulkan-compute-shader\x64\Debug\hello-validation.exe (process 9640) exited with code 0 (0x0).
+To automatically close the console when debugging stops, enable Tools->Options->Debugging->Automatically close the console when debugging stops.
 ```
