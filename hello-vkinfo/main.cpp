@@ -125,6 +125,17 @@ int main() {
 		}
 		fmt::print("\n");
 
+		// Print compute capabilities
+		fmt::println("Max Dimension 1D: {}", deviceProperties.limits.maxImageDimension1D);
+		fmt::println("Max Dimension 2D: {}", deviceProperties.limits.maxImageDimension2D);
+		fmt::println("Max Dimension 3D: {}", deviceProperties.limits.maxImageDimension3D);
+
+		fmt::println("Max Compute Work Group Count: [{}, {}, {}]", deviceProperties.limits.maxComputeWorkGroupCount[0], deviceProperties.limits.maxComputeWorkGroupCount[1], deviceProperties.limits.maxComputeWorkGroupCount[2]);
+		fmt::println("Max Compute Work Group Size: [{}, {}, {}]", deviceProperties.limits.maxComputeWorkGroupSize[0], deviceProperties.limits.maxComputeWorkGroupSize[1], deviceProperties.limits.maxComputeWorkGroupSize[2]);
+		fmt::println("Max Compute Work Group Invocations: {}", deviceProperties.limits.maxComputeWorkGroupInvocations);
+		fmt::println("Max Compute Shared Memory Size: {}", deviceProperties.limits.maxComputeSharedMemorySize);
+
+
 		// Print available extensions
 		//uint32_t extensionCount = 0;
 		//vkEnumerateDeviceExtensionProperties(device, nullptr , &extensionCount, nullptr);
