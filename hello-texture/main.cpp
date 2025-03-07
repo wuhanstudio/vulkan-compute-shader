@@ -24,6 +24,9 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
+// Testing texture data
+uint8_t testData[WIDTH * HEIGHT * 4];
+
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const std::vector<const char*> validationLayers = {
@@ -720,24 +723,58 @@ private:
     }
 
     void createTextureImage() {
-        int texWidth, texHeight, texChannels;
-        stbi_uc* pixels = stbi_load("texture/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-        VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-        if (!pixels) {
-            throw std::runtime_error("failed to load texture image!");
-        }
+        int texWidth = WIDTH;
+        int texHeight = HEIGHT;
+        int texChannels = 4;
 
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
-        createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
 
-        void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
-        memcpy(data, pixels, static_cast<size_t>(imageSize));
-        vkUnmapMemory(device, stagingBufferMemory);
+        if(true)
+        {
+            // Initialize the test texture data
+            for (int i = 0; i < WIDTH * HEIGHT; ++i) {
+                if (i < (WIDTH * HEIGHT / 2)) {
+                    testData[i * 4 + 0] = 255; // R
+                    testData[i * 4 + 1] = 0;   // G
+                    testData[i * 4 + 2] = 0;   // B
+                }
+                else
+                {
+                    testData[i * 4 + 0] = 0;   // R
+                    testData[i * 4 + 1] = 255; // G
+                    testData[i * 4 + 2] = 0;   // B
+                }
 
-        stbi_image_free(pixels);
+                testData[i * 4 + 3] = 255; // A
+            }
+			VkDeviceSize imageSize = WIDTH * HEIGHT * 4;
+            createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+            void* data;
+            vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
+            memcpy(data, testData, static_cast<size_t>(imageSize));
+            vkUnmapMemory(device, stagingBufferMemory);
+        }
+        else
+        {
+            stbi_uc* pixels = stbi_load("texture/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+            VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+            if (!pixels) {
+                throw std::runtime_error("failed to load texture image!");
+            }
+
+
+            createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+            void* data;
+            vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
+            memcpy(data, pixels, static_cast<size_t>(imageSize));
+            vkUnmapMemory(device, stagingBufferMemory);
+
+            stbi_image_free(pixels);
+        }
 
         createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
 
