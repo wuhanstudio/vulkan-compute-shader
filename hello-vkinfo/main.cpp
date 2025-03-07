@@ -79,12 +79,64 @@ int main() {
 		vkGetPhysicalDeviceProperties(device, &deviceProperties);
 		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
+		// Print device information
 		fmt::println("Device name: {}", deviceProperties.deviceName);
 		fmt::println("Device type: {}", vkPhysicalDeviceType_as_string(deviceProperties.deviceType));
 		fmt::println("API version: {}.{}.{}\n",
 			VK_VERSION_MAJOR(deviceProperties.apiVersion),
 			VK_VERSION_MINOR(deviceProperties.apiVersion),
 			VK_VERSION_PATCH(deviceProperties.apiVersion));
+
+		// Print queue families
+		uint32_t queueFamilyCount = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+		fmt::println("Queue families: {}", queueFamilyCount);
+		for (const auto& queueFamily : queueFamilies) {
+			fmt::print("  Queue count: {}", queueFamily.queueCount);
+			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+				fmt::print("| Graphics");
+			}
+			if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+				fmt::print("| Compute");
+			}
+			if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT) {
+				fmt::print("| Transfer");
+			}
+			if (queueFamily.queueFlags & VK_QUEUE_SPARSE_BINDING_BIT) {
+				fmt::print("| Sparse binding");
+			}
+			if (queueFamily.queueFlags & VK_QUEUE_PROTECTED_BIT) {
+				fmt::print("| Protected");
+			}
+			if (queueFamily.queueFlags & VK_QUEUE_VIDEO_DECODE_BIT_KHR) {
+				fmt::print("| Video Decode");
+			}
+			if (queueFamily.queueFlags & VK_QUEUE_VIDEO_ENCODE_BIT_KHR) {
+				fmt::print("| Video Encode");
+			}
+			if (queueFamily.queueFlags & VK_QUEUE_OPTICAL_FLOW_BIT_NV) {
+				fmt::print("| Optical Flow");
+			}
+			fmt::print("\n");
+		}
+		fmt::print("\n");
+
+		// Print available extensions
+		//uint32_t extensionCount = 0;
+		//vkEnumerateDeviceExtensionProperties(device, nullptr , &extensionCount, nullptr);
+
+		//std::vector<VkExtensionProperties> vk_extensions(extensionCount);
+		//vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, vk_extensions.data());
+
+		//fmt::println("Available extensions:");
+		//for (const auto& extension : vk_extensions) {
+			//fmt::println("{}", extension.extensionName);
+		//}
+		//fmt::print("\n");
 	}
 
 	// Destroy the Vulkan instance
