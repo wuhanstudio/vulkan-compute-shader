@@ -109,3 +109,30 @@ Validation layer: Unloading layer library D:\VulkanSDK\1.4.304.1\Bin\.\VkLayer_k
 D:\vulkan-compute-shader\x64\Debug\hello-validation.exe (process 9640) exited with code 0 (0x0).
 To automatically close the console when debugging stops, enable Tools->Options->Debugging->Automatically close the console when debugging stops.
 ```
+
+## Project 3: hello-surface
+
+This project prints out the surface capabilities of each physical device.
+
+```
+$ cd hello-surface
+$ cmake -B build --preset vcpkg
+$ cmake --build build
+$ ./build/hello-surface
+```
+
+Output:
+
+```
+Available devices:
+Device name: NVIDIA GeForce RTX 2080 Ti
+Device type: Discrete GPU
+API version: 1.3.280
+
+Queue families: 5
+  Queue count: 16| Graphics | Compute | Transfer | Sparse binding  [ Present Support ]
+  Queue count: 2| Transfer | Sparse binding
+  Queue count: 8| Compute | Transfer | Sparse binding  [ Present Support ]
+  Queue count: 1| Transfer | Sparse binding | Video Decode
+  Queue count: 1| Transfer | Sparse binding | Video Encode
+```

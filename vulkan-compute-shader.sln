@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-texture", "hello-text
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-validation", "hello-validation\hello-validation.vcxproj", "{B5818B68-DC73-4110-B7B5-3CDA6ADA4115}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-surface", "hello-surface\hello-surface.vcxproj", "{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -81,6 +83,14 @@ Global
 		{B5818B68-DC73-4110-B7B5-3CDA6ADA4115}.Release|x64.Build.0 = Release|x64
 		{B5818B68-DC73-4110-B7B5-3CDA6ADA4115}.Release|x86.ActiveCfg = Release|Win32
 		{B5818B68-DC73-4110-B7B5-3CDA6ADA4115}.Release|x86.Build.0 = Release|Win32
+		{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}.Debug|x64.ActiveCfg = Debug|x64
+		{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}.Debug|x64.Build.0 = Debug|x64
+		{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}.Debug|x86.ActiveCfg = Debug|Win32
+		{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}.Debug|x86.Build.0 = Debug|Win32
+		{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}.Release|x64.ActiveCfg = Release|x64
+		{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}.Release|x64.Build.0 = Release|x64
+		{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}.Release|x86.ActiveCfg = Release|Win32
+		{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

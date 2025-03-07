@@ -58,6 +58,11 @@ int main() {
 		fmt::print("Validation layers available\n");
 	}
 
+#ifdef NDEBUG
+	enableValidationLayers = false;
+	fmt::print("Running in release mode, validation layers disabled\n");
+#endif
+
 	// Initialize Vulkan
 	VkApplicationInfo appInfo = {};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
