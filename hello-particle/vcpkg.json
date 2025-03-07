@@ -1,0 +1,9 @@
+{
+  "dependencies": [
+    "fmt",
+    "glm",
+    "glfw3",
+    "vulkan"
+  ],
+  "builtin-baseline": "26abb5b33f976246a5f2cdc45cdd073d51caff06"
+}

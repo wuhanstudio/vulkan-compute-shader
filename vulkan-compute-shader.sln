@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-triangle", "hello-triangle\hello-triangle.vcxproj", "{FA3893DC-36CB-450F-BCFA-3F328AEBDA66}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-gray-scott", "hello-gray-scott\hello-gray-scott.vcxproj", "{387D5A2A-94F7-4531-9CFF-DA76A3FAA49F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-particle", "hello-particle\hello-particle.vcxproj", "{387D5A2A-94F7-4531-9CFF-DA76A3FAA49F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-fractal", "hello-fractal\hello-fractal.vcxproj", "{8BE3EAD9-B506-4B00-844F-72989C354F68}"
 EndProject

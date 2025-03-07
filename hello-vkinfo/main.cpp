@@ -72,7 +72,7 @@ int main() {
 	std::vector<VkPhysicalDevice> devices(physicalDeviceCount);
 	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, devices.data());
 
-	fmt::println("Available devices:");
+	fmt::println("Available devices:\n");
 	for (const auto& device : devices) {
 		VkPhysicalDeviceProperties deviceProperties;
 		VkPhysicalDeviceFeatures deviceFeatures;
@@ -134,7 +134,7 @@ int main() {
 		fmt::println("Max Compute Work Group Size: [{}, {}, {}]", deviceProperties.limits.maxComputeWorkGroupSize[0], deviceProperties.limits.maxComputeWorkGroupSize[1], deviceProperties.limits.maxComputeWorkGroupSize[2]);
 		fmt::println("Max Compute Work Group Invocations: {}", deviceProperties.limits.maxComputeWorkGroupInvocations);
 		fmt::println("Max Compute Shared Memory Size: {}", deviceProperties.limits.maxComputeSharedMemorySize);
-
+		fmt::print("\n");
 
 		// Print available extensions
 		//uint32_t extensionCount = 0;
