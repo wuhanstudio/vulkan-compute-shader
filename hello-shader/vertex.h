@@ -5,6 +5,11 @@
 
 #include <vector>
 #include <array>
+#include <stdexcept>
+
+#include "device.h"
+#include "command.h"
+#include "memory.h"
 
 extern VkBuffer vertexBuffer;
 extern VkDeviceMemory vertexBufferMemory;
@@ -55,3 +60,7 @@ const std::vector<Vertex> vertices = {
 const std::vector<uint16_t> indices = {
     0, 1, 2, 2, 3, 0
 };
+
+void createVertexBuffer();
+void createIndexBuffer();
+void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);

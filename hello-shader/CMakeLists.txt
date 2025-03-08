@@ -11,7 +11,7 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
 
-add_executable(hello-shader main.cpp instance.cpp validation.cpp device.cpp surface.cpp framebuffer.cpp imageview.cpp swapchain.cpp pipeline.cpp command.cpp vertex.cpp)
+add_executable(hello-shader main.cpp instance.cpp validation.cpp device.cpp surface.cpp framebuffer.cpp imageview.cpp swapchain.cpp pipeline.cpp command.cpp vertex.cpp memory.cpp texture.cpp)
 
 target_include_directories(hello-shader PRIVATE)
 target_link_libraries(hello-shader PRIVATE fmt::fmt glfw glm::glm Vulkan::Vulkan)
