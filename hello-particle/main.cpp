@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -173,8 +174,6 @@ private:
 
     float lastFrameTime = 0.0f;
 
-    bool framebufferResized = false;
-
     double lastTime = 0.0f;
 
     void initWindow() {
@@ -184,14 +183,8 @@ private:
 
         window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
         glfwSetWindowUserPointer(window, this);
-        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
         lastTime = glfwGetTime();
-    }
-
-    static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-        auto app = reinterpret_cast<ComputeShaderApplication*>(glfwGetWindowUserPointer(window));
-        app->framebufferResized = true;
     }
 
     void initVulkan() {
@@ -1192,8 +1185,7 @@ private:
 
         result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
-            framebufferResized = false;
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
             recreateSwapChain();
         }
         else if (result != VK_SUCCESS) {

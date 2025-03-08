@@ -170,8 +170,6 @@ private:
     uint32_t currentFrame = 0;
 	clock_t start_time;
 
-    bool framebufferResized = false;
-
     void initWindow() {
         glfwInit();
 
@@ -184,7 +182,6 @@ private:
 
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
         auto app = reinterpret_cast<HelloShadertoyApplication*>(glfwGetWindowUserPointer(window));
-        app->framebufferResized = true;
     }
 
     void initVulkan() {
@@ -1033,8 +1030,7 @@ private:
 
         result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
-            framebufferResized = false;
+        if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
             recreateSwapChain();
         }
         else if (result != VK_SUCCESS) {
