@@ -8,7 +8,7 @@ project(HelloValidation)
 find_package(fmt CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
 
-add_executable(hello-validation main.cpp)
+add_executable(hello-validation main.cpp validation.cpp)
 
 target_include_directories(hello-validation PRIVATE)
 target_link_libraries(hello-validation PRIVATE fmt::fmt Vulkan::Vulkan)
