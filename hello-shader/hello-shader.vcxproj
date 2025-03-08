@@ -24,6 +24,7 @@
     <ProjectGuid>{fa3893dc-36cb-450f-bcfa-3f328aebda66}</ProjectGuid>
     <RootNamespace>hellotriangle</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>hello-shader</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -144,10 +145,11 @@
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="swapchain.cpp" />
     <ClCompile Include="validation.cpp" />
+    <ClCompile Include="vertex.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader\triangle.frag" />
-    <None Include="shader\triangle.vert" />
+    <None Include="shader\texture.frag" />
+    <None Include="shader\texture.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="command.h" />
@@ -159,6 +161,7 @@
     <ClInclude Include="surface.h" />
     <ClInclude Include="swapchain.h" />
     <ClInclude Include="validation.h" />
+    <ClInclude Include="vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

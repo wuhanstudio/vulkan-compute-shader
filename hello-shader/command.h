@@ -5,6 +5,8 @@
 #include "device.h"
 #include "pipeline.h"
 
+#include "vertex.h"
+
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 extern VkCommandPool commandPool;
