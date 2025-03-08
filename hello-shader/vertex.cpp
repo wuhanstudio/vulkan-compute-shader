@@ -1,4 +1,5 @@
 #include "vertex.h"
+#include <cstring>
 
 VkBuffer vertexBuffer;
 VkDeviceMemory vertexBufferMemory;

@@ -1,4 +1,5 @@
 #include "texture.h"
+#include <cstring>
 
 VkImage textureImage;
 VkDeviceMemory textureImageMemory;
