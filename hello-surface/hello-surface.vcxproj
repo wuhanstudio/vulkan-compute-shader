@@ -134,10 +134,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="device.cpp" />
+    <ClCompile Include="imageview.cpp" />
+    <ClCompile Include="instance.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="surface.cpp" />
+    <ClCompile Include="swapchain.cpp" />
     <ClCompile Include="validation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="device.h" />
+    <ClInclude Include="imageview.h" />
+    <ClInclude Include="instance.h" />
+    <ClInclude Include="surface.h" />
+    <ClInclude Include="swapchain.h" />
     <ClInclude Include="validation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

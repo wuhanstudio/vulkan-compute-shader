@@ -9,7 +9,7 @@ find_package(fmt CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 
-add_executable(hello-surface main.cpp validation.cpp)
+add_executable(hello-surface main.cpp validation.cpp instance.cpp surface.cpp device.cpp swapchain.cpp imageview.cpp)
 
 target_include_directories(hello-surface PRIVATE)
 target_link_libraries(hello-surface PRIVATE fmt::fmt glfw Vulkan::Vulkan)
