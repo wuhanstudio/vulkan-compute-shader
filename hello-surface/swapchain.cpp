@@ -35,7 +35,7 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
     return details;
 }
 
-void cleanupSwapChain(VkDevice device) {
+void cleanupSwapChain(VkDevice device, VkSwapchainKHR swapChain) {
     for (auto imageView : swapChainImageViews) {
         vkDestroyImageView(device, imageView, nullptr);
     }

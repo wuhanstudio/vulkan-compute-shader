@@ -27,6 +27,6 @@ extern SwapChainSupportDetails swapChainSupport;
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 VkSwapchainKHR createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface);
-void cleanupSwapChain(VkDevice device);
+void cleanupSwapChain(VkDevice device, VkSwapchainKHR swapChain);
 
 void createImageViews();

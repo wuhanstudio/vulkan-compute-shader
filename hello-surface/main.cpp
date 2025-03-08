@@ -105,7 +105,7 @@ int main() {
 	}
 
 	// Clean up
-	cleanupSwapChain(device);
+	cleanupSwapChain(device, swapChain);
 
 	vkDestroyDevice(device, nullptr);
 
