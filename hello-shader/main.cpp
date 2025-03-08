@@ -39,11 +39,6 @@ std::vector<VkSemaphore> renderFinishedSemaphores;
 std::vector<VkFence> inFlightFences;
 uint32_t currentFrame = 0;
 
-bool framebufferResized = false;
-
-static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
-    framebufferResized = true;
-}
 
 static std::vector<char> readFile(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
@@ -137,8 +132,7 @@ void drawFrame() {
 
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
-        framebufferResized = false;
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
         recreateSwapChain(window);
     }
     else if (result != VK_SUCCESS) {
@@ -163,9 +157,6 @@ int main() {
 
         window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
         glfwSetKeyCallback(window, glfw_onKey);
-
-        //glfwSetWindowUserPointer(window, this);
-        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
         printExtensions();
         createInstance();
