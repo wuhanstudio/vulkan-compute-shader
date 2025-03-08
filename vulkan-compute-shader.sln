@@ -13,8 +13,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-shadertoy", "hello-sh
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-vkinfo", "hello-vkinfo\hello-vkinfo.vcxproj", "{CF8B6895-B854-4814-9B32-E57EE1956003}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-texture", "hello-texture\hello-texture.vcxproj", "{12F1D1BF-96FC-4236-A00E-896557713BC4}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-validation", "hello-validation\hello-validation.vcxproj", "{B5818B68-DC73-4110-B7B5-3CDA6ADA4115}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-surface", "hello-surface\hello-surface.vcxproj", "{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}"
@@ -69,14 +67,6 @@ Global
 		{CF8B6895-B854-4814-9B32-E57EE1956003}.Release|x64.Build.0 = Release|x64
 		{CF8B6895-B854-4814-9B32-E57EE1956003}.Release|x86.ActiveCfg = Release|Win32
 		{CF8B6895-B854-4814-9B32-E57EE1956003}.Release|x86.Build.0 = Release|Win32
-		{12F1D1BF-96FC-4236-A00E-896557713BC4}.Debug|x64.ActiveCfg = Debug|x64
-		{12F1D1BF-96FC-4236-A00E-896557713BC4}.Debug|x64.Build.0 = Debug|x64
-		{12F1D1BF-96FC-4236-A00E-896557713BC4}.Debug|x86.ActiveCfg = Debug|Win32
-		{12F1D1BF-96FC-4236-A00E-896557713BC4}.Debug|x86.Build.0 = Debug|Win32
-		{12F1D1BF-96FC-4236-A00E-896557713BC4}.Release|x64.ActiveCfg = Release|x64
-		{12F1D1BF-96FC-4236-A00E-896557713BC4}.Release|x64.Build.0 = Release|x64
-		{12F1D1BF-96FC-4236-A00E-896557713BC4}.Release|x86.ActiveCfg = Release|Win32
-		{12F1D1BF-96FC-4236-A00E-896557713BC4}.Release|x86.Build.0 = Release|Win32
 		{B5818B68-DC73-4110-B7B5-3CDA6ADA4115}.Debug|x64.ActiveCfg = Debug|x64
 		{B5818B68-DC73-4110-B7B5-3CDA6ADA4115}.Debug|x64.Build.0 = Debug|x64
 		{B5818B68-DC73-4110-B7B5-3CDA6ADA4115}.Debug|x86.ActiveCfg = Debug|Win32
