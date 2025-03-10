@@ -4,11 +4,8 @@
 #include <vulkan/vulkan.h>
 
 #include <fmt/core.h>
-#include <vector>
-#include <set>
-#include <algorithm>
-#include <optional>
 #include <iostream>
+#include <vector>
 
 #include "instance.h"
 #include "validation.h"
@@ -78,7 +75,8 @@ int main() {
 	}
 
 	// Initialize Vulkan
-	VkInstance instance = createInstance();
+	VkDebugUtilsMessengerEXT debugMessenger;
+	VkInstance instance = createInstance(&debugMessenger);
 
 	// Create a surface
 	VkSurfaceKHR surface = createSurface(window, instance);
@@ -90,22 +88,33 @@ int main() {
 
 	// Create a logical device
 	VkDevice device = createLogicalDevice(physicalDevice, surface);
+	QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
+
+	VkQueue graphicsQueue, presentQueue;
+	vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+	vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 
 	// Create a swapchain
-	VkSwapchainKHR swapChain = createSwapChain(window, physicalDevice, device, surface);
+	SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
 	fmt::println("Minimum Extent: {}x{}", swapChainSupport.capabilities.minImageExtent.width, swapChainSupport.capabilities.minImageExtent.height);
 	fmt::println("Maximum Extent: {}x{}", swapChainSupport.capabilities.maxImageExtent.width, swapChainSupport.capabilities.maxImageExtent.height);
+
+	std::vector<VkImage> swapChainImages;
+	VkFormat swapChainImageFormat;
+	VkExtent2D swapChainExtent;
+	VkSwapchainKHR swapChain = createSwapChain(window, physicalDevice, device, surface, swapChainImages, &swapChainImageFormat, &swapChainExtent);
 	fmt::println("Chosen Extent: {}x{}", swapChainExtent.width, swapChainExtent.height);
+	fmt::print("\n");
 
 	// Create image views
-	createImageViews(device);
-
+	std::vector<VkImageView> swapChainImageViews;
+	createImageViews(device, swapChainImageFormat, swapChainImageViews, swapChainImages);
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 	}
 
 	// Clean up
-	cleanupSwapChain(device, swapChain);
+	cleanupSwapChain(device, swapChain, swapChainImageViews);
 
 	vkDestroyDevice(device, nullptr);
 
@@ -118,6 +127,7 @@ int main() {
 	if (enableValidationLayers) {
 		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
 	}
+
 
 	// Destroy the Vulkan instance
 	vkDestroySurfaceKHR(instance, surface, nullptr);

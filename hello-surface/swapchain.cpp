@@ -5,12 +5,6 @@
 #include <algorithm>
 #include <limits>
 
-VkSwapchainKHR swapChain;
-std::vector<VkImage> swapChainImages;
-
-VkExtent2D swapChainExtent;
-SwapChainSupportDetails swapChainSupport;
-
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface) {
     SwapChainSupportDetails details;
 
@@ -35,7 +29,7 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
     return details;
 }
 
-void cleanupSwapChain(VkDevice device, VkSwapchainKHR swapChain) {
+void cleanupSwapChain(VkDevice device, VkSwapchainKHR swapChain, std::vector<VkImageView> swapChainImageViews) {
     for (auto imageView : swapChainImageViews) {
         vkDestroyImageView(device, imageView, nullptr);
     }
@@ -83,8 +77,8 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwi
     }
 }
 
-VkSwapchainKHR createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface) {
-    swapChainSupport = querySwapChainSupport(physicalDevice, surface);
+VkSwapchainKHR createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface, std::vector<VkImage> swapChainImages, VkFormat* swapChainImageFormat, VkExtent2D* swapChainExtent) {
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -132,8 +126,8 @@ VkSwapchainKHR createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevi
     swapChainImages.resize(imageCount);
     vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
 
-    swapChainImageFormat = surfaceFormat.format;
-    swapChainExtent = extent;
+    *swapChainImageFormat = surfaceFormat.format;
+    *swapChainExtent = extent;
 
     return swapChain;
 }

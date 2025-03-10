@@ -7,9 +7,6 @@
 #include "validation.h"
 #include "swapchain.h"
 
-VkQueue graphicsQueue;
-VkQueue presentQueue;
-
 void printDeviceName(VkPhysicalDevice device) {
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures deviceFeatures;
@@ -196,9 +193,10 @@ VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surfa
 #endif
 
     VkDevice device;
-    QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
 
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
     std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+   
     fmt::println("Graphics queue families: {}", indices.graphicsFamily.value());
     fmt::println("Present queue families: {}", indices.presentFamily.value());
 
@@ -229,9 +227,6 @@ VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surfa
     if (vkCreateDevice(physicalDevice, &deviceCreateInfo, nullptr, &device) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create logical device!");
     }
-
-    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-    vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 
     return device;
 }

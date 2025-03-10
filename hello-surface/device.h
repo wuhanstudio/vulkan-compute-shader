@@ -6,9 +6,6 @@
 
 #include "surface.h"
 
-extern VkQueue graphicsQueue;
-extern VkQueue presentQueue;
-
 const std::vector<const char*> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };

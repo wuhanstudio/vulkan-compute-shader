@@ -3,8 +3,6 @@
 #include <vector>
 #include <fmt/core.h>
 
-VkDebugUtilsMessengerEXT debugMessenger;
-
 bool checkValidationLayerSupport() {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);

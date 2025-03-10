@@ -10,9 +10,6 @@
 
 #include "imageview.h"
 
-extern VkExtent2D swapChainExtent;
-extern VkFormat swapChainImageFormat;
-
 const std::vector<const char*> swapchainExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
@@ -22,11 +19,8 @@ struct SwapChainSupportDetails {
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR> presentModes;
 };
-extern SwapChainSupportDetails swapChainSupport;
 
 SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
 
-VkSwapchainKHR createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface);
-void cleanupSwapChain(VkDevice device, VkSwapchainKHR swapChain);
-
-void createImageViews();
+VkSwapchainKHR createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface, std::vector<VkImage> swapChainImages, VkFormat* swapChainImageFormat, VkExtent2D* swapChainExtent);
+void cleanupSwapChain(VkDevice device, VkSwapchainKHR swapChain, std::vector<VkImageView> swapChainImageViews);

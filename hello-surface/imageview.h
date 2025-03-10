@@ -5,8 +5,4 @@
 
 #include "device.h"
 
-extern VkFormat swapChainImageFormat;
-extern std::vector<VkImage> swapChainImages;
-extern std::vector<VkImageView> swapChainImageViews;
-
-void createImageViews(VkDevice device);
+void createImageViews(VkDevice device, VkFormat swapChainImageFormat, std::vector<VkImageView> swapChainImageViews, std::vector<VkImage> swapChainImages);

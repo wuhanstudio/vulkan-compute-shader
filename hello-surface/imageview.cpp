@@ -3,10 +3,7 @@
 #include <vector>
 #include <stdexcept>
 
-VkFormat swapChainImageFormat;
-std::vector<VkImageView> swapChainImageViews;
-
-void createImageViews(VkDevice device) {
+void createImageViews(VkDevice device, VkFormat swapChainImageFormat, std::vector<VkImageView> swapChainImageViews, std::vector<VkImage> swapChainImages) {
     swapChainImageViews.resize(swapChainImages.size());
 
     for (size_t i = 0; i < swapChainImages.size(); i++) {

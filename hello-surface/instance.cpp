@@ -6,7 +6,7 @@
 #include <fmt/core.h>
 #include <vector>
 
-VkInstance createInstance()
+VkInstance createInstance(VkDebugUtilsMessengerEXT* debugMessenger)
 {
 	bool enableValidationLayers = checkValidationLayerSupport();
 	if (not enableValidationLayers) {
@@ -69,7 +69,7 @@ VkInstance createInstance()
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 		populateDebugMessengerCreateInfo(debugCreateInfo);
 
-		if (CreateDebugUtilsMessengerEXT(instance, &debugCreateInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+		if (CreateDebugUtilsMessengerEXT(instance, &debugCreateInfo, nullptr, debugMessenger) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to set up debug messenger!");
 		}
 	}
