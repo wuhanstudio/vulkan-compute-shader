@@ -1,19 +1,26 @@
+#pragma once
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifndef VULKAN_COMPTE_H
-#define VULKAN_COMPTE_H
-
 #include <vulkan/vulkan.h>
 
-extern VkDescriptorSet DescriptorSet;
+VkDescriptorSet vk_create_descriptor_set(
+    VkDevice vk_device,
+    VkDescriptorSetLayout vk_descriptor_set_layout,
+    VkDescriptorPool* vk_descriptor_pool
+);
 
-void PrepareCommandBuffer(void);
-int Compute(void);
-void CreateDescriptorSet(void);
+void vk_prepare_command_buffer(
+    VkDevice vk_device,
+    VkPipeline vk_pipeline,
+    VkPipelineLayout vk_pipeline_layout,
+    VkDescriptorSet vk_descriptor_set,
+    VkCommandPool vk_compute_cmd_pool
+);
 
-#endif // VULKAN_COMPTE_H
+int vk_compute(VkDevice vk_device, VkQueue vk_queue_compute);
 
 #ifdef __cplusplus
 }

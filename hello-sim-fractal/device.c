@@ -8,30 +8,23 @@ extern "C" {
 #include "instance.h"
 #include "memory.h"
 
-VkDevice LogicalDevice = VK_NULL_HANDLE;
-VkQueue ComputingQueue = VK_NULL_HANDLE;
-VkCommandPool ComputeCmdPool = VK_NULL_HANDLE;
-VkDescriptorPool DescriptorPool = VK_NULL_HANDLE;
-
-uint32_t ComputeQueueFamilyIndex;
-
-void CreateDeviceAndComputeQueue(void)
+VkDevice vk_create_device_and_compute_queue(VkPhysicalDevice vk_phy_device, uint32_t* vk_queue_family_index, VkQueue* vk_queue_compute)
 {
-    VkQueueFamilyProperties families[100];
-    uint32_t count = 100;
+    VkQueueFamilyProperties families[MAX_QUEUE_FAMILY];
+    uint32_t count = MAX_QUEUE_FAMILY;
 
-    vkGetPhysicalDeviceQueueFamilyProperties(PhysicalDevice, &count, families);
+    vkGetPhysicalDeviceQueueFamilyProperties(vk_phy_device, &count, families);
 
     printf("Found %u queue families\n", count);
-
-    ComputeQueueFamilyIndex = 0;
-    while ((ComputeQueueFamilyIndex < count) &&
-            (families[ComputeQueueFamilyIndex].queueFlags & VK_QUEUE_COMPUTE_BIT) == 0)
+     
+    uint32_t i = 0;
+    while ((i < count) &&
+            (families[i].queueFlags & VK_QUEUE_COMPUTE_BIT) == 0)
     {
-        ComputeQueueFamilyIndex++;
+        i++;
     }
-
-    if (ComputeQueueFamilyIndex == count)
+	*vk_queue_family_index = i;
+    if (*vk_queue_family_index == count)
     {
         printf("Compute queue not found\n");
         return;
@@ -41,13 +34,15 @@ void CreateDeviceAndComputeQueue(void)
 
     VkDeviceQueueCreateInfo queueCreateInfo;
     memset(&queueCreateInfo, 0, sizeof(queueCreateInfo));
+
     queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = ComputeQueueFamilyIndex;
+    queueCreateInfo.queueFamilyIndex = *vk_queue_family_index;
     queueCreateInfo.queueCount = 1;
     queueCreateInfo.pQueuePriorities = &prio;
 
     VkDeviceCreateInfo deviceCreateInfo;
     memset(&deviceCreateInfo, 0, sizeof(deviceCreateInfo));
+
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
     deviceCreateInfo.queueCreateInfoCount = 1;
@@ -57,30 +52,38 @@ void CreateDeviceAndComputeQueue(void)
     // features.shaderFloat64 = VK_TRUE;
     // deviceCreateInfo.pEnabledFeatures = &features;
 
-    if (vkCreateDevice(PhysicalDevice, &deviceCreateInfo, NULL, &LogicalDevice) != VK_SUCCESS)
+    VkDevice vk_device;
+    if (vkCreateDevice(vk_phy_device, &deviceCreateInfo, NULL, &vk_device) != VK_SUCCESS)
     {
         printf("Failed to crate logical device\n");
         return;
     }
-    vkGetDeviceQueue(LogicalDevice, ComputeQueueFamilyIndex, 0, &ComputingQueue);
+    vkGetDeviceQueue(vk_device, *vk_queue_family_index, 0, vk_queue_compute);
+    
+	return vk_device;
 }
  
-void CreateCommandPool(void)
+VkCommandPool vk_create_command_pool(VkDevice vk_device, uint32_t vk_queue_family_index)
 {
+	VkCommandPool vk_compute_cmd_pool = VK_NULL_HANDLE;
+
     VkCommandPoolCreateInfo poolCreateInfo;
     memset(&poolCreateInfo, 0, sizeof(poolCreateInfo));
     poolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolCreateInfo.queueFamilyIndex = ComputeQueueFamilyIndex;
+    poolCreateInfo.queueFamilyIndex = vk_queue_family_index;
 
-    if (vkCreateCommandPool(LogicalDevice, &poolCreateInfo, NULL, &ComputeCmdPool) != VK_SUCCESS)
+    if (vkCreateCommandPool(vk_device, &poolCreateInfo, NULL, &vk_compute_cmd_pool) != VK_SUCCESS)
     {
         printf("Failed to create a command pool\n");
-        return;
+		return VK_NULL_HANDLE;
     }
+	return vk_compute_cmd_pool;
 }
 
-void CreateDescriptorPool(void)
+VkDescriptorPool vk_create_descriptor_pool(VkDevice vk_device)
 {
+	VkDescriptorPool vk_descriptor_pool = VK_NULL_HANDLE;
+
     VkDescriptorPoolSize descriptorPoolSize;
     memset(&descriptorPoolSize, 0, sizeof(descriptorPoolSize));
     descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -93,29 +96,36 @@ void CreateDescriptorPool(void)
     descriptorPoolCreateInfo.pPoolSizes = &descriptorPoolSize;
     descriptorPoolCreateInfo.poolSizeCount = 1;
 
-    if (vkCreateDescriptorPool(LogicalDevice, &descriptorPoolCreateInfo, NULL, &DescriptorPool) != VK_SUCCESS)
+    if (vkCreateDescriptorPool(vk_device, &descriptorPoolCreateInfo, NULL, &vk_descriptor_pool) != VK_SUCCESS)
     {
         printf("Failed to create the descriptor pool.\n");
     }
+
+	return vk_descriptor_pool;
 }
 
-void DestroyCommandPoolAndLogicalDevice(void)
+void vk_destroy_command_pool_and_device(
+    VkDevice vk_device, 
+    VkBuffer vk_input_buffer, 
+    VkBuffer vk_output_buffer,
+	VkDescriptorPool vk_descriptor_pool,
+    VkCommandPool vk_compute_cmd_pool)
 {
-    if (ComputeCmdPool != VK_NULL_HANDLE)
+    if (vk_compute_cmd_pool != VK_NULL_HANDLE)
     {
-        vkDestroyCommandPool(LogicalDevice, ComputeCmdPool, NULL);
+        vkDestroyCommandPool(vk_device, vk_compute_cmd_pool, NULL);
     }
 
-    if (DescriptorPool != VK_NULL_HANDLE)
+    if (vk_descriptor_pool != VK_NULL_HANDLE)
     {
-        vkDestroyDescriptorPool(LogicalDevice, DescriptorPool, NULL);
+        vkDestroyDescriptorPool(vk_device, vk_descriptor_pool, NULL);
     }
 
-    DestroyBuffers();
+    vk_destroy_buffers(vk_device, vk_input_buffer, vk_output_buffer);
 
-    if (LogicalDevice != VK_NULL_HANDLE)
+    if (vk_device != VK_NULL_HANDLE)
     {
-        vkDestroyDevice(LogicalDevice, NULL);
+        vkDestroyDevice(vk_device, NULL);
     }
 }
 

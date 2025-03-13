@@ -7,18 +7,17 @@
 #include <time.h>
 #include <string.h>
 
-#include "compute.h"
 #include "instance.h"
 #include "device.h"
-#include "pipeline.h"
+#include "compute.h"
 #include "memory.h"
+#include "pipeline.h"
 
 #define width 1000
 #define height 1000
 
-uint32_t InputData[width];
-uint32_t OutputData[height][width];
-
+uint32_t vk_input_data[width];
+uint32_t vk_output_data[height][width];
 
 double getTime()
 {
@@ -34,7 +33,7 @@ double getTime()
 	 return microseconds;
 }
 
-void generate()
+void generate_fractal_cpu()
 {
     for (uint32_t row = 0; row < height; row++)
     {
@@ -51,25 +50,39 @@ void generate()
                 r = temp;
                 cnt++;
             }
-            OutputData[row][col] = (cnt << 10) | 0xff000000;
+            vk_output_data[row][col] = (cnt << 10) | 0xff000000;
         }
     }
 }
 
 int main(int ac, char** av)
 {
-    CreateInstance();
-    GetPhysicalDevice();
-    CreateDeviceAndComputeQueue();
-    CreatePipeline();
-    CreateDescriptorSet();
-    CreateBuffers(sizeof(InputData), sizeof(OutputData));
-    CreateCommandPool();
-    PrepareCommandBuffer();
-    CopyToInputBuffer(InputData, sizeof(InputData));
+    VkInstance vk_instance = vk_create_instance();
+    VkPhysicalDevice vk_phy_device = vk_create_physical_device(vk_instance);
+
+    VkQueue  vk_queue_compute = VK_NULL_HANDLE;
+	uint32_t vk_queue_family_index = 0;
+    VkDevice vk_device = vk_create_device_and_compute_queue(vk_phy_device, &vk_queue_family_index, &vk_queue_compute);
+
+    VkDescriptorSetLayout vk_descriptor_set_layout = vk_create_descriptor_set_layout(vk_device);
+
+    VkPipelineLayout vk_pipeline_layout;
+    VkPipeline vk_pipeline = vk_create_pipline(vk_device, &vk_pipeline_layout, vk_descriptor_set_layout);
+
+    VkDescriptorPool vk_descriptor_pool;
+    VkDescriptorSet vk_descriptor_set = vk_create_descriptor_set(vk_device, vk_descriptor_set_layout, &vk_descriptor_pool);
+
+    VkBuffer vk_input_buffer = VK_NULL_HANDLE;
+    VkBuffer vk_output_buffer = VK_NULL_HANDLE;
+    vk_create_buffers(vk_phy_device, vk_device, vk_descriptor_set, sizeof(vk_input_data), sizeof(vk_output_data), &vk_input_buffer, &vk_output_buffer);
+
+    VkCommandPool vk_compute_cmd_pool = vk_create_command_pool(vk_device, vk_queue_family_index);
+    vk_prepare_command_buffer(vk_device, vk_pipeline, vk_pipeline_layout, vk_descriptor_set, vk_compute_cmd_pool);
+ 
+    vk_copy_to_input_buffer(vk_device, vk_input_data, sizeof(vk_input_data));
 
     double time = getTime();
-    generate();
+    generate_fractal_cpu();
     time = getTime() - time;
     printf("CPU fractal: %f ms.\n", time / 1000.0f);
 
@@ -81,7 +94,7 @@ int main(int ac, char** av)
     {
         for (int col = 0; col < width; col++)
         {
-            uint32_t color = OutputData[row][col];
+            uint32_t color = vk_output_data[row][col];
 
             // Extract each channel from the 32-bit packed color
             image_data[(row * width + col) * 4 + 0] = (color >> 16) & 0xFF;  // Red
@@ -92,13 +105,17 @@ int main(int ac, char** av)
     }
     stbi_write_png("fractal_cpu.png", width, height, 4, image_data, width * 4);
 
-    memset(OutputData, 0, sizeof(OutputData));
+	// Clear the output data
+    memset(vk_output_data, 0, sizeof(vk_output_data));
+
     time = getTime();
-    Compute();
+    vk_compute(vk_device, vk_queue_compute);
     time = getTime() - time;
+
     printf("GPU fractal: %f ms.\n", time / 1000.0f);
 
-    CopyFromOutputBuffer(OutputData, sizeof(OutputData));
+	// Copy the output data from the GPU to the CPU
+    vk_copy_from_output_buffer(vk_device, vk_output_data, sizeof(vk_output_data));
 
     memset(image_data, 0, sizeof(image_data));
 
@@ -107,7 +124,7 @@ int main(int ac, char** av)
     {
         for (int col = 0; col < width; col++)
         {
-            uint32_t color = OutputData[row][col];
+            uint32_t color = vk_output_data[row][col];
 
             // Extract each channel from the 32-bit packed color
             image_data[(row * width + col) * 4 + 0] = (color >> 16) & 0xFF;  // Red
@@ -120,8 +137,8 @@ int main(int ac, char** av)
 
     free(image_data);
 
-    DestroyPipeline();
-    DestroyCommandPoolAndLogicalDevice();
+    vk_destroy_pipeline(vk_device, vk_pipeline, vk_pipeline_layout, vk_descriptor_set_layout);
+    vk_destroy_command_pool_and_device(vk_device, vk_input_buffer, vk_output_buffer, vk_descriptor_pool, vk_compute_cmd_pool);
 
     return 0;
 }
