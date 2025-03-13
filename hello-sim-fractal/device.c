@@ -27,7 +27,7 @@ VkDevice vk_create_device_and_compute_queue(VkPhysicalDevice vk_phy_device, uint
     if (*vk_queue_family_index == count)
     {
         printf("Compute queue not found\n");
-        return;
+        return VK_NULL_HANDLE;
     }
 
     float prio = 1.0f;
@@ -56,7 +56,7 @@ VkDevice vk_create_device_and_compute_queue(VkPhysicalDevice vk_phy_device, uint
     if (vkCreateDevice(vk_phy_device, &deviceCreateInfo, NULL, &vk_device) != VK_SUCCESS)
     {
         printf("Failed to crate logical device\n");
-        return;
+        return VK_NULL_HANDLE;
     }
     vkGetDeviceQueue(vk_device, *vk_queue_family_index, 0, vk_queue_compute);
     
