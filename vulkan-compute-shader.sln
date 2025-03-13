@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-shader", "hello-shade
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-particle", "hello-particle\hello-particle.vcxproj", "{387D5A2A-94F7-4531-9CFF-DA76A3FAA49F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-fractal", "hello-fractal\hello-fractal.vcxproj", "{8BE3EAD9-B506-4B00-844F-72989C354F68}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-shadertoy", "hello-shadertoy\hello-shadertoy.vcxproj", "{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-vkinfo", "hello-vkinfo\hello-vkinfo.vcxproj", "{CF8B6895-B854-4814-9B32-E57EE1956003}"
@@ -18,6 +16,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-surface", "hello-surface\hello-surface.vcxproj", "{BF665209-1E4E-4B96-B5FB-49BD601F3B6C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-lbm", "hello-lbm\hello-lbm.vcxproj", "{F88B5AAF-224C-4DFB-8A2E-9C4B852BBF89}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello-sim-fractal", "hello-sim-fractal\hello-fractal.vcxproj", "{8BE3EAD9-B506-4B00-844F-72989C354F68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,14 +43,6 @@ Global
 		{387D5A2A-94F7-4531-9CFF-DA76A3FAA49F}.Release|x64.Build.0 = Release|x64
 		{387D5A2A-94F7-4531-9CFF-DA76A3FAA49F}.Release|x86.ActiveCfg = Release|Win32
 		{387D5A2A-94F7-4531-9CFF-DA76A3FAA49F}.Release|x86.Build.0 = Release|Win32
-		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Debug|x64.ActiveCfg = Debug|x64
-		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Debug|x64.Build.0 = Debug|x64
-		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Debug|x86.ActiveCfg = Debug|Win32
-		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Debug|x86.Build.0 = Debug|Win32
-		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x64.ActiveCfg = Release|x64
-		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x64.Build.0 = Release|x64
-		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x86.ActiveCfg = Release|Win32
-		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x86.Build.0 = Release|Win32
 		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Debug|x64.ActiveCfg = Debug|x64
 		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Debug|x64.Build.0 = Debug|x64
 		{C98060DC-9F3D-4DBB-BBDD-F84DD017BE03}.Debug|x86.ActiveCfg = Debug|Win32
@@ -91,6 +83,14 @@ Global
 		{F88B5AAF-224C-4DFB-8A2E-9C4B852BBF89}.Release|x64.Build.0 = Release|x64
 		{F88B5AAF-224C-4DFB-8A2E-9C4B852BBF89}.Release|x86.ActiveCfg = Release|Win32
 		{F88B5AAF-224C-4DFB-8A2E-9C4B852BBF89}.Release|x86.Build.0 = Release|Win32
+		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Debug|x64.ActiveCfg = Debug|x64
+		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Debug|x64.Build.0 = Debug|x64
+		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Debug|x86.ActiveCfg = Debug|Win32
+		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Debug|x86.Build.0 = Debug|Win32
+		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x64.ActiveCfg = Release|x64
+		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x64.Build.0 = Release|x64
+		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x86.ActiveCfg = Release|Win32
+		{8BE3EAD9-B506-4B00-844F-72989C354F68}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
