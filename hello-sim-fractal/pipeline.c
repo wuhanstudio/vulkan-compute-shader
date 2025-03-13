@@ -81,7 +81,7 @@ VkPipelineLayout vk_create_pipeline_layout(VkDevice vk_device, VkDescriptorSetLa
     if (vkCreatePipelineLayout(vk_device, &createLayout, NULL, &vk_pipeline_layout) != VK_SUCCESS)
     {
         printf("Failed to create the pipeline layout.\n");
-        return;
+        return VK_NULL_HANDLE;
     }
 	return vk_pipeline_layout;
 }
@@ -104,7 +104,7 @@ VkPipeline vk_create_pipline(VkDevice vk_device, VkPipelineLayout* vk_pipeline_l
     if (vkCreateComputePipelines(vk_device, VK_NULL_HANDLE, 1, &createPipeline, NULL, &vk_pipeline) != VK_SUCCESS)
     {
         printf("Failed to create a pipeline.\n");
-        return;
+        return VK_NULL_HANDLE;
     }
 
     vkDestroyShaderModule(vk_device, createPipeline.stage.module, NULL);
