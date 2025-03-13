@@ -136,3 +136,47 @@ Queue families: 5
   Queue count: 1| Transfer | Sparse binding | Video Decode
   Queue count: 1| Transfer | Sparse binding | Video Encode
 ```
+
+## Project 4: hello-fractal
+
+This project calculates the fractal on CPU and GPU, respectivily.
+
+```
+$ cd hello-sim-fractal
+$ cmake -B build --preset vcpkg
+$ cmake --build build
+$ ./build/hello-fractal
+```
+
+![](fractal.png)
+
+Output:
+```
+Number of physical devices: 2
+
+Available devices:
+
+Device name: Intel(R) Arc(TM) GraphicsDevice type: Integrated GPUAPI version: 1.3.277
+Queue families: 4
+  Queue count: 1 | Graphics | Compute | Transfer | Sparse binding
+  Queue count: 1 | Compute
+  Queue count: 1 | Transfer
+  Queue count: 2 | Video Decode
+
+Device name: NVIDIA RTX 1000 Ada Generation Laptop GPUDevice type: Discrete GPUAPI version: 1.3.277
+Queue families: 6
+  Queue count: 16 | Graphics | Compute | Transfer | Sparse binding
+  Queue count: 2 | Transfer | Sparse binding
+  Queue count: 8 | Compute | Transfer | Sparse binding
+  Queue count: 1 | Transfer | Sparse binding | Video Decode
+  Queue count: 1 | Transfer | Sparse binding | Video Encode
+  Queue count: 1 | Transfer | Sparse binding | Optical Flow
+
+Choose a physical device:
+Device index from 0 to 1:
+1
+Chosen Device 1
+Found 6 queue families
+CPU fractal: 236.100000 ms.
+GPU fractal: 1.890000 ms.
+```
