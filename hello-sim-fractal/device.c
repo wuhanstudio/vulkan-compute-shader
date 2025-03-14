@@ -47,11 +47,6 @@ VkDevice vk_create_device_and_compute_queue(VkPhysicalDevice vk_phy_device, uint
     deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
     deviceCreateInfo.queueCreateInfoCount = 1;
 
-    // VkPhysicalDeviceFeatures features;
-    // memset(&features, 0, sizeof(features));
-    // features.shaderFloat64 = VK_TRUE;
-    // deviceCreateInfo.pEnabledFeatures = &features;
-
     VkDevice vk_device;
     if (vkCreateDevice(vk_phy_device, &deviceCreateInfo, NULL, &vk_device) != VK_SUCCESS)
     {
@@ -102,31 +97,6 @@ VkDescriptorPool vk_create_descriptor_pool(VkDevice vk_device)
     }
 
 	return vk_descriptor_pool;
-}
-
-void vk_destroy_command_pool_and_device(
-    VkDevice vk_device, 
-    VkBuffer vk_input_buffer, 
-    VkBuffer vk_output_buffer,
-	VkDescriptorPool vk_descriptor_pool,
-    VkCommandPool vk_compute_cmd_pool)
-{
-    if (vk_compute_cmd_pool != VK_NULL_HANDLE)
-    {
-        vkDestroyCommandPool(vk_device, vk_compute_cmd_pool, NULL);
-    }
-
-    if (vk_descriptor_pool != VK_NULL_HANDLE)
-    {
-        vkDestroyDescriptorPool(vk_device, vk_descriptor_pool, NULL);
-    }
-
-    vk_destroy_buffers(vk_device, vk_input_buffer, vk_output_buffer);
-
-    if (vk_device != VK_NULL_HANDLE)
-    {
-        vkDestroyDevice(vk_device, NULL);
-    }
 }
 
 #ifdef __cplusplus

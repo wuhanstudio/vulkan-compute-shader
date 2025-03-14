@@ -9,10 +9,10 @@ extern "C" {
 VkDescriptorSet vk_create_descriptor_set(
     VkDevice vk_device,
     VkDescriptorSetLayout vk_descriptor_set_layout,
-    VkDescriptorPool* vk_descriptor_pool
+    VkDescriptorPool vk_descriptor_pool
 );
 
-void vk_prepare_command_buffer(
+VkCommandBuffer vk_prepare_command_buffer(
     VkDevice vk_device,
     VkPipeline vk_pipeline,
     VkPipelineLayout vk_pipeline_layout,
@@ -20,7 +20,7 @@ void vk_prepare_command_buffer(
     VkCommandPool vk_compute_cmd_pool
 );
 
-int vk_compute(VkDevice vk_device, VkQueue vk_queue_compute);
+int vk_compute(VkDevice vk_device, VkQueue vk_queue_compute, VkCommandBuffer vk_command_buffer);
 
 #ifdef __cplusplus
 }

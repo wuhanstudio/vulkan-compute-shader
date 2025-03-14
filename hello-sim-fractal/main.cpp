@@ -55,31 +55,71 @@ void generate_fractal_cpu()
     }
 }
 
-int main(int ac, char** av)
+
+VkDescriptorSetLayout vk_create_descriptor_set_layout(VkDevice vk_device)
 {
+    VkDescriptorSetLayoutBinding bindings[2];
+    memset(&bindings, 0, sizeof(bindings));
+
+    bindings[0].binding = 0;
+    bindings[0].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    bindings[0].descriptorCount = 1;
+
+    bindings[1].binding = 1;
+    bindings[1].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+    bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    bindings[1].descriptorCount = 1;
+
+    VkDescriptorSetLayoutCreateInfo createInfo;
+    memset(&createInfo, 0, sizeof(createInfo));
+    createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    createInfo.bindingCount = 2;
+    createInfo.pBindings = bindings;
+
+    VkDescriptorSetLayout vk_descriptor_set_layout = VK_NULL_HANDLE;
+    if (vkCreateDescriptorSetLayout(vk_device, &createInfo, NULL, &vk_descriptor_set_layout) != VK_SUCCESS)
+    {
+        printf("Failed to create a descriptor set layout handle.'n");
+    }
+    return vk_descriptor_set_layout;
+}
+
+int main(int argc, char* argv[])
+{
+	// Create a Vulkan instance and select a physical device
     VkInstance vk_instance = vk_create_instance();
     VkPhysicalDevice vk_phy_device = vk_create_physical_device(vk_instance);
 
+	// Create a logical device and a compute queue
     VkQueue  vk_queue_compute = VK_NULL_HANDLE;
 	uint32_t vk_queue_family_index = 0;
     VkDevice vk_device = vk_create_device_and_compute_queue(vk_phy_device, &vk_queue_family_index, &vk_queue_compute);
 
+	// Define bindings for the descriptor set layout
+	VkDescriptorPool vk_descriptor_pool = vk_create_descriptor_pool(vk_device);
     VkDescriptorSetLayout vk_descriptor_set_layout = vk_create_descriptor_set_layout(vk_device);
 
-    VkPipelineLayout vk_pipeline_layout;
-    VkPipeline vk_pipeline = vk_create_pipline(vk_device, &vk_pipeline_layout, vk_descriptor_set_layout);
+    VkDescriptorSet vk_descriptor_set = vk_create_descriptor_set(vk_device, vk_descriptor_set_layout, vk_descriptor_pool);
 
-    VkDescriptorPool vk_descriptor_pool;
-    VkDescriptorSet vk_descriptor_set = vk_create_descriptor_set(vk_device, vk_descriptor_set_layout, &vk_descriptor_pool);
+	// Create buffers for the input and output data
+    VkDeviceMemory vk_input_buffer_memory = VK_NULL_HANDLE;
+    VkDeviceMemory vk_output_buffer_emory = VK_NULL_HANDLE;
 
-    VkBuffer vk_input_buffer = VK_NULL_HANDLE;
-    VkBuffer vk_output_buffer = VK_NULL_HANDLE;
-    vk_create_buffers(vk_phy_device, vk_device, vk_descriptor_set, sizeof(vk_input_data), sizeof(vk_output_data), &vk_input_buffer, &vk_output_buffer);
+    VkBuffer vk_input_buffer = vk_create_buffer_and_memory(vk_phy_device, vk_device, sizeof(vk_input_data), &vk_input_buffer_memory);
+    VkBuffer vk_output_buffer = vk_create_buffer_and_memory(vk_phy_device, vk_device, sizeof(vk_output_data), &vk_output_buffer_emory);
+
+    vk_create_buffers(vk_device, vk_descriptor_set, sizeof(vk_input_data), sizeof(vk_output_data), vk_input_buffer, vk_output_buffer);
+
+	// Create a pipeline and a command pool
+    VkPipelineLayout vk_pipeline_layout = vk_create_pipeline_layout(vk_device, vk_descriptor_set_layout);
+    VkPipeline vk_pipeline = vk_create_pipline(vk_device, vk_pipeline_layout, vk_descriptor_set_layout);
 
     VkCommandPool vk_compute_cmd_pool = vk_create_command_pool(vk_device, vk_queue_family_index);
-    vk_prepare_command_buffer(vk_device, vk_pipeline, vk_pipeline_layout, vk_descriptor_set, vk_compute_cmd_pool);
+    VkCommandBuffer vk_command_buffer = vk_prepare_command_buffer(vk_device, vk_pipeline, vk_pipeline_layout, vk_descriptor_set, vk_compute_cmd_pool);
  
-    vk_copy_to_input_buffer(vk_device, vk_input_data, sizeof(vk_input_data));
+	// Copy the input data to the GPU
+    vk_copy_to_input_buffer(vk_device, vk_input_data, sizeof(vk_input_data), vk_input_buffer_memory);
 
     double time = getTime();
     generate_fractal_cpu();
@@ -109,13 +149,13 @@ int main(int ac, char** av)
     memset(vk_output_data, 0, sizeof(vk_output_data));
 
     time = getTime();
-    vk_compute(vk_device, vk_queue_compute);
+    vk_compute(vk_device, vk_queue_compute, vk_command_buffer);
     time = getTime() - time;
 
     printf("GPU fractal: %f ms.\n", time / 1000.0f);
 
 	// Copy the output data from the GPU to the CPU
-    vk_copy_from_output_buffer(vk_device, vk_output_data, sizeof(vk_output_data));
+    vk_copy_from_output_buffer(vk_device, vk_output_data, sizeof(vk_output_data), vk_output_buffer_emory);
 
     memset(image_data, 0, sizeof(image_data));
 
@@ -138,7 +178,13 @@ int main(int ac, char** av)
     free(image_data);
 
     vk_destroy_pipeline(vk_device, vk_pipeline, vk_pipeline_layout, vk_descriptor_set_layout);
-    vk_destroy_command_pool_and_device(vk_device, vk_input_buffer, vk_output_buffer, vk_descriptor_pool, vk_compute_cmd_pool);
+
+    vkDestroyCommandPool(vk_device, vk_compute_cmd_pool, NULL);
+    vkDestroyDescriptorPool(vk_device, vk_descriptor_pool, NULL);
+
+    vk_destroy_buffers(vk_device, vk_input_buffer, vk_output_buffer, vk_input_buffer_memory, vk_output_buffer_emory);
+
+    vkDestroyDevice(vk_device, NULL);
 
     return 0;
 }

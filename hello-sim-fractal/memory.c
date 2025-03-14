@@ -10,9 +10,6 @@ extern "C" {
 #include "instance.h"
 #include "compute.h"
 
-VkDeviceMemory InputBufferMemory = VK_NULL_HANDLE;
-VkDeviceMemory OutputBufferMemory = VK_NULL_HANDLE;
-
 uint32_t FindMemoryIndexByType(VkPhysicalDevice PhysicalDevice, uint32_t allowedTypesMask, VkMemoryPropertyFlags flags)
 {
     VkPhysicalDeviceMemoryProperties memProperties;
@@ -34,11 +31,10 @@ uint32_t FindMemoryIndexByType(VkPhysicalDevice PhysicalDevice, uint32_t allowed
     return 0;
 }
 
-VkBuffer vk_create_buffer_and_memory(VkPhysicalDevice vk_phy_device, VkDevice vk_device, uint32_t size, VkDeviceMemory *deviceMemory)
+VkBuffer vk_create_buffer_and_memory(
+    VkPhysicalDevice vk_phy_device, VkDevice vk_device, 
+    uint32_t size, VkDeviceMemory* deviceMemory)
 {
-    VkBuffer buffer;
-    VkDeviceMemory memory;
-
     VkBufferCreateInfo bufferInfo;
     memset(&bufferInfo, 0, sizeof(bufferInfo));
 
@@ -47,6 +43,7 @@ VkBuffer vk_create_buffer_and_memory(VkPhysicalDevice vk_phy_device, VkDevice vk
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     bufferInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 
+    VkBuffer buffer;
     if (vkCreateBuffer(vk_device, &bufferInfo, NULL, &buffer) != VK_SUCCESS)
     {
         printf("Failed to create a buffer.\n");
@@ -58,38 +55,42 @@ VkBuffer vk_create_buffer_and_memory(VkPhysicalDevice vk_phy_device, VkDevice vk
     
     VkMemoryAllocateInfo memAllocInfo;
     memset(&memAllocInfo, 0, sizeof(memAllocInfo));
+
     memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     memAllocInfo.allocationSize = memoryRequirements.size;
     memAllocInfo.memoryTypeIndex = FindMemoryIndexByType(vk_phy_device, memoryRequirements.memoryTypeBits,
                                         VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
                                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
 
-    if (vkAllocateMemory(vk_device, &memAllocInfo, NULL, &memory) != VK_SUCCESS)
+    if (vkAllocateMemory(vk_device, &memAllocInfo, NULL, deviceMemory) != VK_SUCCESS)
     {
         printf("Failed to allocate memory for the buffer.\n");
         vkDestroyBuffer(vk_device, buffer, NULL);
         return VK_NULL_HANDLE;
     }
 
-    if (vkBindBufferMemory(vk_device, buffer, memory, 0) != VK_SUCCESS)
+    if (vkBindBufferMemory(vk_device, buffer, *deviceMemory, 0) != VK_SUCCESS)
     {
         printf("Failed to bind buffer and memory.\n");
     }
 
-    *deviceMemory = memory;
     return buffer;
 }
 
-void vk_create_buffers(VkPhysicalDevice vk_phy_device, VkDevice vk_device, VkDescriptorSet vk_descriptor_set, uint32_t vk_input_size, uint32_t vk_output_size, VkBuffer* vk_input_buffer, VkBuffer* vk_output_buffer)
+void vk_create_buffers(
+    VkDevice vk_device, 
+    VkDescriptorSet vk_descriptor_set, 
+    uint32_t vk_input_size, 
+    uint32_t vk_output_size, 
+    VkBuffer vk_input_buffer, 
+    VkBuffer vk_output_buffer)
 {
-    *vk_input_buffer = vk_create_buffer_and_memory(vk_phy_device, vk_device, vk_input_size, &InputBufferMemory);
-    *vk_output_buffer = vk_create_buffer_and_memory(vk_phy_device, vk_device, vk_output_size, &OutputBufferMemory);
-
     VkDescriptorBufferInfo descriptorBuffers[2];
-    descriptorBuffers[0].buffer = *vk_input_buffer;
+    descriptorBuffers[0].buffer = vk_input_buffer;
     descriptorBuffers[0].offset = 0;
     descriptorBuffers[0].range = vk_input_size;
-    descriptorBuffers[1].buffer = *vk_output_buffer;
+
+    descriptorBuffers[1].buffer = vk_output_buffer;
     descriptorBuffers[1].offset = 0;
     descriptorBuffers[1].range = vk_output_size;
 
@@ -105,19 +106,22 @@ void vk_create_buffers(VkPhysicalDevice vk_phy_device, VkDevice vk_device, VkDes
     vkUpdateDescriptorSets(vk_device, 1, &writeDescriptorSet, 0, NULL);
 }
 
-void vk_destroy_buffers(VkDevice vk_device, VkBuffer vk_input_buffer, VkBuffer vk_output_buffer)
+void vk_destroy_buffers(VkDevice vk_device, 
+    VkBuffer vk_input_buffer, VkBuffer vk_output_buffer,
+    VkDeviceMemory vk_input_buffer_memory, VkDeviceMemory vk_output_buffer_memory)
 {
     vkDestroyBuffer(vk_device, vk_input_buffer, NULL);
-    vkFreeMemory(vk_device, InputBufferMemory, NULL);
+    vkFreeMemory(vk_device, vk_input_buffer_memory, NULL);
+
     vkDestroyBuffer(vk_device, vk_output_buffer, NULL);
-    vkFreeMemory(vk_device, OutputBufferMemory, NULL);
+    vkFreeMemory(vk_device, vk_output_buffer_memory, NULL);
 }
 
-void vk_copy_to_input_buffer(VkDevice vk_device, void *data, uint32_t size)
+void vk_copy_to_input_buffer(VkDevice vk_device, void *data, uint32_t size, VkDeviceMemory vk_input_buffer_memory)
 {
     void *address;
 
-    if (vkMapMemory(vk_device, InputBufferMemory, 0, size, 0, &address) != VK_SUCCESS)
+    if (vkMapMemory(vk_device, vk_input_buffer_memory, 0, size, 0, &address) != VK_SUCCESS)
     {
         printf("Failed to map input buffer memory.\n");
         return;
@@ -125,14 +129,14 @@ void vk_copy_to_input_buffer(VkDevice vk_device, void *data, uint32_t size)
 
     memcpy(address, data, size);
 
-    vkUnmapMemory(vk_device, InputBufferMemory);
+    vkUnmapMemory(vk_device, vk_input_buffer_memory);
 }
 
-void vk_copy_from_output_buffer(VkDevice vk_device, void *data, uint32_t size)
+void vk_copy_from_output_buffer(VkDevice vk_device, void *data, uint32_t size, VkDeviceMemory vk_output_buffer_memory)
 {
     void *address;
 
-    if (vkMapMemory(vk_device, OutputBufferMemory, 0, size, 0, &address) != VK_SUCCESS)
+    if (vkMapMemory(vk_device, vk_output_buffer_memory, 0, size, 0, &address) != VK_SUCCESS)
     {
         printf("Failed to map input buffer memory.\n");
         return;
@@ -140,7 +144,7 @@ void vk_copy_from_output_buffer(VkDevice vk_device, void *data, uint32_t size)
 
     memcpy(data, address, size);
 
-    vkUnmapMemory(vk_device, OutputBufferMemory);
+    vkUnmapMemory(vk_device, vk_output_buffer_memory);
 }
 
 #ifdef __cplusplus

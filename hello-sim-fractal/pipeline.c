@@ -7,11 +7,11 @@ extern "C" {
 #include <string.h>
 #include "device.h"
 
-VkShaderModule CreateComputeShader(VkDevice vk_device)
+VkShaderModule vk_create_compute_shader(VkDevice vk_device, const char* filename)
 {
     uint8_t shaderData[20000];
 
-    FILE *f = fopen("shader/fractal.spv", "rb");
+    FILE *f = fopen(filename, "rb");
     if (f == NULL)
     {
         printf("Failed to open the shader file.\n");
@@ -38,35 +38,6 @@ VkShaderModule CreateComputeShader(VkDevice vk_device)
     return handle;
 }
 
-VkDescriptorSetLayout vk_create_descriptor_set_layout(VkDevice vk_device)
-{
-    VkDescriptorSetLayoutBinding bindings[2];
-    memset(&bindings, 0, sizeof(bindings));
-
-    bindings[0].binding = 0;
-    bindings[0].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-    bindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    bindings[0].descriptorCount = 1;
-
-    bindings[1].binding = 1;
-    bindings[1].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-    bindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    bindings[1].descriptorCount = 1;
-
-    VkDescriptorSetLayoutCreateInfo createInfo;
-    memset(&createInfo, 0, sizeof(createInfo));
-    createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    createInfo.bindingCount = 2;
-    createInfo.pBindings = bindings;
-
-    VkDescriptorSetLayout vk_descriptor_set_layout = VK_NULL_HANDLE;
-    if (vkCreateDescriptorSetLayout(vk_device, &createInfo, NULL, &vk_descriptor_set_layout) != VK_SUCCESS)
-    {
-        printf("Failed to create a descriptor set layout handle.'n");
-    }
-    return vk_descriptor_set_layout;
-}
-
 VkPipelineLayout vk_create_pipeline_layout(VkDevice vk_device, VkDescriptorSetLayout vk_descriptor_set_layout)
 {
 	VkPipelineLayout vk_pipeline_layout;
@@ -86,20 +57,19 @@ VkPipelineLayout vk_create_pipeline_layout(VkDevice vk_device, VkDescriptorSetLa
 	return vk_pipeline_layout;
 }
  
-VkPipeline vk_create_pipline(VkDevice vk_device, VkPipelineLayout* vk_pipeline_layout, VkDescriptorSetLayout vk_descriptor_set_layout)
+VkPipeline vk_create_pipline(VkDevice vk_device, VkPipelineLayout vk_pipeline_layout, VkDescriptorSetLayout vk_descriptor_set_layout)
 {
     VkPipeline vk_pipeline;
-    *vk_pipeline_layout = vk_create_pipeline_layout(vk_device, vk_descriptor_set_layout);
 
     VkComputePipelineCreateInfo createPipeline;
     memset(&createPipeline, 0, sizeof(createPipeline));
     createPipeline.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-    createPipeline.layout = *vk_pipeline_layout;
+    createPipeline.layout = vk_pipeline_layout;
     createPipeline.basePipelineIndex = -1;
     createPipeline.stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     createPipeline.stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
     createPipeline.stage.pName = "main";
-    createPipeline.stage.module = CreateComputeShader(vk_device);
+    createPipeline.stage.module = vk_create_compute_shader(vk_device, "shader/fractal.spv");
 
     if (vkCreateComputePipelines(vk_device, VK_NULL_HANDLE, 1, &createPipeline, NULL, &vk_pipeline) != VK_SUCCESS)
     {
