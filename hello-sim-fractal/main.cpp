@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
     VkBuffer vk_input_buffer = vk_create_buffer_and_memory(vk_phy_device, vk_device, sizeof(vk_input_data), &vk_input_buffer_memory);
     VkBuffer vk_output_buffer = vk_create_buffer_and_memory(vk_phy_device, vk_device, sizeof(vk_output_data), &vk_output_buffer_emory);
 
-    vk_create_buffers(vk_device, vk_descriptor_set, sizeof(vk_input_data), sizeof(vk_output_data), vk_input_buffer, vk_output_buffer);
+    vk_update_descriptor_set(vk_device, vk_descriptor_set, sizeof(vk_input_data), sizeof(vk_output_data), vk_input_buffer, vk_output_buffer);
 
 	// Create a pipeline and a command pool
     VkPipelineLayout vk_pipeline_layout = vk_create_pipeline_layout(vk_device, vk_descriptor_set_layout);

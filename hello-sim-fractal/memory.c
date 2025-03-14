@@ -77,7 +77,7 @@ VkBuffer vk_create_buffer_and_memory(
     return buffer;
 }
 
-void vk_create_buffers(
+void vk_update_descriptor_set(
     VkDevice vk_device, 
     VkDescriptorSet vk_descriptor_set, 
     uint32_t vk_input_size, 
@@ -96,6 +96,7 @@ void vk_create_buffers(
 
     VkWriteDescriptorSet writeDescriptorSet;
     memset(&writeDescriptorSet, 0, sizeof(writeDescriptorSet));
+
     writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     writeDescriptorSet.dstSet = vk_descriptor_set;
     writeDescriptorSet.dstBinding = 0;

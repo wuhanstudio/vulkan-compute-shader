@@ -6,7 +6,7 @@ extern "C" {
 
 #include <vulkan/vulkan.h>
 
-void vk_create_buffers(
+void vk_update_descriptor_set(
 	VkDevice vk_device, 
 	VkDescriptorSet vk_descriptor_set, 
 	uint32_t vk_input_size, 
