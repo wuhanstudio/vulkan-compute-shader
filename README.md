@@ -1,6 +1,4 @@
 - [Vulkan Compute Shader](#vulkan-compute-shader)
-  * [Windows Users](#windows-users)
-  * [Prerequisites (Linux)](#prerequisites-linux)
   * [Project 1: hello-vkinfo](#project-1-hello-vkinfo)
   * [Project 2: hello-validation](#project-2-hello-validation)
   * [Project 3: hello-surface](#project-3-hello-surface)
