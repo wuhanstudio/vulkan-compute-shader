@@ -57,7 +57,7 @@ VkPipelineLayout vk_create_pipeline_layout(VkDevice vk_device, VkDescriptorSetLa
 	return vk_pipeline_layout;
 }
  
-VkPipeline vk_create_pipline(VkDevice vk_device, VkPipelineLayout vk_pipeline_layout, VkDescriptorSetLayout vk_descriptor_set_layout)
+VkPipeline vk_create_pipline(VkDevice vk_device, VkPipelineLayout vk_pipeline_layout, VkDescriptorSetLayout vk_descriptor_set_layout, VkShaderModule vk_shader_module)
 {
     VkPipeline vk_pipeline;
 
@@ -69,7 +69,7 @@ VkPipeline vk_create_pipline(VkDevice vk_device, VkPipelineLayout vk_pipeline_la
     createPipeline.stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     createPipeline.stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
     createPipeline.stage.pName = "main";
-    createPipeline.stage.module = vk_create_compute_shader(vk_device, "shader/fractal.spv");
+    createPipeline.stage.module = vk_shader_module;
 
     if (vkCreateComputePipelines(vk_device, VK_NULL_HANDLE, 1, &createPipeline, NULL, &vk_pipeline) != VK_SUCCESS)
     {

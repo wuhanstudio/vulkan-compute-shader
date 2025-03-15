@@ -111,9 +111,13 @@ int main(int argc, char* argv[])
 
     vk_update_descriptor_set(vk_device, vk_descriptor_set, sizeof(vk_input_data), sizeof(vk_output_data), vk_input_buffer, vk_output_buffer);
 
-	// Create a pipeline and a command pool
+	// Create the compute shader module
+    VkShaderModule vk_shader_module = vk_create_compute_shader(vk_device, "shader/fractal.spv");
+	
+    // Create a pipeline and a command pool
     VkPipelineLayout vk_pipeline_layout = vk_create_pipeline_layout(vk_device, vk_descriptor_set_layout);
-    VkPipeline vk_pipeline = vk_create_pipline(vk_device, vk_pipeline_layout, vk_descriptor_set_layout);
+
+    VkPipeline vk_pipeline = vk_create_pipline(vk_device, vk_pipeline_layout, vk_descriptor_set_layout, vk_shader_module);
 
     VkCommandPool vk_compute_cmd_pool = vk_create_command_pool(vk_device, vk_queue_family_index);
     VkCommandBuffer vk_command_buffer = vk_prepare_command_buffer(vk_device, vk_pipeline, vk_pipeline_layout, vk_descriptor_set, vk_compute_cmd_pool);
