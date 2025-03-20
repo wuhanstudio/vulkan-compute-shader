@@ -9,7 +9,7 @@
 std::vector<const char*> extensions;
 
 // Print available extensions
-void printExtensions() {
+void vk_print_extensions() {
 	uint32_t extensionCount = 0;
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
@@ -48,9 +48,9 @@ const char* vkPhysicalDeviceType_as_string(VkPhysicalDeviceType type) {
 
 int main() {
 
-	printExtensions();
+	vk_print_extensions();
 
-	bool enableValidationLayers = checkValidationLayerSupport();
+	bool enableValidationLayers = vk_check_validation_layer();
 	if (not enableValidationLayers) {
 		fmt::println("Validation layers not available");
 	}
