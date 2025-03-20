@@ -49,7 +49,7 @@ void printDeviceInfo(VkInstance instance, VkSurfaceKHR surface)
     std::vector<VkPhysicalDevice> devices(physicalDeviceCount);
     vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, devices.data());
 
-    fmt::println("Available devices:");
+    fmt::println("Available devices:\n");
     for (const auto& device : devices) {
         VkPhysicalDeviceProperties deviceProperties;
         VkPhysicalDeviceFeatures deviceFeatures;
@@ -186,7 +186,7 @@ VkPhysicalDevice choosePhysicalDevice(VkInstance instance)
 }
 
 VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) {
-    bool enableValidationLayers = checkValidationLayerSupport();
+    bool enableValidationLayers = vk_check_validation_layer();
 #ifdef NDEBUG
     enableValidationLayers = false;
     fmt::print("Running in release mode, validation layers disabled\n");

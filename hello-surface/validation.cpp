@@ -3,7 +3,7 @@
 #include <vector>
 #include <fmt/core.h>
 
-bool checkValidationLayerSupport() {
+bool vk_check_validation_layer() {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 

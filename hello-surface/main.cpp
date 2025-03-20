@@ -16,17 +16,17 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-GLFWwindow* window;
+GLFWwindow* gWindow;
 
 // Print available extensions
-void printExtensions() {
+void vk_print_extensions() {
 	uint32_t extensionCount = 0;
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
 	std::vector<VkExtensionProperties> vk_extensions(extensionCount);
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, vk_extensions.data());
 
-	fmt::println("Available extensions:");
+	fmt::println("Available extensions:\n");
 	for (const auto& extension : vk_extensions) {
 		fmt::println("{}", extension.extensionName);
 	}
@@ -52,10 +52,10 @@ int main() {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-	window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-	glfwSetKeyCallback(window, glfw_onKey);
+	gWindow = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+	glfwSetKeyCallback(gWindow, glfw_onKey);
 
-	printExtensions();
+	vk_print_extensions();
 
 	// Print the Vulkan version
 	uint32_t apiVersion;
@@ -79,7 +79,7 @@ int main() {
 	VkInstance instance = createInstance(&debugMessenger);
 
 	// Create a surface
-	VkSurfaceKHR surface = createSurface(window, instance);
+	VkSurfaceKHR surface = createSurface(gWindow, instance);
 
 	printDeviceInfo(instance, surface);
 
@@ -102,14 +102,14 @@ int main() {
 	std::vector<VkImage> swapChainImages;
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
-	VkSwapchainKHR swapChain = createSwapChain(window, physicalDevice, device, surface, swapChainImages, &swapChainImageFormat, &swapChainExtent);
+	VkSwapchainKHR swapChain = createSwapChain(gWindow, physicalDevice, device, surface, swapChainImages, &swapChainImageFormat, &swapChainExtent);
 	fmt::println("Chosen Extent: {}x{}", swapChainExtent.width, swapChainExtent.height);
 	fmt::print("\n");
 
 	// Create image views
 	std::vector<VkImageView> swapChainImageViews;
 	createImageViews(device, swapChainImageFormat, swapChainImageViews, swapChainImages);
-	while (!glfwWindowShouldClose(window)) {
+	while (!glfwWindowShouldClose(gWindow)) {
 		glfwPollEvents();
 	}
 
@@ -118,7 +118,7 @@ int main() {
 
 	vkDestroyDevice(device, nullptr);
 
-	bool enableValidationLayers = checkValidationLayerSupport();
+	bool enableValidationLayers = vk_check_validation_layer();
 #ifdef NDEBUG
 	enableValidationLayers = false;
 	fmt::print("Running in release mode, validation layers disabled\n");
@@ -133,7 +133,7 @@ int main() {
 	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
 
-	glfwDestroyWindow(window);
+	glfwDestroyWindow(gWindow);
 	glfwTerminate();
 
 	return 0;

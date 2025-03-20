@@ -8,7 +8,7 @@
 
 VkInstance createInstance(VkDebugUtilsMessengerEXT* debugMessenger)
 {
-	bool enableValidationLayers = checkValidationLayerSupport();
+	bool enableValidationLayers = vk_check_validation_layer();
 	if (not enableValidationLayers) {
 		fmt::println("Validation layers not available");
 	}
