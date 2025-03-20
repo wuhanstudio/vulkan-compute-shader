@@ -16,7 +16,7 @@ void vk_print_extensions() {
 	std::vector<VkExtensionProperties> vk_extensions(extensionCount);
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, vk_extensions.data());
 
-	fmt::println("Available extensions:");
+	fmt::println("Available extensions:\n");
 	for (const auto& extension : vk_extensions) {
 		fmt::println("{}", extension.extensionName);
 	}
@@ -139,7 +139,7 @@ int main() {
 	std::vector<VkPhysicalDevice> devices(physicalDeviceCount);
 	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, devices.data());
 
-	fmt::println("Available devices:");
+	fmt::println("Available devices:\n");
 	for (const auto& device : devices) {
 		VkPhysicalDeviceProperties deviceProperties;
 		VkPhysicalDeviceFeatures deviceFeatures;
