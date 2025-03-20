@@ -39,7 +39,7 @@ const char* vkPhysicalDeviceType_as_string(VkPhysicalDeviceType type) {
     }
 }
 
-void printDeviceInfo(VkInstance instance, VkSurfaceKHR surface)
+void vk_print_device_info(VkInstance instance, VkSurfaceKHR surface)
 {
     // Query the number of Vulkan physical devices
     uint32_t physicalDeviceCount = 0;
@@ -63,7 +63,7 @@ void printDeviceInfo(VkInstance instance, VkSurfaceKHR surface)
             VK_VERSION_MINOR(deviceProperties.apiVersion),
             VK_VERSION_PATCH(deviceProperties.apiVersion));
 
-        if (checkDeviceExtensionSupport(device, swapchainExtensions)) {
+        if (vk_check_device_extension(device, swapchainExtensions)) {
             fmt::print("Device supports swapchain extensions\n");
         }
         else {
@@ -117,7 +117,7 @@ void printDeviceInfo(VkInstance instance, VkSurfaceKHR surface)
     }
 }
 
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface) {
+QueueFamilyIndices vk_find_queue_families(VkPhysicalDevice device, VkSurfaceKHR surface) {
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
@@ -149,7 +149,7 @@ QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surfa
     return indices;
 }
 
-bool checkDeviceExtensionSupport(VkPhysicalDevice device, const std::vector<const char*> deviceExtensions) {
+bool vk_check_device_extension(VkPhysicalDevice device, const std::vector<const char*> deviceExtensions) {
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -165,7 +165,7 @@ bool checkDeviceExtensionSupport(VkPhysicalDevice device, const std::vector<cons
     return requiredExtensions.empty();
 }
 
-VkPhysicalDevice choosePhysicalDevice(VkInstance instance)
+VkPhysicalDevice vk_pick_physical_device(VkInstance instance)
 {
     uint32_t physicalDeviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, nullptr);
@@ -185,7 +185,7 @@ VkPhysicalDevice choosePhysicalDevice(VkInstance instance)
     return devices[deviceIndex];
 }
 
-VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) {
+VkDevice vk_create_logical_device(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) {
     bool enableValidationLayers = vk_check_validation_layer();
 #ifdef NDEBUG
     enableValidationLayers = false;
@@ -194,7 +194,7 @@ VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surfa
 
     VkDevice device;
 
-    QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
+    QueueFamilyIndices indices = vk_find_queue_families(physicalDevice, surface);
     std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
    
     fmt::println("Graphics queue families: {}", indices.graphicsFamily.value());

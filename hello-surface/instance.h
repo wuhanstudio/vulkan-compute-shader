@@ -1,4 +1,4 @@
 #pragma once
 #include <vulkan/vulkan.h>
 
-VkInstance createInstance(VkDebugUtilsMessengerEXT* debugMessenger);
+VkInstance vk_create_instance(VkDebugUtilsMessengerEXT* debugMessenger);

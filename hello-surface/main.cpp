@@ -76,45 +76,45 @@ int main() {
 
 	// Initialize Vulkan
 	VkDebugUtilsMessengerEXT debugMessenger;
-	VkInstance instance = createInstance(&debugMessenger);
+	VkInstance instance = vk_create_instance(&debugMessenger);
 
 	// Create a surface
-	VkSurfaceKHR surface = createSurface(gWindow, instance);
+	VkSurfaceKHR surface = vk_create_surface(gWindow, instance);
 
-	printDeviceInfo(instance, surface);
+	vk_print_device_info(instance, surface);
 
 	// Set the physical device
-	VkPhysicalDevice physicalDevice = choosePhysicalDevice(instance);
+	VkPhysicalDevice physicalDevice = vk_pick_physical_device(instance);
 
 	// Create a logical device
-	VkDevice device = createLogicalDevice(physicalDevice, surface);
-	QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
+	VkDevice device = vk_create_logical_device(physicalDevice, surface);
+	QueueFamilyIndices indices = vk_find_queue_families(physicalDevice, surface);
 
 	VkQueue graphicsQueue, presentQueue;
 	vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
 	vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
 
 	// Create a swapchain
-	SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
+	SwapChainSupportDetails swapChainSupport = vk_query_swapchain_support(physicalDevice, surface);
 	fmt::println("Minimum Extent: {}x{}", swapChainSupport.capabilities.minImageExtent.width, swapChainSupport.capabilities.minImageExtent.height);
 	fmt::println("Maximum Extent: {}x{}", swapChainSupport.capabilities.maxImageExtent.width, swapChainSupport.capabilities.maxImageExtent.height);
 
 	std::vector<VkImage> swapChainImages;
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
-	VkSwapchainKHR swapChain = createSwapChain(gWindow, physicalDevice, device, surface, swapChainImages, &swapChainImageFormat, &swapChainExtent);
+	VkSwapchainKHR swapChain = vk_create_swapchain(gWindow, physicalDevice, device, surface, swapChainImages, &swapChainImageFormat, &swapChainExtent);
 	fmt::println("Chosen Extent: {}x{}", swapChainExtent.width, swapChainExtent.height);
 	fmt::print("\n");
 
 	// Create image views
 	std::vector<VkImageView> swapChainImageViews;
-	createImageViews(device, swapChainImageFormat, swapChainImageViews, swapChainImages);
+	vk_create_image_views(device, swapChainImageFormat, swapChainImageViews, swapChainImages);
 	while (!glfwWindowShouldClose(gWindow)) {
 		glfwPollEvents();
 	}
 
 	// Clean up
-	cleanupSwapChain(device, swapChain, swapChainImageViews);
+	vk_cleanup_swapchain(device, swapChain, swapChainImageViews);
 
 	vkDestroyDevice(device, nullptr);
 
@@ -125,7 +125,7 @@ int main() {
 #endif
 
 	if (enableValidationLayers) {
-		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+		vk_destroy_debug_utils_messenger_ext(instance, debugMessenger, nullptr);
 	}
 
 

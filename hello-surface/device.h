@@ -19,10 +19,10 @@ struct QueueFamilyIndices {
     }
 };
 
-void printDeviceInfo(VkInstance instance, VkSurfaceKHR surface);
+void vk_print_device_info(VkInstance instance, VkSurfaceKHR surface);
 
-bool checkDeviceExtensionSupport(VkPhysicalDevice device, const std::vector<const char*> deviceExtensions);
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+bool vk_check_device_extension(VkPhysicalDevice device, const std::vector<const char*> deviceExtensions);
+QueueFamilyIndices vk_find_queue_families(VkPhysicalDevice device, VkSurfaceKHR surface);
 
-VkPhysicalDevice choosePhysicalDevice(VkInstance instance);
-VkDevice createLogicalDevice(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
+VkPhysicalDevice vk_pick_physical_device(VkInstance instance);
+VkDevice vk_create_logical_device(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);

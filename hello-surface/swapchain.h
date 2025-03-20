@@ -20,7 +20,7 @@ struct SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> presentModes;
 };
 
-SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
+SwapChainSupportDetails vk_query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR surface);
 
-VkSwapchainKHR createSwapChain(GLFWwindow* gWindow, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface, std::vector<VkImage> swapChainImages, VkFormat* swapChainImageFormat, VkExtent2D* swapChainExtent);
-void cleanupSwapChain(VkDevice device, VkSwapchainKHR swapChain, std::vector<VkImageView> swapChainImageViews);
+VkSwapchainKHR vk_create_swapchain(GLFWwindow* gWindow, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface, std::vector<VkImage> swapChainImages, VkFormat* swapChainImageFormat, VkExtent2D* swapChainExtent);
+void vk_cleanup_swapchain(VkDevice device, VkSwapchainKHR swapChain, std::vector<VkImageView> swapChainImageViews);

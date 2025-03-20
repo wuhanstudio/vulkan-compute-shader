@@ -160,7 +160,8 @@ int main() {
 		// Print available extensions
         vk_print_extensions();
 
-        VkInstance vk_instance = vk_create_instance();
+        VkDebugUtilsMessengerEXT vk_debug_messenger;
+        VkInstance vk_instance = vk_create_instance(&vk_debug_messenger);
 
         VkSurfaceKHR vk_surface = vk_create_surface(vk_instance, gWindow);
 
@@ -237,7 +238,7 @@ int main() {
         vkDestroyDevice(vk_device, nullptr);
 
         if (vk_check_validation_layer()) {
-            DestroyDebugUtilsMessengerEXT(vk_instance, debugMessenger, nullptr);
+            vk_destroy_debug_utils_messenger_ext(vk_instance, vk_debug_messenger, nullptr);
         }
 
         vkDestroySurfaceKHR(vk_instance, vk_surface, nullptr);

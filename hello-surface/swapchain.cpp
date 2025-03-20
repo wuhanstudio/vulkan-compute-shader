@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <limits>
 
-SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface) {
+SwapChainSupportDetails vk_query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR surface) {
     SwapChainSupportDetails details;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
@@ -29,7 +29,7 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
     return details;
 }
 
-void cleanupSwapChain(VkDevice device, VkSwapchainKHR swapChain, std::vector<VkImageView> swapChainImageViews) {
+void vk_cleanup_swapchain(VkDevice device, VkSwapchainKHR swapChain, std::vector<VkImageView> swapChainImageViews) {
     for (auto imageView : swapChainImageViews) {
         vkDestroyImageView(device, imageView, nullptr);
     }
@@ -77,8 +77,8 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwi
     }
 }
 
-VkSwapchainKHR createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface, std::vector<VkImage> swapChainImages, VkFormat* swapChainImageFormat, VkExtent2D* swapChainExtent) {
-    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice, surface);
+VkSwapchainKHR vk_create_swapchain(GLFWwindow* window, VkPhysicalDevice physicalDevice, VkDevice device, VkSurfaceKHR surface, std::vector<VkImage> swapChainImages, VkFormat* swapChainImageFormat, VkExtent2D* swapChainExtent) {
+    SwapChainSupportDetails swapChainSupport = vk_query_swapchain_support(physicalDevice, surface);
 
     VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
     VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -100,7 +100,7 @@ VkSwapchainKHR createSwapChain(GLFWwindow* window, VkPhysicalDevice physicalDevi
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = findQueueFamilies(physicalDevice, surface);
+    QueueFamilyIndices indices = vk_find_queue_families(physicalDevice, surface);
     uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
     if (indices.graphicsFamily != indices.presentFamily) {

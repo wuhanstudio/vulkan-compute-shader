@@ -87,7 +87,7 @@ int main() {
 		createInfo.ppEnabledLayerNames = validationLayers.data();
 
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-		populateDebugMessengerCreateInfo(debugCreateInfo);
+		vk_populate_debug_messenger_createInfo(debugCreateInfo);
 		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 	}
 	else {
@@ -105,9 +105,9 @@ int main() {
 	// Set up debug messenger
 	if (enableValidationLayers) {
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-		populateDebugMessengerCreateInfo(debugCreateInfo);
+		vk_populate_debug_messenger_createInfo(debugCreateInfo);
 
-		if (CreateDebugUtilsMessengerEXT(instance, &debugCreateInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
+		if (vk_create_debug_utils_messenger_ext(instance, &debugCreateInfo, nullptr, &vk_debug_messenger) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to set up debug messenger!");
 		}
 	}
@@ -155,7 +155,7 @@ int main() {
 	}
 
 	if (enableValidationLayers) {
-		DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+		vk_destroy_debug_utils_messenger_ext(instance, vk_debug_messenger, nullptr);
 	}
 
 	// Destroy the Vulkan instance

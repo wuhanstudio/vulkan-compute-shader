@@ -6,7 +6,7 @@
 #include <fmt/core.h>
 #include <vector>
 
-VkInstance createInstance(VkDebugUtilsMessengerEXT* debugMessenger)
+VkInstance vk_create_instance(VkDebugUtilsMessengerEXT* debugMessenger)
 {
 	bool enableValidationLayers = vk_check_validation_layer();
 	if (not enableValidationLayers) {
@@ -46,7 +46,7 @@ VkInstance createInstance(VkDebugUtilsMessengerEXT* debugMessenger)
 		instanceCreateInfo.ppEnabledLayerNames = validationLayers.data();
 
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-		populateDebugMessengerCreateInfo(debugCreateInfo);
+		vk_populate_debug_messenger_createInfo(debugCreateInfo);
 		instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 	}
 	else {
@@ -67,9 +67,9 @@ VkInstance createInstance(VkDebugUtilsMessengerEXT* debugMessenger)
 	// Set up debug messenger
 	if (enableValidationLayers) {
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-		populateDebugMessengerCreateInfo(debugCreateInfo);
+		vk_populate_debug_messenger_createInfo(debugCreateInfo);
 
-		if (CreateDebugUtilsMessengerEXT(instance, &debugCreateInfo, nullptr, debugMessenger) != VK_SUCCESS) {
+		if (vk_create_debug_utils_messenger_ext(instance, &debugCreateInfo, nullptr, debugMessenger) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to set up debug messenger!");
 		}
 	}
