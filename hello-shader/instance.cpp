@@ -6,10 +6,8 @@
 #include <GLFW/glfw3.h>
 #include <fmt/core.h>
 
-VkInstance instance = VK_NULL_HANDLE;
-
 // Print available extensions
-void printExtensions() {
+void vk_print_extensions() {
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
@@ -23,28 +21,25 @@ void printExtensions() {
     fmt::print("\n");
 }
 
-std::vector<const char*> getRequiredExtensions() {
+std::vector<const char*> vk_get_required_extensions() {
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
     std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-    if (enableValidationLayers) {
+    if (vk_check_validation_layer()) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 
     return extensions;
 }
 
-void createInstance() {
-    if (enableValidationLayers && !checkValidationLayerSupport()) {
-        throw std::runtime_error("Validation layers requested, but not available!");
-    }
-
+VkInstance vk_create_instance() 
+{
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "Hello Triangle";
+    appInfo.pApplicationName = "Hello Shader";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -54,11 +49,11 @@ void createInstance() {
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    auto extensions = getRequiredExtensions();
+    auto extensions = vk_get_required_extensions();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-    if (enableValidationLayers) {
+    if (vk_check_validation_layer()) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
 
@@ -71,12 +66,13 @@ void createInstance() {
         createInfo.pNext = nullptr;
     }
 
+    VkInstance instance = VK_NULL_HANDLE;
     if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create instance!");
     }
 
 	// Set up debug messenger
-    if (enableValidationLayers) {
+    if (vk_check_validation_layer()) {
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         populateDebugMessengerCreateInfo(debugCreateInfo);
 
@@ -84,4 +80,7 @@ void createInstance() {
             throw std::runtime_error("Failed to set up debug messenger!");
         }
     }
+
+    return instance;
+
 }

@@ -22,10 +22,10 @@ struct SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> presentModes;
 };
 
-SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+SwapChainSupportDetails vk_query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR vk_surface);
 
-void createSwapChain(GLFWwindow* window);
+void vk_create_swapchain(VkSurfaceKHR vk_surface, GLFWwindow* window);
 void cleanupSwapChain();
 
 void createImageViews();
-void recreateSwapChain(GLFWwindow* window);
+void vk_recreate_swapchain(VkSurfaceKHR vk_surface, GLFWwindow* window);

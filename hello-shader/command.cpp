@@ -8,8 +8,8 @@ std::vector<VkCommandBuffer> commandBuffers;
 extern uint32_t currentFrame;
 extern std::vector<VkDescriptorSet> descriptorSets;
 
-void createCommandPool() {
-    QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
+void vk_create_command_pool(VkSurfaceKHR vk_surface) {
+    QueueFamilyIndices queueFamilyIndices = vk_find_queue_families(physicalDevice, vk_surface);
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;

@@ -5,7 +5,7 @@
 
 VkDebugUtilsMessengerEXT debugMessenger;
 
-bool checkValidationLayerSupport() {
+bool vk_check_validation_layer() {
     uint32_t layerCount;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -27,7 +27,11 @@ bool checkValidationLayerSupport() {
         }
     }
 
+#ifdef NDEBUG
+    return false;
+#else
     return true;
+#endif
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {

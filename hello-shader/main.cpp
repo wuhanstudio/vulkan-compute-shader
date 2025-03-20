@@ -32,7 +32,7 @@ const uint32_t HEIGHT = 600;
 // Testing texture data
 uint8_t testData[WIDTH * HEIGHT * 4];
 
-GLFWwindow* window;
+GLFWwindow* gWindow;
 
 std::vector<VkSemaphore> imageAvailableSemaphores;
 std::vector<VkSemaphore> renderFinishedSemaphores;
@@ -79,14 +79,14 @@ void createSyncObjects() {
     }
 }
 
-void drawFrame() {
+void vk_draw_frame(VkSurfaceKHR vk_surface) {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        recreateSwapChain(window);
+        vk_recreate_swapchain(vk_surface, gWindow);
         return;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -133,7 +133,7 @@ void drawFrame() {
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        recreateSwapChain(window);
+        vk_recreate_swapchain(vk_surface, gWindow);
     }
     else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
@@ -155,17 +155,20 @@ int main() {
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-        window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-        glfwSetKeyCallback(window, glfw_onKey);
+        gWindow = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+        glfwSetKeyCallback(gWindow, glfw_onKey);
 
-        printExtensions();
-        createInstance();
+		// Print available extensions
+        vk_print_extensions();
 
-        createSurface(window);
-        pickPhysicalDevice();
-        createLogicalDevice();
+        VkInstance vk_instance = vk_create_instance();
 
-        createSwapChain(window);
+        VkSurfaceKHR vk_surface = vk_create_surface(vk_instance, gWindow);
+
+        vk_pick_physical_device(vk_instance, vk_surface);
+        vk_create_logical_device(vk_surface);
+
+        vk_create_swapchain(vk_surface, gWindow);
         createImageViews();
 
         createRenderPass();
@@ -178,7 +181,7 @@ int main() {
 
         createFramebuffers();
 
-        createCommandPool();
+        vk_create_command_pool(vk_surface);
 
         createTextureImage(WIDTH, HEIGHT, 4, testData);
         createTextureImageView();
@@ -186,6 +189,7 @@ int main() {
 
         createVertexBuffer();
         createIndexBuffer();
+
         createDescriptorPool();
         createDescriptorSets();
 
@@ -193,9 +197,9 @@ int main() {
 
         createSyncObjects();
 
-        while (!glfwWindowShouldClose(window)) {
+        while (!glfwWindowShouldClose(gWindow)) {
             glfwPollEvents();
-            drawFrame();
+            vk_draw_frame(vk_surface);
         }
 
         vkDeviceWaitIdle(device);
@@ -233,14 +237,14 @@ int main() {
 
         vkDestroyDevice(device, nullptr);
 
-        if (enableValidationLayers) {
-            DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+        if (vk_check_validation_layer()) {
+            DestroyDebugUtilsMessengerEXT(vk_instance, debugMessenger, nullptr);
         }
 
-        vkDestroySurfaceKHR(instance, surface, nullptr);
-        vkDestroyInstance(instance, nullptr);
+        vkDestroySurfaceKHR(vk_instance, vk_surface, nullptr);
+        vkDestroyInstance(vk_instance, nullptr);
 
-        glfwDestroyWindow(window);
+        glfwDestroyWindow(gWindow);
         glfwTerminate();
     }
     catch (const std::exception& e) {

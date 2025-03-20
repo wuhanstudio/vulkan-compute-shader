@@ -25,10 +25,10 @@ struct QueueFamilyIndices {
     }
 };
 
-bool isDeviceSuitable(VkPhysicalDevice device);
+bool vk_is_device_suitable(VkPhysicalDevice device, VkSurfaceKHR vk_surface);
 bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
-void pickPhysicalDevice();
-void createLogicalDevice();
+void vk_pick_physical_device(VkInstance instance, VkSurfaceKHR vk_surface);
+void vk_create_logical_device(VkSurfaceKHR vk_surface);
 
-QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+QueueFamilyIndices vk_find_queue_families(VkPhysicalDevice device, VkSurfaceKHR vk_surface);

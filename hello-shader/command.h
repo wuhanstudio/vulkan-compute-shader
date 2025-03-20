@@ -12,6 +12,6 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 extern VkCommandPool commandPool;
 extern std::vector<VkCommandBuffer> commandBuffers;
 
-void createCommandPool();
+void vk_create_command_pool(VkSurfaceKHR vk_surface);
 void createCommandBuffers();
 void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);

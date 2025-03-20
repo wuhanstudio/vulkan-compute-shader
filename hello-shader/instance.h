@@ -5,9 +5,6 @@
 
 #include "validation.h"
 
-extern VkInstance instance;
-
-void printExtensions();
-std::vector<const char*> getRequiredExtensions();
-
-void createInstance();
+void vk_print_extensions();
+VkInstance vk_create_instance();
+std::vector<const char*> vk_get_required_extensions();

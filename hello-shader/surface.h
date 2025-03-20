@@ -5,6 +5,4 @@
 
 #include "instance.h"
 
-extern VkSurfaceKHR surface;
-
-void createSurface(GLFWwindow* window);
+VkSurfaceKHR vk_create_surface(VkInstance vk_instance, GLFWwindow* window);
