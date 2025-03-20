@@ -14,7 +14,7 @@ void vk_print_extensions() {
     std::vector<VkExtensionProperties> vk_extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, vk_extensions.data());
 
-    fmt::println("Available extensions:");
+    fmt::println("Available extensions:\n");
     for (const auto& extension : vk_extensions) {
         fmt::println("{}", extension.extensionName);
     }

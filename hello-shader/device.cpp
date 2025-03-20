@@ -5,13 +5,10 @@
 
 #include "swapchain.h"
 
-VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-VkDevice device;
+VkQueue vk_graphics_queue;
+VkQueue vk_present_queue;
 
-VkQueue graphicsQueue;
-VkQueue presentQueue;
-
-void printDeviceName(VkPhysicalDevice device) {
+void vk_print_device_name(VkPhysicalDevice device) {
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -52,7 +49,7 @@ QueueFamilyIndices vk_find_queue_families(VkPhysicalDevice device, VkSurfaceKHR 
     return indices;
 }
 
-bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
+bool vk_check_device_extension(VkPhysicalDevice device) {
     uint32_t extensionCount;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -71,7 +68,7 @@ bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
 bool vk_is_device_suitable(VkPhysicalDevice device, VkSurfaceKHR vk_surface) {
     QueueFamilyIndices indices = vk_find_queue_families(device, vk_surface);
 
-    bool extensionsSupported = checkDeviceExtensionSupport(device);
+    bool extensionsSupported = vk_check_device_extension(device);
 
     bool swapChainAdequate = false;
     if (extensionsSupported) {
@@ -82,42 +79,45 @@ bool vk_is_device_suitable(VkPhysicalDevice device, VkSurfaceKHR vk_surface) {
     return indices.isComplete() && extensionsSupported && swapChainAdequate;
 }
 
-void vk_pick_physical_device(VkInstance instance, VkSurfaceKHR vk_surface) {
+VkPhysicalDevice vk_pick_physical_device(VkInstance vk_instance, VkSurfaceKHR vk_surface) {
     uint32_t deviceCount = 0;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    vkEnumeratePhysicalDevices(vk_instance, &deviceCount, nullptr);
 
     if (deviceCount == 0) {
         throw std::runtime_error("Failed to find GPUs with Vulkan support!");
     }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+    vkEnumeratePhysicalDevices(vk_instance, &deviceCount, devices.data());
 
-	fmt::println("\nAvailable devices:");
+	fmt::println("\nAvailable devices:\n");
     for (const auto& device : devices) {
-        printDeviceName(device);
+        vk_print_device_name(device);
     }
 
 	fmt::println("");
 
 	// Find a suitable device
+	VkPhysicalDevice vk_physical_device = VK_NULL_HANDLE;
     for (const auto& device : devices) {
         if (vk_is_device_suitable(device, vk_surface)) {
             fmt::println("Selected device:");
-            printDeviceName(device);
+            vk_print_device_name(device);
 
-            physicalDevice = device;
+            vk_physical_device = device;
             break;
         }
     }
 
-    if (physicalDevice == VK_NULL_HANDLE) {
+    if (vk_physical_device == VK_NULL_HANDLE) {
         throw std::runtime_error("Failed to find a suitable GPU!");
     }
+
+	return vk_physical_device;
 }
 
-void vk_create_logical_device(VkSurfaceKHR vk_surface) {
-    QueueFamilyIndices indices = vk_find_queue_families(physicalDevice, vk_surface);
+VkDevice vk_create_logical_device(VkPhysicalDevice vk_physical_device, VkSurfaceKHR vk_surface) {
+    QueueFamilyIndices indices = vk_find_queue_families(vk_physical_device, vk_surface);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
@@ -153,10 +153,13 @@ void vk_create_logical_device(VkSurfaceKHR vk_surface) {
         createInfo.enabledLayerCount = 0;
     }
 
-    if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) {
+	VkDevice vk_device;
+    if (vkCreateDevice(vk_physical_device, &createInfo, nullptr, &vk_device) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create logical device!");
     }
 
-    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-    vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+    vkGetDeviceQueue(vk_device, indices.graphicsFamily.value(), 0, &vk_graphics_queue);
+    vkGetDeviceQueue(vk_device, indices.presentFamily.value(), 0, &vk_present_queue);
+
+	return vk_device;
 }

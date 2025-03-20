@@ -39,8 +39,7 @@ std::vector<VkSemaphore> renderFinishedSemaphores;
 std::vector<VkFence> inFlightFences;
 uint32_t currentFrame = 0;
 
-
-static std::vector<char> readFile(const std::string& filename) {
+static std::vector<char> read_file(const std::string& filename) {
     std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open()) {
@@ -58,7 +57,7 @@ static std::vector<char> readFile(const std::string& filename) {
     return buffer;
 }
 
-void createSyncObjects() {
+void vk_create_sync_objects(VkDevice vk_device) {
     imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -71,29 +70,29 @@ void createSyncObjects() {
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+        if (vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(vk_device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create synchronization objects for a frame!");
         }
     }
 }
 
-void vk_draw_frame(VkSurfaceKHR vk_surface) {
-    vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+void vk_draw_frame(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkSurfaceKHR vk_surface) {
+    vkWaitForFences(vk_device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(vk_device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        vk_recreate_swapchain(vk_surface, gWindow);
+        vk_recreate_swapchain(vk_physical_device, vk_device, vk_surface, gWindow);
         return;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("failed to acquire swap chain image!");
     }
 
-    vkResetFences(device, 1, &inFlightFences[currentFrame]);
+    vkResetFences(vk_device, 1, &inFlightFences[currentFrame]);
 
     vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
     recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
@@ -114,7 +113,7 @@ void vk_draw_frame(VkSurfaceKHR vk_surface) {
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+    if (vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
 
@@ -130,10 +129,10 @@ void vk_draw_frame(VkSurfaceKHR vk_surface) {
 
     presentInfo.pImageIndices = &imageIndex;
 
-    result = vkQueuePresentKHR(presentQueue, &presentInfo);
+    result = vkQueuePresentKHR(vk_present_queue, &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        vk_recreate_swapchain(vk_surface, gWindow);
+        vk_recreate_swapchain(vk_physical_device, vk_device, vk_surface, gWindow);
     }
     else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
@@ -165,77 +164,77 @@ int main() {
 
         VkSurfaceKHR vk_surface = vk_create_surface(vk_instance, gWindow);
 
-        vk_pick_physical_device(vk_instance, vk_surface);
-        vk_create_logical_device(vk_surface);
+        VkPhysicalDevice vk_physical_device = vk_pick_physical_device(vk_instance, vk_surface);
+        VkDevice vk_device = vk_create_logical_device(vk_physical_device, vk_surface);
 
-        vk_create_swapchain(vk_surface, gWindow);
-        createImageViews();
+        vk_create_swapchain(vk_physical_device, vk_device, vk_surface, gWindow);
+        vk_create_image_views(vk_device);
 
-        createRenderPass();
+        vk_create_render_pass(vk_device);
 
-        createDescriptorSetLayout();
+        vk_create_descriptor_set_layout(vk_device);
 
-        auto vertShaderCode = readFile("shader/vert.spv");
-        auto fragShaderCode = readFile("shader/frag.spv");
-        createGraphicsPipeline(vertShaderCode, fragShaderCode);
+        auto vertShaderCode = read_file("shader/vert.spv");
+        auto fragShaderCode = read_file("shader/frag.spv");
+        vk_create_graphics_pipeline(vk_device, vertShaderCode, fragShaderCode);
 
-        createFramebuffers();
+        vk_create_frame_buffers(vk_device);
 
-        vk_create_command_pool(vk_surface);
+        vk_create_command_pool(vk_physical_device, vk_device, vk_surface);
 
-        createTextureImage(WIDTH, HEIGHT, 4, testData);
-        createTextureImageView();
-        createTextureSampler();
+        vk_create_texture_image(vk_physical_device, vk_device, WIDTH, HEIGHT, 4, testData);
+        vk_create_texture_image_view(vk_device);
+        vk_create_texture_sampler(vk_physical_device, vk_device);
 
-        createVertexBuffer();
-        createIndexBuffer();
+        vk_create_vertex_buffer(vk_physical_device, vk_device);
+        vk_create_index_buffer(vk_physical_device, vk_device);
 
-        createDescriptorPool();
-        createDescriptorSets();
+        vk_create_descriptor_pool(vk_device);
+        vk_create_descriptor_sets(vk_device);
 
-        createCommandBuffers();
+        vk_create_command_buffers(vk_device);
 
-        createSyncObjects();
+        vk_create_sync_objects(vk_device);
 
         while (!glfwWindowShouldClose(gWindow)) {
             glfwPollEvents();
-            vk_draw_frame(vk_surface);
+            vk_draw_frame(vk_physical_device, vk_device, vk_surface);
         }
 
-        vkDeviceWaitIdle(device);
+        vkDeviceWaitIdle(vk_device);
 
         // Clean Up
-        cleanupSwapChain();
+        vk_cleanup_swap_chain(vk_device);
 
-        vkDestroyPipeline(device, graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-        vkDestroyRenderPass(device, renderPass, nullptr);
+        vkDestroyPipeline(vk_device, graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(vk_device, pipelineLayout, nullptr);
+        vkDestroyRenderPass(vk_device, renderPass, nullptr);
 
-        vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+        vkDestroyDescriptorPool(vk_device, descriptorPool, nullptr);
 
-        vkDestroySampler(device, textureSampler, nullptr);
-        vkDestroyImageView(device, textureImageView, nullptr);
+        vkDestroySampler(vk_device, textureSampler, nullptr);
+        vkDestroyImageView(vk_device, textureImageView, nullptr);
 
-        vkDestroyImage(device, textureImage, nullptr);
-        vkFreeMemory(device, textureImageMemory, nullptr);
+        vkDestroyImage(vk_device, textureImage, nullptr);
+        vkFreeMemory(vk_device, textureImageMemory, nullptr);
 
-        vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+        vkDestroyDescriptorSetLayout(vk_device, descriptorSetLayout, nullptr);
 
-        vkDestroyBuffer(device, indexBuffer, nullptr);
-        vkFreeMemory(device, indexBufferMemory, nullptr);
+        vkDestroyBuffer(vk_device, indexBuffer, nullptr);
+        vkFreeMemory(vk_device, indexBufferMemory, nullptr);
 
-        vkDestroyBuffer(device, vertexBuffer, nullptr);
-        vkFreeMemory(device, vertexBufferMemory, nullptr);
+        vkDestroyBuffer(vk_device, vertexBuffer, nullptr);
+        vkFreeMemory(vk_device, vertexBufferMemory, nullptr);
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
-            vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
-            vkDestroyFence(device, inFlightFences[i], nullptr);
+            vkDestroySemaphore(vk_device, renderFinishedSemaphores[i], nullptr);
+            vkDestroySemaphore(vk_device, imageAvailableSemaphores[i], nullptr);
+            vkDestroyFence(vk_device, inFlightFences[i], nullptr);
         }
 
-        vkDestroyCommandPool(device, commandPool, nullptr);
+        vkDestroyCommandPool(vk_device, commandPool, nullptr);
 
-        vkDestroyDevice(device, nullptr);
+        vkDestroyDevice(vk_device, nullptr);
 
         if (vk_check_validation_layer()) {
             DestroyDebugUtilsMessengerEXT(vk_instance, debugMessenger, nullptr);

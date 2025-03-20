@@ -13,5 +13,5 @@ extern VkPipeline graphicsPipeline;
 
 extern VkDescriptorSetLayout descriptorSetLayout;
 
-void createRenderPass();
-void createGraphicsPipeline(std::vector<char> vertShaderCode, std::vector<char> fragShaderCode);
+void vk_create_render_pass(VkDevice vk_device);
+void vk_create_graphics_pipeline(VkDevice vk_device, std::vector<char> vertShaderCode, std::vector<char> fragShaderCode);

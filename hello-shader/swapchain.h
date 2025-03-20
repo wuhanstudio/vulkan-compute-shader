@@ -24,8 +24,14 @@ struct SwapChainSupportDetails {
 
 SwapChainSupportDetails vk_query_swapchain_support(VkPhysicalDevice device, VkSurfaceKHR vk_surface);
 
-void vk_create_swapchain(VkSurfaceKHR vk_surface, GLFWwindow* window);
-void cleanupSwapChain();
+void vk_create_swapchain(
+    VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
+    VkSurfaceKHR vk_surface, GLFWwindow* window
+);
 
-void createImageViews();
-void vk_recreate_swapchain(VkSurfaceKHR vk_surface, GLFWwindow* window);
+void vk_cleanup_swap_chain(VkDevice vk_device);
+
+void vk_recreate_swapchain(
+    VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
+    VkSurfaceKHR vk_surface, GLFWwindow* window
+);

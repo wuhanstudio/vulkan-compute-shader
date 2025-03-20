@@ -7,7 +7,7 @@
 #include "validation.h"
 #include "swapchain.h"
 
-void printDeviceName(VkPhysicalDevice device) {
+void vk_print_device_name(VkPhysicalDevice device) {
     VkPhysicalDeviceProperties deviceProperties;
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
