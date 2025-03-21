@@ -10,7 +10,7 @@
 
 Install the [Vulkan SDK](https://vulkan.lunarg.com/) (only required for debugging) and Visual Studio, and then open `vulkan-compute-shader.sln`.
 
-## Prerequisites (Linux)
+## Linux Users
 
 Install vcpkg:
 
