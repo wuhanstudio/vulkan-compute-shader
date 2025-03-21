@@ -11,12 +11,6 @@
 #include "command.h"
 #include "memory.h"
 
-extern VkBuffer vertexBuffer;
-extern VkDeviceMemory vertexBufferMemory;
-
-extern VkBuffer indexBuffer;
-extern VkDeviceMemory indexBufferMemory;
-
 struct Vertex {
     glm::vec2 pos;
     glm::vec2 texCoord;
@@ -61,6 +55,20 @@ const std::vector<uint16_t> indices = {
     0, 1, 2, 2, 3, 0
 };
 
-void vk_create_vertex_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_device);
-void vk_create_index_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkQueue vk_graphics_queue, VkCommandPool vk_command_pool);
-void vk_create_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+VkBuffer vk_create_vertex_buffer(
+    VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
+    VkDeviceMemory* vk_vertex_buffer_memory
+);
+
+VkBuffer vk_create_index_buffer(
+    VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
+    VkQueue vk_graphics_queue, VkCommandPool vk_command_pool, 
+    VkDeviceMemory* vk_index_buffer_memory
+);
+
+void vk_create_buffer(
+    VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
+    VkDeviceSize size, VkBufferUsageFlags usage, 
+    VkMemoryPropertyFlags properties, VkBuffer& buffer, 
+    VkDeviceMemory& bufferMemory
+);

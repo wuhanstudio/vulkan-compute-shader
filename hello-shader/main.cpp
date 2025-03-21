@@ -69,6 +69,27 @@ void vk_create_sync_objects(VkDevice vk_device) {
     }
 }
 
+VkDescriptorPool vk_create_descriptor_pool(VkDevice vk_device) {
+    std::array<VkDescriptorPoolSize, 2> poolSizes{};
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    poolInfo.pPoolSizes = poolSizes.data();
+    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    VkDescriptorPool vk_descriptor_pool;
+    if (vkCreateDescriptorPool(vk_device, &poolInfo, nullptr, &vk_descriptor_pool) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor pool!");
+    }
+
+    return vk_descriptor_pool;
+}
+
 VkDescriptorSetLayout vk_create_descriptor_set_layout(VkDevice vk_device) {
     VkDescriptorSetLayoutBinding samplerLayoutBinding{};
     samplerLayoutBinding.binding = 0;
@@ -91,7 +112,11 @@ VkDescriptorSetLayout vk_create_descriptor_set_layout(VkDevice vk_device) {
     return vk_descriptor_set_layout;
 }
 
-std::vector<VkDescriptorSet> vk_create_descriptor_sets(VkDevice vk_device, VkDescriptorSetLayout vk_descriptor_set_layout, VkDescriptorPool vk_descriptor_pool)
+std::vector<VkDescriptorSet> vk_create_descriptor_sets(
+    VkDevice vk_device, VkDescriptorSetLayout vk_descriptor_set_layout, VkDescriptorPool vk_descriptor_pool,
+	VkImageView vk_texture_imageview, VkSampler vk_texture_sampler,
+	VkBuffer vk_vertex_buffer, VkBuffer vk_index_buffer
+    )
 {
     std::vector<VkDescriptorSetLayout> vk_descriptor_set_layouts(MAX_FRAMES_IN_FLIGHT, vk_descriptor_set_layout);
     VkDescriptorSetAllocateInfo allocInfo{};
@@ -109,8 +134,8 @@ std::vector<VkDescriptorSet> vk_create_descriptor_sets(VkDevice vk_device, VkDes
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = textureImageView;
-        imageInfo.sampler = textureSampler;
+        imageInfo.imageView = vk_texture_imageview;
+        imageInfo.sampler = vk_texture_sampler;
 
         std::array<VkWriteDescriptorSet, 1> descriptorWrites{};
 
@@ -136,7 +161,8 @@ void vk_draw_frame(
     VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline,
 	VkFormat vk_swapchain_image_format, std::vector<VkDescriptorSet> vk_descriptor_sets,
 	VkQueue vk_graphics_queue, VkQueue vk_present_queue, std::vector<VkCommandBuffer> vk_command_buffers,
-    std::vector<VkFramebuffer> vk_swapchain_framebuffers
+    std::vector<VkFramebuffer> vk_swapchain_framebuffers,
+	VkBuffer vk_vertex_buffer, VkBuffer vk_index_buffer
 ) {
     vkWaitForFences(vk_device, 1, &vk_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -163,7 +189,8 @@ void vk_draw_frame(
         vk_command_buffers[currentFrame], imageIndex, 
         vk_swap_chain_extent, vk_render_pass, 
         vk_pipeline_layout, vk_graphics_pipeline,
-		vk_descriptor_sets, currentFrame, vk_swapchain_framebuffers
+		vk_descriptor_sets, currentFrame, vk_swapchain_framebuffers,
+		vk_vertex_buffer, vk_index_buffer
     );
 
     VkSubmitInfo submitInfo{};
@@ -270,15 +297,28 @@ int main() {
         VkCommandPool vk_command_pool = vk_create_command_pool(vk_physical_device, vk_device, vk_surface);
         std::vector<VkCommandBuffer> vk_command_buffers = vk_create_command_buffers(vk_device, vk_swap_chain_extent, vk_command_pool);
 
-        vk_create_texture_image(vk_physical_device, vk_device, WIDTH, HEIGHT, 4, testData, vk_graphics_queue, vk_command_pool);
-        vk_create_texture_imageview(vk_device);
-        vk_create_texture_sampler(vk_physical_device, vk_device);
+        VkDeviceMemory vk_texture_image_memory;
+        VkImage vk_texture_image = vk_create_texture_image(
+            vk_physical_device, vk_device, 
+            WIDTH, HEIGHT, 4, testData, 
+            vk_graphics_queue, vk_command_pool,
+            &vk_texture_image_memory);
+        
+        VkImageView vk_texture_image_view = vk_create_texture_imageview(vk_device, vk_texture_image);
+        VkSampler vk_texture_sampler = vk_create_texture_sampler(vk_physical_device, vk_device);
 
-        vk_create_vertex_buffer(vk_physical_device, vk_device);
-        vk_create_index_buffer(vk_physical_device, vk_device, vk_graphics_queue, vk_command_pool);
+        VkDeviceMemory vk_vertex_buffer_memory;
+        VkBuffer vk_vertex_buffer = vk_create_vertex_buffer(vk_physical_device, vk_device, &vk_vertex_buffer_memory);
+        
+        VkDeviceMemory vk_index_buffer_memory;
+        VkBuffer vk_index_buffer = vk_create_index_buffer(vk_physical_device, vk_device, vk_graphics_queue, vk_command_pool, &vk_index_buffer_memory);
 
         VkDescriptorPool vk_descriptor_pool = vk_create_descriptor_pool(vk_device);
-        std::vector<VkDescriptorSet> vk_descriptor_sets = vk_create_descriptor_sets(vk_device, vk_descriptor_set_layout, vk_descriptor_pool);
+        std::vector<VkDescriptorSet> vk_descriptor_sets = vk_create_descriptor_sets(vk_device, 
+            vk_descriptor_set_layout, vk_descriptor_pool,
+            vk_texture_image_view, vk_texture_sampler,
+			vk_vertex_buffer, vk_index_buffer
+            );
 
         vk_create_sync_objects(vk_device);
 
@@ -290,7 +330,9 @@ int main() {
                 vk_swapchain_images, vk_swapchain_imageviews, 
                 vk_render_pass, vk_pipeline_layout, vk_graphics_pipeline, 
                 vk_swapchain_image_format, vk_descriptor_sets,
-                vk_graphics_queue, vk_present_queue, vk_command_buffers, vk_swapchain_framebuffers);
+                vk_graphics_queue, vk_present_queue, vk_command_buffers, vk_swapchain_framebuffers,
+				vk_vertex_buffer, vk_index_buffer
+                );
         }
 
         vkDeviceWaitIdle(vk_device);
@@ -304,19 +346,19 @@ int main() {
 
         vkDestroyDescriptorPool(vk_device, vk_descriptor_pool, nullptr);
 
-        vkDestroySampler(vk_device, textureSampler, nullptr);
-        vkDestroyImageView(vk_device, textureImageView, nullptr);
+        vkDestroySampler(vk_device, vk_texture_sampler, nullptr);
+        vkDestroyImageView(vk_device, vk_texture_image_view, nullptr);
 
-        vkDestroyImage(vk_device, textureImage, nullptr);
-        vkFreeMemory(vk_device, textureImageMemory, nullptr);
+        vkDestroyImage(vk_device, vk_texture_image, nullptr);
+        vkFreeMemory(vk_device, vk_texture_image_memory, nullptr);
 
         vkDestroyDescriptorSetLayout(vk_device, vk_descriptor_set_layout, nullptr);
 
-        vkDestroyBuffer(vk_device, indexBuffer, nullptr);
-        vkFreeMemory(vk_device, indexBufferMemory, nullptr);
+        vkDestroyBuffer(vk_device, vk_index_buffer, nullptr);
+        vkFreeMemory(vk_device, vk_index_buffer_memory, nullptr);
 
-        vkDestroyBuffer(vk_device, vertexBuffer, nullptr);
-        vkFreeMemory(vk_device, vertexBufferMemory, nullptr);
+        vkDestroyBuffer(vk_device, vk_vertex_buffer, nullptr);
+        vkFreeMemory(vk_device, vk_vertex_buffer_memory, nullptr);
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(vk_device, vk_render_finished_semaphores[i], nullptr);

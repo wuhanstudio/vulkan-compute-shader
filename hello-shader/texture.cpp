@@ -1,15 +1,10 @@
 #include "texture.h"
 #include <cstring>
 
-VkImage textureImage;
-VkDeviceMemory textureImageMemory;
-VkImageView textureImageView;
-VkSampler textureSampler;
-
-VkImageView vk_create_image_view(VkDevice vk_device, VkImage image, VkFormat format) {
+VkImageView vk_create_imageview(VkDevice vk_device, VkImage vk_texture_image, VkFormat format) {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    viewInfo.image = image;
+    viewInfo.image = vk_texture_image;
     viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
     viewInfo.format = format;
     viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -26,28 +21,12 @@ VkImageView vk_create_image_view(VkDevice vk_device, VkImage image, VkFormat for
     return imageView;
 }
 
-VkDescriptorPool vk_create_descriptor_pool(VkDevice vk_device) {
-    std::array<VkDescriptorPoolSize, 2> poolSizes{};
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-    VkDescriptorPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-    poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-    VkDescriptorPool vk_descriptor_pool;
-    if (vkCreateDescriptorPool(vk_device, &poolInfo, nullptr, &vk_descriptor_pool) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor pool!");
-    }
-
-	return vk_descriptor_pool;
-}
-
-void vk_create_image(VkPhysicalDevice vk_physical_device, VkDevice vk_device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
+void vk_create_image(
+    VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
+    uint32_t width, uint32_t height, VkFormat format, 
+    VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, 
+    VkImage* vk_texture_image, VkDeviceMemory* vk_texture_image_memory
+) {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -63,23 +42,23 @@ void vk_create_image(VkPhysicalDevice vk_physical_device, VkDevice vk_device, ui
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    if (vkCreateImage(vk_device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
+    if (vkCreateImage(vk_device, &imageInfo, nullptr, vk_texture_image) != VK_SUCCESS) {
         throw std::runtime_error("failed to create image!");
     }
 
     VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(vk_device, image, &memRequirements);
+    vkGetImageMemoryRequirements(vk_device, *vk_texture_image, &memRequirements);
 
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = vk_find_memory_type(vk_physical_device, memRequirements.memoryTypeBits, properties);
 
-    if (vkAllocateMemory(vk_device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
+    if (vkAllocateMemory(vk_device, &allocInfo, nullptr, vk_texture_image_memory) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate image memory!");
     }
 
-    vkBindImageMemory(vk_device, image, imageMemory, 0);
+    vkBindImageMemory(vk_device, *vk_texture_image, *vk_texture_image_memory, 0);
 }
 
 VkCommandBuffer vk_begin_single_time_commands(VkDevice vk_device, VkCommandPool vk_command_pool) {
@@ -195,11 +174,13 @@ void vk_copy_buffer_to_image(
     vk_end_single_time_commands(vk_device, commandBuffer, vk_graphics_queue, vk_command_pool);
 }
 
-void vk_create_texture_imageview(VkDevice vk_device) {
-    textureImageView = vk_create_image_view(vk_device, textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+VkImageView vk_create_texture_imageview(VkDevice vk_device, VkImage vk_texture_image) {
+    VkImageView vk_texture_imageview = vk_create_imageview(vk_device, vk_texture_image, VK_FORMAT_R8G8B8A8_SRGB);
+
+	return vk_texture_imageview;
 }
 
-void vk_create_texture_sampler(VkPhysicalDevice vk_physical_device, VkDevice vk_device) {
+VkSampler vk_create_texture_sampler(VkPhysicalDevice vk_physical_device, VkDevice vk_device) {
     VkPhysicalDeviceProperties properties{};
     vkGetPhysicalDeviceProperties(vk_physical_device, &properties);
 
@@ -218,15 +199,19 @@ void vk_create_texture_sampler(VkPhysicalDevice vk_physical_device, VkDevice vk_
     samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
     samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 
-    if (vkCreateSampler(vk_device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+    VkSampler vk_texture_sampler;
+    if (vkCreateSampler(vk_device, &samplerInfo, nullptr, &vk_texture_sampler) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture sampler!");
     }
+
+    return vk_texture_sampler;
 }
 
-void vk_create_texture_image(
+VkImage vk_create_texture_image(
     VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
     int texWidth, int texHeight, int texChannels, uint8_t* testData, 
-    VkQueue vk_graphics_queue, VkCommandPool vk_command_pool
+    VkQueue vk_graphics_queue, VkCommandPool vk_command_pool,
+    VkDeviceMemory* vk_texture_image_memory
 ) {
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -248,19 +233,47 @@ void vk_create_texture_image(
         testData[i * 4 + 3] = 255; // A
     }
     VkDeviceSize imageSize = texWidth * texHeight * 4;
-    vk_create_buffer(vk_physical_device, vk_device, imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    vk_create_buffer(
+        vk_physical_device, vk_device, 
+        imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+        stagingBuffer, stagingBufferMemory
+    );
 
     void* data;
     vkMapMemory(vk_device, stagingBufferMemory, 0, imageSize, 0, &data);
     memcpy(data, testData, static_cast<size_t>(imageSize));
     vkUnmapMemory(vk_device, stagingBufferMemory);
 
-    vk_create_image(vk_physical_device, vk_device, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+    VkImage vk_texture_image;
 
-    vk_transition_image_layout(vk_device, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vk_graphics_queue, vk_command_pool);
-    vk_copy_buffer_to_image(vk_device, stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), vk_graphics_queue, vk_command_pool);
-    vk_transition_image_layout(vk_device, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, vk_graphics_queue, vk_command_pool);
+    vk_create_image(
+        vk_physical_device, vk_device, 
+        texWidth, texHeight, 
+        VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, 
+        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+        &vk_texture_image, vk_texture_image_memory);
+
+    vk_transition_image_layout(
+        vk_device, vk_texture_image, 
+        VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
+        vk_graphics_queue, vk_command_pool
+    );
+
+    vk_copy_buffer_to_image(
+        vk_device, stagingBuffer, 
+        vk_texture_image, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), 
+        vk_graphics_queue, vk_command_pool
+    );
+
+    vk_transition_image_layout(
+        vk_device, vk_texture_image, 
+        VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, 
+        vk_graphics_queue, vk_command_pool
+    );
 
     vkDestroyBuffer(vk_device, stagingBuffer, nullptr);
     vkFreeMemory(vk_device, stagingBufferMemory, nullptr);
+
+	return vk_texture_image;
 }

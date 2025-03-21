@@ -17,5 +17,6 @@ void vk_record_command_buffer(
     VkExtent2D vk_swap_chain_extent, VkRenderPass vk_render_pass,
     VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline,
 	std::vector<VkDescriptorSet> vk_descriptor_sets, uint32_t currentFrame,
-    std::vector<VkFramebuffer> vk_swap_chain_framebuffers
+    std::vector<VkFramebuffer> vk_swap_chain_framebuffers,
+    VkBuffer vk_vertex_buffer, VkBuffer vk_index_buffer
 );

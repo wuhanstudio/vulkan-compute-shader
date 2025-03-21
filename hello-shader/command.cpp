@@ -39,7 +39,8 @@ void vk_record_command_buffer(
     VkCommandBuffer vk_command_buffer, uint32_t imageIndex, 
     VkExtent2D vk_swap_chain_extent, VkRenderPass vk_render_pass,
     VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline,
-	std::vector<VkDescriptorSet> vk_descriptor_sets, uint32_t currentFrame, std::vector<VkFramebuffer> vk_swap_chain_framebuffers
+	std::vector<VkDescriptorSet> vk_descriptor_sets, uint32_t currentFrame, std::vector<VkFramebuffer> vk_swap_chain_framebuffers,
+	VkBuffer vk_vertex_buffer, VkBuffer vk_index_buffer
 ) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -77,10 +78,10 @@ void vk_record_command_buffer(
     scissor.extent = vk_swap_chain_extent;
     vkCmdSetScissor(vk_command_buffer, 0, 1, &scissor);
 
-    VkBuffer vertexBuffers[] = { vertexBuffer };
+    VkBuffer vertexBuffers[] = { vk_vertex_buffer };
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(vk_command_buffer, 0, 1, vertexBuffers, offsets);
-    vkCmdBindIndexBuffer(vk_command_buffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+    vkCmdBindIndexBuffer(vk_command_buffer, vk_index_buffer, 0, VK_INDEX_TYPE_UINT16);
     vkCmdBindDescriptorSets(vk_command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline_layout, 0, 1, &vk_descriptor_sets[currentFrame], 0, nullptr);
 
     vkCmdDrawIndexed(vk_command_buffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
