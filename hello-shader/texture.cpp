@@ -82,11 +82,11 @@ void vk_create_image(VkPhysicalDevice vk_physical_device, VkDevice vk_device, ui
     vkBindImageMemory(vk_device, image, imageMemory, 0);
 }
 
-VkCommandBuffer vk_begin_single_time_commands(VkDevice vk_device) {
+VkCommandBuffer vk_begin_single_time_commands(VkDevice vk_device, VkCommandPool vk_command_pool) {
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
+    allocInfo.commandPool = vk_command_pool;
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer;
@@ -101,22 +101,26 @@ VkCommandBuffer vk_begin_single_time_commands(VkDevice vk_device) {
     return commandBuffer;
 }
 
-void vk_end_single_time_commands(VkDevice vk_device, VkCommandBuffer commandBuffer) {
-    vkEndCommandBuffer(commandBuffer);
+void vk_end_single_time_commands(VkDevice vk_device, VkCommandBuffer vk_command_buffer, VkQueue vk_graphics_queue, VkCommandPool vk_command_pool) {
+    vkEndCommandBuffer(vk_command_buffer);
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
+    submitInfo.pCommandBuffers = &vk_command_buffer;
 
     vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(vk_graphics_queue);
 
-    vkFreeCommandBuffers(vk_device, commandPool, 1, &commandBuffer);
+    vkFreeCommandBuffers(vk_device, vk_command_pool, 1, &vk_command_buffer);
 }
 
-void vk_transition_image_layout(VkDevice vk_device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
-    VkCommandBuffer commandBuffer = vk_begin_single_time_commands(vk_device);
+void vk_transition_image_layout(
+    VkDevice vk_device, VkImage image, VkFormat format, 
+    VkImageLayout oldLayout, VkImageLayout newLayout,
+    VkQueue vk_graphics_queue, VkCommandPool vk_command_pool
+) {
+    VkCommandBuffer vk_command_buffer = vk_begin_single_time_commands(vk_device, vk_command_pool);
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -153,7 +157,7 @@ void vk_transition_image_layout(VkDevice vk_device, VkImage image, VkFormat form
     }
 
     vkCmdPipelineBarrier(
-        commandBuffer,
+        vk_command_buffer,
         sourceStage, destinationStage,
         0,
         0, nullptr,
@@ -161,11 +165,15 @@ void vk_transition_image_layout(VkDevice vk_device, VkImage image, VkFormat form
         1, &barrier
     );
 
-    vk_end_single_time_commands(vk_device, commandBuffer);
+    vk_end_single_time_commands(vk_device, vk_command_buffer, vk_graphics_queue, vk_command_pool);
 }
 
-void vk_copy_buffer_to_image(VkDevice vk_device, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) {
-    VkCommandBuffer commandBuffer = vk_begin_single_time_commands(vk_device);
+void vk_copy_buffer_to_image(
+    VkDevice vk_device, VkBuffer buffer, 
+    VkImage image, uint32_t width, uint32_t height,
+    VkQueue vk_graphics_queue, VkCommandPool vk_command_pool
+) {
+    VkCommandBuffer commandBuffer = vk_begin_single_time_commands(vk_device, vk_command_pool);
 
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
@@ -184,7 +192,7 @@ void vk_copy_buffer_to_image(VkDevice vk_device, VkBuffer buffer, VkImage image,
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
-    vk_end_single_time_commands(vk_device, commandBuffer);
+    vk_end_single_time_commands(vk_device, commandBuffer, vk_graphics_queue, vk_command_pool);
 }
 
 void vk_create_texture_imageview(VkDevice vk_device) {
@@ -215,7 +223,11 @@ void vk_create_texture_sampler(VkPhysicalDevice vk_physical_device, VkDevice vk_
     }
 }
 
-void vk_create_texture_image(VkPhysicalDevice vk_physical_device, VkDevice vk_device, int texWidth, int texHeight, int texChannels, uint8_t* testData) {
+void vk_create_texture_image(
+    VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
+    int texWidth, int texHeight, int texChannels, uint8_t* testData, 
+    VkQueue vk_graphics_queue, VkCommandPool vk_command_pool
+) {
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
 
@@ -245,9 +257,9 @@ void vk_create_texture_image(VkPhysicalDevice vk_physical_device, VkDevice vk_de
 
     vk_create_image(vk_physical_device, vk_device, texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
 
-    vk_transition_image_layout(vk_device, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    vk_copy_buffer_to_image(vk_device, stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    vk_transition_image_layout(vk_device, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    vk_transition_image_layout(vk_device, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vk_graphics_queue, vk_command_pool);
+    vk_copy_buffer_to_image(vk_device, stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight), vk_graphics_queue, vk_command_pool);
+    vk_transition_image_layout(vk_device, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, vk_graphics_queue, vk_command_pool);
 
     vkDestroyBuffer(vk_device, stagingBuffer, nullptr);
     vkFreeMemory(vk_device, stagingBufferMemory, nullptr);

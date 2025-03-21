@@ -62,5 +62,5 @@ const std::vector<uint16_t> indices = {
 };
 
 void vk_create_vertex_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_device);
-void vk_create_index_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_device);
+void vk_create_index_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkQueue vk_graphics_queue, VkCommandPool vk_command_pool);
 void vk_create_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);

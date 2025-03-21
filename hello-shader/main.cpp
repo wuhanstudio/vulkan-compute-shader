@@ -134,7 +134,8 @@ void vk_draw_frame(
     VkExtent2D vk_swap_chain_extent, std::vector<VkImage> vk_swapchain_images,
     std::vector<VkImageView> vk_swapchain_imageviews, VkRenderPass vk_render_pass,
     VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline,
-	VkFormat vk_swapchain_image_format, std::vector<VkDescriptorSet> vk_descriptor_sets
+	VkFormat vk_swapchain_image_format, std::vector<VkDescriptorSet> vk_descriptor_sets,
+	VkQueue vk_graphics_queue, VkQueue vk_present_queue, std::vector<VkCommandBuffer> vk_command_buffers
 ) {
     vkWaitForFences(vk_device, 1, &vk_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
 
@@ -156,12 +157,12 @@ void vk_draw_frame(
 
     vkResetFences(vk_device, 1, &vk_in_flight_fences[currentFrame]);
 
-    vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+    vkResetCommandBuffer(vk_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
     vk_record_command_buffer(
-        commandBuffers[currentFrame], imageIndex, 
+        vk_command_buffers[currentFrame], imageIndex, 
         vk_swap_chain_extent, vk_render_pass, 
         vk_pipeline_layout, vk_graphics_pipeline,
-		vk_descriptor_sets
+		vk_descriptor_sets, currentFrame
     );
 
     VkSubmitInfo submitInfo{};
@@ -174,7 +175,7 @@ void vk_draw_frame(
     submitInfo.pWaitDstStageMask = waitStages;
 
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+    submitInfo.pCommandBuffers = &vk_command_buffers[currentFrame];
 
     VkSemaphore signalSemaphores[] = { vk_render_finished_semaphores[currentFrame] };
     submitInfo.signalSemaphoreCount = 1;
@@ -238,7 +239,9 @@ int main() {
         VkSurfaceKHR vk_surface = vk_create_surface(vk_instance, gWindow);
 
         VkPhysicalDevice vk_physical_device = vk_pick_physical_device(vk_instance, vk_surface);
-        VkDevice vk_device = vk_create_logical_device(vk_physical_device, vk_surface);
+
+		VkQueue vk_graphics_queue, vk_present_queue;
+        VkDevice vk_device = vk_create_logical_device(vk_physical_device, vk_surface, &vk_graphics_queue, &vk_present_queue);
 
         SwapChainSupportDetails vk_swap_chain_support = vk_query_swapchain_support(vk_physical_device, vk_surface);
         VkSurfaceFormatKHR surfaceFormat = vk_choose_swap_surface_format(vk_swap_chain_support.formats);
@@ -262,20 +265,18 @@ int main() {
         VkExtent2D vk_swap_chain_extent = vk_choose_swap_extent(vk_swap_chain_support.capabilities, gWindow);
         vk_create_frame_buffers(vk_device, vk_swap_chain_extent, vk_swapchain_imageviews, vk_render_pass);
 
+        VkCommandPool vk_command_pool = vk_create_command_pool(vk_physical_device, vk_device, vk_surface);
+        std::vector<VkCommandBuffer> vk_command_buffers = vk_create_command_buffers(vk_device, vk_swap_chain_extent, vk_command_pool);
 
-        vk_create_command_pool(vk_physical_device, vk_device, vk_surface);
-
-        vk_create_texture_image(vk_physical_device, vk_device, WIDTH, HEIGHT, 4, testData);
+        vk_create_texture_image(vk_physical_device, vk_device, WIDTH, HEIGHT, 4, testData, vk_graphics_queue, vk_command_pool);
         vk_create_texture_imageview(vk_device);
         vk_create_texture_sampler(vk_physical_device, vk_device);
 
         vk_create_vertex_buffer(vk_physical_device, vk_device);
-        vk_create_index_buffer(vk_physical_device, vk_device);
+        vk_create_index_buffer(vk_physical_device, vk_device, vk_graphics_queue, vk_command_pool);
 
         VkDescriptorPool vk_descriptor_pool = vk_create_descriptor_pool(vk_device);
         std::vector<VkDescriptorSet> vk_descriptor_sets = vk_create_descriptor_sets(vk_device, vk_descriptor_set_layout, vk_descriptor_pool);
-
-        vk_create_command_buffers(vk_device, vk_swap_chain_extent);
 
         vk_create_sync_objects(vk_device);
 
@@ -286,7 +287,8 @@ int main() {
                 vk_swapchain, vk_swap_chain_extent, 
                 vk_swapchain_images, vk_swapchain_imageviews, 
                 vk_render_pass, vk_pipeline_layout, vk_graphics_pipeline, 
-                vk_swapchain_image_format, vk_descriptor_sets);
+                vk_swapchain_image_format, vk_descriptor_sets,
+                vk_graphics_queue, vk_present_queue, vk_command_buffers);
         }
 
         vkDeviceWaitIdle(vk_device);
@@ -320,7 +322,7 @@ int main() {
             vkDestroyFence(vk_device, vk_in_flight_fences[i], nullptr);
         }
 
-        vkDestroyCommandPool(vk_device, commandPool, nullptr);
+        vkDestroyCommandPool(vk_device, vk_command_pool, nullptr);
 
         vkDestroyDevice(vk_device, nullptr);
 

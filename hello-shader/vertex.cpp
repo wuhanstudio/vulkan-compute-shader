@@ -64,11 +64,11 @@ void vk_create_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_device, V
     vkBindBufferMemory(vk_device, buffer, bufferMemory, 0);
 }
 
-void vk_copy_buffer(VkDevice vk_device, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+void vk_copy_buffer(VkDevice vk_device, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkQueue vk_graphics_queue, VkCommandPool vk_command_pool) {
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
+    allocInfo.commandPool = vk_command_pool;
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer;
@@ -94,10 +94,10 @@ void vk_copy_buffer(VkDevice vk_device, VkBuffer srcBuffer, VkBuffer dstBuffer, 
     vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(vk_graphics_queue);
 
-    vkFreeCommandBuffers(vk_device, commandPool, 1, &commandBuffer);
+    vkFreeCommandBuffers(vk_device, vk_command_pool, 1, &commandBuffer);
 }
 
-void vk_create_index_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_device) {
+void vk_create_index_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkQueue vk_graphics_queue, VkCommandPool vk_command_pool) {
     VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
     VkBuffer stagingBuffer;
@@ -111,7 +111,7 @@ void vk_create_index_buffer(VkPhysicalDevice vk_physical_device, VkDevice vk_dev
 
     vk_create_buffer(vk_physical_device, vk_device, bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, indexBuffer, indexBufferMemory);
 
-    vk_copy_buffer(vk_device, stagingBuffer, indexBuffer, bufferSize);
+    vk_copy_buffer(vk_device, stagingBuffer, indexBuffer, bufferSize, vk_graphics_queue, vk_command_pool);
 
     vkDestroyBuffer(vk_device, stagingBuffer, nullptr);
     vkFreeMemory(vk_device, stagingBufferMemory, nullptr);
