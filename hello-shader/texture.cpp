@@ -6,8 +6,6 @@ VkDeviceMemory textureImageMemory;
 VkImageView textureImageView;
 VkSampler textureSampler;
 
-VkDescriptorSetLayout descriptorSetLayout;
-
 VkDescriptorPool descriptorPool;
 std::vector<VkDescriptorSet> descriptorSets;
 
@@ -49,7 +47,7 @@ void vk_create_descriptor_pool(VkDevice vk_device) {
     }
 }
 
-void vk_create_descriptor_set_layout(VkDevice vk_device) {
+VkDescriptorSetLayout vk_create_descriptor_set_layout(VkDevice vk_device) {
     VkDescriptorSetLayoutBinding samplerLayoutBinding{};
     samplerLayoutBinding.binding = 0;
     samplerLayoutBinding.descriptorCount = 1;
@@ -63,9 +61,12 @@ void vk_create_descriptor_set_layout(VkDevice vk_device) {
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    if (vkCreateDescriptorSetLayout(vk_device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
+    VkDescriptorSetLayout vk_descriptor_set_layout;
+    if (vkCreateDescriptorSetLayout(vk_device, &layoutInfo, nullptr, &vk_descriptor_set_layout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
+
+	return vk_descriptor_set_layout;
 }
 
 void vk_create_image(VkPhysicalDevice vk_physical_device, VkDevice vk_device, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
@@ -236,8 +237,8 @@ void vk_create_texture_sampler(VkPhysicalDevice vk_physical_device, VkDevice vk_
     }
 }
 
-void vk_create_descriptor_sets(VkDevice vk_device) {
-    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
+void vk_update_descriptor_sets(VkDevice vk_device, VkDescriptorSetLayout vk_descriptor_set_layout) {
+    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, vk_descriptor_set_layout);
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;

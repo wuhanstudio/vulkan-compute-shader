@@ -7,11 +7,11 @@
 
 #include "vertex.h"
 
-extern VkRenderPass renderPass;
-extern VkPipelineLayout pipelineLayout;
-extern VkPipeline graphicsPipeline;
+VkRenderPass vk_create_render_pass(VkDevice vk_device);
+VkPipelineLayout vk_create_pipeline_layout(VkDevice vk_device, VkDescriptorSetLayout vk_descriptor_set_layout);
 
-extern VkDescriptorSetLayout descriptorSetLayout;
-
-void vk_create_render_pass(VkDevice vk_device);
-void vk_create_graphics_pipeline(VkDevice vk_device, std::vector<char> vertShaderCode, std::vector<char> fragShaderCode);
+VkPipeline vk_create_graphics_pipeline(
+	VkDevice vk_device, 
+	std::vector<char> vertShaderCode, std::vector<char> fragShaderCode,
+	VkRenderPass vk_render_pass, VkDescriptorSetLayout vk_descriptor_set_layout, VkPipelineLayout vk_pipeline_layout
+);

@@ -35,7 +35,11 @@ void vk_create_command_buffers(VkDevice vk_device, VkExtent2D vk_swap_chain_exte
     }
 }
 
-void vk_record_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, VkExtent2D vk_swap_chain_extent) {
+void vk_record_command_buffer(
+    VkCommandBuffer commandBuffer, uint32_t imageIndex, 
+    VkExtent2D vk_swap_chain_extent, VkRenderPass vk_render_pass,
+    VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline
+) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -45,7 +49,7 @@ void vk_record_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = renderPass;
+    renderPassInfo.renderPass = vk_render_pass;
     renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = vk_swap_chain_extent;
@@ -56,7 +60,7 @@ void vk_record_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_graphics_pipeline);
 
     VkViewport viewport{};
     viewport.x = 0.0f;
@@ -76,7 +80,7 @@ void vk_record_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
     vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline_layout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 

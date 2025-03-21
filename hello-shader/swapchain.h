@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
@@ -25,12 +25,18 @@ VkSwapchainKHR vk_create_swapchain(
 );
 
 VkExtent2D vk_choose_swap_extent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
+std::vector<VkImage> vk_create_swapchain_images(VkDevice vk_device, VkSwapchainKHR vk_swap_chain);
 
-void vk_cleanup_swap_chain(VkDevice vk_device, VkSwapchainKHR vk_swapchain);
+void vk_cleanup_swap_chain(
+    VkDevice vk_device, VkSwapchainKHR vk_swapchain, 
+    std::vector<VkImageView> vk_swapchain_imageviews
+);
 
 void vk_recreate_swapchain(
     VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
     VkSurfaceKHR vk_surface, GLFWwindow* window,
     VkSwapchainKHR vk_swap_chain, VkExtent2D vk_swap_chain_extent,
-    std::vector<VkImage> vk_swap_chain_images
+    std::vector<VkImage> vk_swap_chain_images,
+    std::vector<VkImageView> vk_swapchain_imageviews,
+    VkRenderPass vk_render_pass
 );

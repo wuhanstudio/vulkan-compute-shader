@@ -12,8 +12,6 @@ extern VkDeviceMemory textureImageMemory;
 extern VkImageView textureImageView;
 extern VkSampler textureSampler;
 
-extern VkDescriptorSetLayout descriptorSetLayout;
-
 extern VkDescriptorPool descriptorPool;
 
 extern std::vector<VkDescriptorSet> descriptorSets;
@@ -33,8 +31,8 @@ void vk_create_image(
 	VkImage& image, VkDeviceMemory& imageMemory
 );
 
-void vk_create_descriptor_set_layout(VkDevice vk_device);
-void vk_create_descriptor_sets(VkDevice vk_device);
+VkDescriptorSetLayout vk_create_descriptor_set_layout(VkDevice vk_device);
+void vk_update_descriptor_sets(VkDevice vk_device, VkDescriptorSetLayout vk_descriptor_set_layout);
 
 void vk_create_texture_image(
 	VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
