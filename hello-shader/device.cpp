@@ -1,6 +1,7 @@
 #include "device.h"
 
 #include <fmt/core.h>
+#include <iostream>
 #include <set>
 
 #include "swapchain.h"
@@ -98,22 +99,19 @@ VkPhysicalDevice vk_pick_physical_device(VkInstance vk_instance, VkSurfaceKHR vk
 	fmt::println("");
 
 	// Find a suitable device
-	VkPhysicalDevice vk_physical_device = VK_NULL_HANDLE;
-    for (const auto& device : devices) {
-        if (vk_is_device_suitable(device, vk_surface)) {
-            fmt::println("Selected device:");
-            vk_print_device_name(device);
-
-            vk_physical_device = device;
-            break;
+    int deviceIndex = -1;
+    printf("Choose a physical device:\n");
+    while (deviceIndex < 0 || deviceIndex >= deviceCount) {
+        printf("Device index from 0 to %d:\n", -1 + deviceCount);
+        std::cin >> deviceIndex;
+        if (!vk_is_device_suitable(devices[deviceIndex], vk_surface))
+        {
+			deviceIndex = -1;
         }
     }
+    printf("Chosen Device %d\n", deviceIndex);
 
-    if (vk_physical_device == VK_NULL_HANDLE) {
-        throw std::runtime_error("Failed to find a suitable GPU!");
-    }
-
-	return vk_physical_device;
+	return devices[deviceIndex];
 }
 
 VkDevice vk_create_logical_device(VkPhysicalDevice vk_physical_device, VkSurfaceKHR vk_surface) {
