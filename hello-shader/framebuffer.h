@@ -6,4 +6,4 @@
 
 extern std::vector<VkFramebuffer> swapChainFramebuffers;
 
-void vk_create_frame_buffers(VkDevice vk_device);
+void vk_create_frame_buffers(VkDevice vk_device, VkExtent2D vk_swap_chain_extent);

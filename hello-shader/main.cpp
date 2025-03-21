@@ -69,14 +69,22 @@ void vk_create_sync_objects(VkDevice vk_device) {
     }
 }
 
-void vk_draw_frame(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkSurfaceKHR vk_surface) {
+void vk_draw_frame(
+    VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
+    VkSurfaceKHR vk_surface, VkSwapchainKHR vk_swap_chain, 
+    VkExtent2D vk_swap_chain_extent, std::vector<VkImage> vk_swap_chain_images
+) {
     vkWaitForFences(vk_device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(vk_device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(vk_device, vk_swap_chain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        vk_recreate_swapchain(vk_physical_device, vk_device, vk_surface, gWindow);
+        vk_recreate_swapchain(
+            vk_physical_device, vk_device, 
+            vk_surface, gWindow, vk_swap_chain, 
+            vk_swap_chain_extent, vk_swap_chain_images
+        );
         return;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -86,7 +94,7 @@ void vk_draw_frame(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkSu
     vkResetFences(vk_device, 1, &inFlightFences[currentFrame]);
 
     vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
-    recordCommandBuffer(commandBuffers[currentFrame], imageIndex);
+    vk_record_command_buffer(commandBuffers[currentFrame], imageIndex, vk_swap_chain_extent);
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -114,7 +122,7 @@ void vk_draw_frame(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkSu
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
-    VkSwapchainKHR swapChains[] = { swapChain };
+    VkSwapchainKHR swapChains[] = { vk_swap_chain };
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
 
@@ -123,7 +131,10 @@ void vk_draw_frame(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkSu
     result = vkQueuePresentKHR(vk_present_queue, &presentInfo);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-        vk_recreate_swapchain(vk_physical_device, vk_device, vk_surface, gWindow);
+        vk_recreate_swapchain(
+            vk_physical_device, vk_device, 
+            vk_surface, gWindow, vk_swap_chain, 
+            vk_swap_chain_extent, vk_swap_chain_images);
     }
     else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
@@ -159,18 +170,27 @@ int main() {
         VkPhysicalDevice vk_physical_device = vk_pick_physical_device(vk_instance, vk_surface);
         VkDevice vk_device = vk_create_logical_device(vk_physical_device, vk_surface);
 
-        vk_create_swapchain(vk_physical_device, vk_device, vk_surface, gWindow);
-        vk_create_image_views(vk_device);
+        VkSwapchainKHR vk_swap_chain = vk_create_swapchain(vk_physical_device, vk_device, vk_surface, gWindow);
 
+        SwapChainSupportDetails vk_swap_chain_support = vk_query_swapchain_support(vk_physical_device, vk_surface);
+        VkExtent2D vk_swap_chain_extent = vk_choose_swap_extent(vk_swap_chain_support.capabilities, gWindow);
+
+        uint32_t imageCount;
+        vkGetSwapchainImagesKHR(vk_device, vk_swap_chain, &imageCount, nullptr);
+
+        std::vector<VkImage> vk_swap_chain_images;
+        vk_swap_chain_images.resize(imageCount);
+        vkGetSwapchainImagesKHR(vk_device, vk_swap_chain, &imageCount, vk_swap_chain_images.data());
+
+        vk_create_image_views(vk_device, vk_swap_chain_images);
         vk_create_render_pass(vk_device);
-
         vk_create_descriptor_set_layout(vk_device);
 
         auto vertShaderCode = read_file("shader/vert.spv");
         auto fragShaderCode = read_file("shader/frag.spv");
         vk_create_graphics_pipeline(vk_device, vertShaderCode, fragShaderCode);
 
-        vk_create_frame_buffers(vk_device);
+        vk_create_frame_buffers(vk_device, vk_swap_chain_extent);
 
         vk_create_command_pool(vk_physical_device, vk_device, vk_surface);
 
@@ -184,19 +204,21 @@ int main() {
         vk_create_descriptor_pool(vk_device);
         vk_create_descriptor_sets(vk_device);
 
-        vk_create_command_buffers(vk_device);
+        vk_create_command_buffers(vk_device, vk_swap_chain_extent);
 
         vk_create_sync_objects(vk_device);
 
         while (!glfwWindowShouldClose(gWindow)) {
             glfwPollEvents();
-            vk_draw_frame(vk_physical_device, vk_device, vk_surface);
+            vk_draw_frame(
+                vk_physical_device, vk_device, vk_surface, 
+                vk_swap_chain, vk_swap_chain_extent, vk_swap_chain_images);
         }
 
         vkDeviceWaitIdle(vk_device);
 
         // Clean Up
-        vk_cleanup_swap_chain(vk_device);
+        vk_cleanup_swap_chain(vk_device, vk_swap_chain);
 
         vkDestroyPipeline(vk_device, graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(vk_device, pipelineLayout, nullptr);

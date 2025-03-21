@@ -23,7 +23,7 @@ VkShaderModule vk_create_shader_module(VkDevice vk_device, const std::vector<cha
 
 void vk_create_render_pass(VkDevice vk_device) {
     VkAttachmentDescription colorAttachment{};
-    colorAttachment.format = swapChainImageFormat;
+    colorAttachment.format = vk_swap_chain_image_format;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
