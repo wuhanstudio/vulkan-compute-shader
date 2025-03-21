@@ -40,8 +40,8 @@ std::vector<VkImage> vk_create_swapchain_images(VkDevice vk_device, VkSwapchainK
 	return vk_swap_chain_images;
 }
 
-void vk_cleanup_swap_chain(VkDevice vk_device, VkSwapchainKHR vk_swap_chain, std::vector<VkImageView> vk_swapchain_imageviews) {
-    for (auto framebuffer : swapChainFramebuffers) {
+void vk_cleanup_swap_chain(VkDevice vk_device, VkSwapchainKHR vk_swap_chain, std::vector<VkImageView> vk_swapchain_imageviews, std::vector<VkFramebuffer> vk_swapchain_framebuffers) {
+    for (auto framebuffer : vk_swapchain_framebuffers) {
         vkDestroyFramebuffer(vk_device, framebuffer, nullptr);
     }
 
@@ -57,7 +57,7 @@ void vk_recreate_swapchain(
     VkSurfaceKHR vk_surface, GLFWwindow* window,
     VkSwapchainKHR vk_swap_chain, VkExtent2D vk_swap_chain_extent,
     std::vector<VkImage> vk_swap_chain_images, std::vector<VkImageView> vk_swapchain_imageviews,
-    VkRenderPass vk_render_pass, VkFormat vk_swapchain_image_format
+    VkRenderPass vk_render_pass, VkFormat vk_swapchain_image_format, std::vector<VkFramebuffer> vk_swap_chain_framebuffers
 ) {
     int width = 0, height = 0;
     glfwGetFramebufferSize(window, &width, &height);
@@ -68,7 +68,7 @@ void vk_recreate_swapchain(
 
     vkDeviceWaitIdle(vk_device);
 
-    vk_cleanup_swap_chain(vk_device, vk_swap_chain, vk_swapchain_imageviews);
+    vk_cleanup_swap_chain(vk_device, vk_swap_chain, vk_swapchain_imageviews, vk_swap_chain_framebuffers);
 
     vk_create_swapchain(vk_physical_device, vk_device, vk_surface, window);
     vk_create_image_views(vk_device, vk_swap_chain_images, vk_swapchain_image_format);

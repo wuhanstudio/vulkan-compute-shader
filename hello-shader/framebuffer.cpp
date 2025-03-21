@@ -2,13 +2,13 @@
 
 #include <stdexcept>
 
-std::vector<VkFramebuffer> swapChainFramebuffers;
-
-void vk_create_frame_buffers(
+std::vector<VkFramebuffer> vk_create_frame_buffers(
     VkDevice vk_device, VkExtent2D vk_swap_chain_extent, 
     std::vector<VkImageView> vk_swapchain_imageviews,
     VkRenderPass vk_render_pass) {
-    swapChainFramebuffers.resize(vk_swapchain_imageviews.size());
+
+    std::vector<VkFramebuffer> vk_swap_chain_framebuffers;
+    vk_swap_chain_framebuffers.resize(vk_swapchain_imageviews.size());
 
     for (size_t i = 0; i < vk_swapchain_imageviews.size(); i++) {
         VkImageView attachments[] = {
@@ -24,9 +24,11 @@ void vk_create_frame_buffers(
         framebufferInfo.height = vk_swap_chain_extent.height;
         framebufferInfo.layers = 1;
 
-        if (vkCreateFramebuffer(vk_device, &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+        if (vkCreateFramebuffer(vk_device, &framebufferInfo, nullptr, &vk_swap_chain_framebuffers[i]) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create framebuffer!");
         }
     }
+
+	return vk_swap_chain_framebuffers;
 }
 

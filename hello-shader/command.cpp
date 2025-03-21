@@ -39,7 +39,7 @@ void vk_record_command_buffer(
     VkCommandBuffer vk_command_buffer, uint32_t imageIndex, 
     VkExtent2D vk_swap_chain_extent, VkRenderPass vk_render_pass,
     VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline,
-	std::vector<VkDescriptorSet> vk_descriptor_sets, uint32_t currentFrame
+	std::vector<VkDescriptorSet> vk_descriptor_sets, uint32_t currentFrame, std::vector<VkFramebuffer> vk_swap_chain_framebuffers
 ) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -51,7 +51,7 @@ void vk_record_command_buffer(
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassInfo.renderPass = vk_render_pass;
-    renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
+    renderPassInfo.framebuffer = vk_swap_chain_framebuffers[imageIndex];
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = vk_swap_chain_extent;
 
