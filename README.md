@@ -28,7 +28,7 @@ $ source ~/.bashrc
 $ vcpkg integrate install
 ```
 
-Install vulkan-validationlayers for debugging:
+Install `vulkan-validationlayers` for debugging:
 
 ```
 $ sudo apt install vulkan-validationlayers
