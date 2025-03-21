@@ -14,8 +14,10 @@ extern std::vector<VkCommandBuffer> commandBuffers;
 
 void vk_create_command_pool(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkSurfaceKHR vk_surface);
 void vk_create_command_buffers(VkDevice vk_device, VkExtent2D vk_swap_chain_extent);
+
 void vk_record_command_buffer(
-	VkCommandBuffer commandBuffer, uint32_t imageIndex, 
-	VkExtent2D vk_swap_chain_extent, VkRenderPass vk_render_pass, 
-	VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline
+    VkCommandBuffer commandBuffer, uint32_t imageIndex,
+    VkExtent2D vk_swap_chain_extent, VkRenderPass vk_render_pass,
+    VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline,
+	std::vector<VkDescriptorSet> vk_descriptor_sets
 );

@@ -12,13 +12,9 @@ extern VkDeviceMemory textureImageMemory;
 extern VkImageView textureImageView;
 extern VkSampler textureSampler;
 
-extern VkDescriptorPool descriptorPool;
+VkDescriptorPool vk_create_descriptor_pool(VkDevice vk_device);
 
-extern std::vector<VkDescriptorSet> descriptorSets;
-
-void vk_create_descriptor_pool(VkDevice vk_device);
-
-void vk_create_texture_image_view(VkDevice vk_device);
+void vk_create_texture_imageview(VkDevice vk_device);
 void vk_create_texture_sampler(VkPhysicalDevice vk_physical_device, VkDevice vk_device);
 
 void vk_transition_image_layout(VkDevice vk_device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -30,9 +26,6 @@ void vk_create_image(
 	VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, 
 	VkImage& image, VkDeviceMemory& imageMemory
 );
-
-VkDescriptorSetLayout vk_create_descriptor_set_layout(VkDevice vk_device);
-void vk_update_descriptor_sets(VkDevice vk_device, VkDescriptorSetLayout vk_descriptor_set_layout);
 
 void vk_create_texture_image(
 	VkPhysicalDevice vk_physical_device, VkDevice vk_device, 

@@ -6,7 +6,7 @@ VkCommandPool commandPool;
 std::vector<VkCommandBuffer> commandBuffers;
 
 extern uint32_t currentFrame;
-extern std::vector<VkDescriptorSet> descriptorSets;
+extern std::vector<VkDescriptorSet> vk_descriptor_sets;
 
 void vk_create_command_pool(VkPhysicalDevice vk_physical_device, VkDevice vk_device, VkSurfaceKHR vk_surface) {
     QueueFamilyIndices queueFamilyIndices = vk_find_queue_families(vk_physical_device, vk_surface);
@@ -38,7 +38,8 @@ void vk_create_command_buffers(VkDevice vk_device, VkExtent2D vk_swap_chain_exte
 void vk_record_command_buffer(
     VkCommandBuffer commandBuffer, uint32_t imageIndex, 
     VkExtent2D vk_swap_chain_extent, VkRenderPass vk_render_pass,
-    VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline
+    VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline,
+    std::vector<VkDescriptorSet> vk_descriptor_sets
 ) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -80,7 +81,7 @@ void vk_record_command_buffer(
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
     vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline_layout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_pipeline_layout, 0, 1, &vk_descriptor_sets[currentFrame], 0, nullptr);
 
     vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 

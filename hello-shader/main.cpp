@@ -25,9 +25,9 @@ uint8_t testData[WIDTH * HEIGHT * 4];
 
 GLFWwindow* gWindow;
 
-std::vector<VkSemaphore> imageAvailableSemaphores;
-std::vector<VkSemaphore> renderFinishedSemaphores;
-std::vector<VkFence> inFlightFences;
+std::vector<VkSemaphore> vk_image_available_semaphores;
+std::vector<VkSemaphore> vk_render_finished_semaphores;
+std::vector<VkFence> vk_in_flight_fences;
 uint32_t currentFrame = 0;
 
 static std::vector<char> read_file(const std::string& filename) {
@@ -49,9 +49,9 @@ static std::vector<char> read_file(const std::string& filename) {
 }
 
 void vk_create_sync_objects(VkDevice vk_device) {
-    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+    vk_image_available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    vk_render_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    vk_in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -61,12 +61,71 @@ void vk_create_sync_objects(VkDevice vk_device) {
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        if (vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(vk_device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
+        if (vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_image_available_semaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_render_finished_semaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(vk_device, &fenceInfo, nullptr, &vk_in_flight_fences[i]) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create synchronization objects for a frame!");
         }
     }
+}
+
+VkDescriptorSetLayout vk_create_descriptor_set_layout(VkDevice vk_device) {
+    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
+    samplerLayoutBinding.binding = 0;
+    samplerLayoutBinding.descriptorCount = 1;
+    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    samplerLayoutBinding.pImmutableSamplers = nullptr;
+    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    std::array<VkDescriptorSetLayoutBinding, 1> bindings = { samplerLayoutBinding };
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+    layoutInfo.pBindings = bindings.data();
+
+    VkDescriptorSetLayout vk_descriptor_set_layout;
+    if (vkCreateDescriptorSetLayout(vk_device, &layoutInfo, nullptr, &vk_descriptor_set_layout) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor set layout!");
+    }
+
+    return vk_descriptor_set_layout;
+}
+
+std::vector<VkDescriptorSet> vk_create_descriptor_sets(VkDevice vk_device, VkDescriptorSetLayout vk_descriptor_set_layout, VkDescriptorPool vk_descriptor_pool)
+{
+    std::vector<VkDescriptorSetLayout> vk_descriptor_set_layouts(MAX_FRAMES_IN_FLIGHT, vk_descriptor_set_layout);
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = vk_descriptor_pool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    allocInfo.pSetLayouts = vk_descriptor_set_layouts.data();
+
+	std::vector<VkDescriptorSet> vk_descriptor_sets;
+    vk_descriptor_sets.resize(MAX_FRAMES_IN_FLIGHT);
+    if (vkAllocateDescriptorSets(vk_device, &allocInfo, vk_descriptor_sets.data()) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate descriptor sets!");
+    }
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        VkDescriptorImageInfo imageInfo{};
+        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imageInfo.imageView = textureImageView;
+        imageInfo.sampler = textureSampler;
+
+        std::array<VkWriteDescriptorSet, 1> descriptorWrites{};
+
+        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[0].dstSet = vk_descriptor_sets[i];
+        descriptorWrites[0].dstBinding = 0;
+        descriptorWrites[0].dstArrayElement = 0;
+        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].pImageInfo = &imageInfo;
+
+        vkUpdateDescriptorSets(vk_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+    }
+
+	return vk_descriptor_sets;
 }
 
 void vk_draw_frame(
@@ -75,12 +134,12 @@ void vk_draw_frame(
     VkExtent2D vk_swap_chain_extent, std::vector<VkImage> vk_swapchain_images,
     std::vector<VkImageView> vk_swapchain_imageviews, VkRenderPass vk_render_pass,
     VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline,
-    VkFormat vk_swapchain_image_format
+	VkFormat vk_swapchain_image_format, std::vector<VkDescriptorSet> vk_descriptor_sets
 ) {
-    vkWaitForFences(vk_device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkWaitForFences(vk_device, 1, &vk_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(vk_device, vk_swap_chain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(vk_device, vk_swap_chain, UINT64_MAX, vk_image_available_semaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         vk_recreate_swapchain(
@@ -95,19 +154,20 @@ void vk_draw_frame(
         throw std::runtime_error("failed to acquire swap chain image!");
     }
 
-    vkResetFences(vk_device, 1, &inFlightFences[currentFrame]);
+    vkResetFences(vk_device, 1, &vk_in_flight_fences[currentFrame]);
 
     vkResetCommandBuffer(commandBuffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
     vk_record_command_buffer(
         commandBuffers[currentFrame], imageIndex, 
         vk_swap_chain_extent, vk_render_pass, 
-        vk_pipeline_layout, vk_graphics_pipeline
+        vk_pipeline_layout, vk_graphics_pipeline,
+		vk_descriptor_sets
     );
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+    VkSemaphore waitSemaphores[] = { vk_image_available_semaphores[currentFrame] };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -116,11 +176,11 @@ void vk_draw_frame(
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
 
-    VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+    VkSemaphore signalSemaphores[] = { vk_render_finished_semaphores[currentFrame] };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS) {
+    if (vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, vk_in_flight_fences[currentFrame]) != VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
 
@@ -206,14 +266,14 @@ int main() {
         vk_create_command_pool(vk_physical_device, vk_device, vk_surface);
 
         vk_create_texture_image(vk_physical_device, vk_device, WIDTH, HEIGHT, 4, testData);
-        vk_create_texture_image_view(vk_device);
+        vk_create_texture_imageview(vk_device);
         vk_create_texture_sampler(vk_physical_device, vk_device);
 
         vk_create_vertex_buffer(vk_physical_device, vk_device);
         vk_create_index_buffer(vk_physical_device, vk_device);
 
-        vk_create_descriptor_pool(vk_device);
-        vk_update_descriptor_sets(vk_device, vk_descriptor_set_layout);
+        VkDescriptorPool vk_descriptor_pool = vk_create_descriptor_pool(vk_device);
+        std::vector<VkDescriptorSet> vk_descriptor_sets = vk_create_descriptor_sets(vk_device, vk_descriptor_set_layout, vk_descriptor_pool);
 
         vk_create_command_buffers(vk_device, vk_swap_chain_extent);
 
@@ -225,7 +285,8 @@ int main() {
                 vk_physical_device, vk_device, vk_surface, 
                 vk_swapchain, vk_swap_chain_extent, 
                 vk_swapchain_images, vk_swapchain_imageviews, 
-                vk_render_pass, vk_pipeline_layout, vk_graphics_pipeline, vk_swapchain_image_format);
+                vk_render_pass, vk_pipeline_layout, vk_graphics_pipeline, 
+                vk_swapchain_image_format, vk_descriptor_sets);
         }
 
         vkDeviceWaitIdle(vk_device);
@@ -237,7 +298,7 @@ int main() {
         vkDestroyPipelineLayout(vk_device, vk_pipeline_layout, nullptr);
         vkDestroyRenderPass(vk_device, vk_render_pass, nullptr);
 
-        vkDestroyDescriptorPool(vk_device, descriptorPool, nullptr);
+        vkDestroyDescriptorPool(vk_device, vk_descriptor_pool, nullptr);
 
         vkDestroySampler(vk_device, textureSampler, nullptr);
         vkDestroyImageView(vk_device, textureImageView, nullptr);
@@ -254,9 +315,9 @@ int main() {
         vkFreeMemory(vk_device, vertexBufferMemory, nullptr);
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-            vkDestroySemaphore(vk_device, renderFinishedSemaphores[i], nullptr);
-            vkDestroySemaphore(vk_device, imageAvailableSemaphores[i], nullptr);
-            vkDestroyFence(vk_device, inFlightFences[i], nullptr);
+            vkDestroySemaphore(vk_device, vk_render_finished_semaphores[i], nullptr);
+            vkDestroySemaphore(vk_device, vk_image_available_semaphores[i], nullptr);
+            vkDestroyFence(vk_device, vk_in_flight_fences[i], nullptr);
         }
 
         vkDestroyCommandPool(vk_device, commandPool, nullptr);
