@@ -2,19 +2,10 @@
 #include <GLFW/glfw3.h>
 
 #include <vulkan/vulkan.h>
-#include <glm/glm.hpp>
 
 #include <fmt/core.h>
-#include <iostream>
 #include <fstream>
-#include <stdexcept>
-#include <algorithm>
 #include <vector>
-#include <cstring>
-#include <cstdlib>
-#include <cstdint>
-#include <limits>
-#include <set>
 
 #include "instance.h"
 #include "device.h"
