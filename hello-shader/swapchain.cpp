@@ -57,7 +57,7 @@ void vk_recreate_swapchain(
     VkSurfaceKHR vk_surface, GLFWwindow* window,
     VkSwapchainKHR vk_swap_chain, VkExtent2D vk_swap_chain_extent,
     std::vector<VkImage> vk_swap_chain_images, std::vector<VkImageView> vk_swapchain_imageviews,
-    VkRenderPass vk_render_pass
+    VkRenderPass vk_render_pass, VkFormat vk_swapchain_image_format
 ) {
     int width = 0, height = 0;
     glfwGetFramebufferSize(window, &width, &height);
@@ -71,7 +71,7 @@ void vk_recreate_swapchain(
     vk_cleanup_swap_chain(vk_device, vk_swap_chain, vk_swapchain_imageviews);
 
     vk_create_swapchain(vk_physical_device, vk_device, vk_surface, window);
-    vk_create_image_views(vk_device, vk_swap_chain_images);
+    vk_create_image_views(vk_device, vk_swap_chain_images, vk_swapchain_image_format);
     vk_create_frame_buffers(vk_device, vk_swap_chain_extent, vk_swapchain_imageviews, vk_render_pass);
 }
 
@@ -162,8 +162,6 @@ VkSwapchainKHR vk_create_swapchain(
     if (vkCreateSwapchainKHR(vk_device, &createInfo, nullptr, &vk_swap_chain) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create swap chain!");
     }
-
-    vk_swapchain_image_format = surfaceFormat.format;
 
 	return vk_swap_chain;
 }

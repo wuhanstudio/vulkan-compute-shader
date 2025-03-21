@@ -25,6 +25,8 @@ VkSwapchainKHR vk_create_swapchain(
 );
 
 VkExtent2D vk_choose_swap_extent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
+VkSurfaceFormatKHR vk_choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+
 std::vector<VkImage> vk_create_swapchain_images(VkDevice vk_device, VkSwapchainKHR vk_swap_chain);
 
 void vk_cleanup_swap_chain(
@@ -38,5 +40,5 @@ void vk_recreate_swapchain(
     VkSwapchainKHR vk_swap_chain, VkExtent2D vk_swap_chain_extent,
     std::vector<VkImage> vk_swap_chain_images,
     std::vector<VkImageView> vk_swapchain_imageviews,
-    VkRenderPass vk_render_pass
+    VkRenderPass vk_render_pass, VkFormat vk_swapchain_image_format
 );

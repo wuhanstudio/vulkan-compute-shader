@@ -17,7 +17,7 @@ VkShaderModule vk_create_shader_module(VkDevice vk_device, const std::vector<cha
     return shaderModule;
 }
 
-VkRenderPass vk_create_render_pass(VkDevice vk_device) {
+VkRenderPass vk_create_render_pass(VkDevice vk_device, VkFormat vk_swapchain_image_format) {
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = vk_swapchain_image_format;
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;

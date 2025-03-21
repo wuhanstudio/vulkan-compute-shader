@@ -7,7 +7,7 @@
 
 #include "vertex.h"
 
-VkRenderPass vk_create_render_pass(VkDevice vk_device);
+VkRenderPass vk_create_render_pass(VkDevice vk_device, VkFormat vk_swapchain_image_format);
 VkPipelineLayout vk_create_pipeline_layout(VkDevice vk_device, VkDescriptorSetLayout vk_descriptor_set_layout);
 
 VkPipeline vk_create_graphics_pipeline(
