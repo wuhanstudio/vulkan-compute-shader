@@ -151,6 +151,18 @@ This project calculates the fractal on CPU and GPU, respectivily.
 $ cd hello-sim-fractal
 $ cmake -B build --preset vcpkg
 $ cmake --build build
+```
+
+We also need to compile the compute shader.
+
+```
+$ cd shader
+$ glslc fractal.comp -o fractal.spv
+```
+
+The program saves the results to `fractal_cpu.png` and `fractal_gpu.png`.
+
+```
 $ ./build/hello-fractal
 ```
 
@@ -185,4 +197,48 @@ Chosen Device 1
 Found 6 queue families
 CPU fractal: 236.100000 ms.
 GPU fractal: 1.890000 ms.
+```
+
+## Project 5: hello-shader
+
+This project displays the data buffer using the image texture.
+
+```
+// Initialize the test texture data
+for (int i = 0; i < texWidth * texHeight; ++i) {
+    if (i < (texWidth * texHeight / 2)) {
+    	// The upper half is displayed as red.
+        testData[i * 4 + 0] = 255; // R
+        testData[i * 4 + 1] = 0;   // G
+        testData[i * 4 + 2] = 0;   // B
+    }
+    else
+    {
+    	// The lower half is displayed as green.
+        testData[i * 4 + 0] = 0;   // R
+        testData[i * 4 + 1] = 255; // G
+        testData[i * 4 + 2] = 0;   // B
+    }
+
+testData[i * 4 + 3] = 255; // A
+}
+```
+
+![](framebuffer.png)
+
+We need to compile the vertex shader and fragment shader.
+
+```
+$ cd hello-shader/shader
+$ glslc texture.vert -o vert.spv
+$ glslc texture.frag -o frag.spv
+```
+
+Then, let's compile the program.
+
+```
+$ cd hello-shader
+$ cmake -B build --preset vcpkg
+$ cmake --build build
+$ ./build/hello-shader
 ```

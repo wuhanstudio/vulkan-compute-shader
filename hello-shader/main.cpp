@@ -264,7 +264,7 @@ void showFPS(GLFWwindow* window) {
         double msPerFrame = 1000.0 / fps;
 
         char title[80];
-        std::snprintf(title, sizeof(title), "Hello ImGUI @ fps: %.2f, ms/frame: %.2f", fps, msPerFrame);
+        std::snprintf(title, sizeof(title), "Hello Vulkan @ fps: %.2f, ms/frame: %.2f", fps, msPerFrame);
         glfwSetWindowTitle(window, title);
 
         frameCount = 0;
