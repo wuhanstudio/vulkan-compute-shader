@@ -250,6 +250,29 @@ static void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, in
     }
 }
 
+void showFPS(GLFWwindow* window) {
+    static double previousSeconds = 0.0;
+    static int frameCount = 0;
+    double elapsedSeconds;
+    double currentSeconds = glfwGetTime();
+
+    elapsedSeconds = currentSeconds - previousSeconds;
+
+    if (elapsedSeconds > 0.25) {
+        previousSeconds = currentSeconds;
+        double fps = (double)frameCount / elapsedSeconds;
+        double msPerFrame = 1000.0 / fps;
+
+        char title[80];
+        std::snprintf(title, sizeof(title), "Hello ImGUI @ fps: %.2f, ms/frame: %.2f", fps, msPerFrame);
+        glfwSetWindowTitle(window, title);
+
+        frameCount = 0;
+    }
+
+    frameCount++;
+}
+
 int main() {
     try {
         glfwInit();
@@ -324,6 +347,7 @@ int main() {
 
         while (!glfwWindowShouldClose(gWindow)) {
             glfwPollEvents();
+            showFPS(gWindow);
             vk_draw_frame(
                 vk_physical_device, vk_device, vk_surface, 
                 vk_swapchain, vk_swap_chain_extent, 
