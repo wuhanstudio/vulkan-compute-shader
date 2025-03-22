@@ -1174,6 +1174,7 @@ private:
         if (vkQueueSubmit(vk_compute_queue, 1, &submitInfo, vk_compute_in_flight_fences[currentFrame]) != VK_SUCCESS) {
             throw std::runtime_error("failed to submit compute command buffer!");
         };
+        vkQueueWaitIdle(vk_compute_queue);
 
         // Graphics submission
         vkWaitForFences(vk_device, 1, &vk_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -1210,6 +1211,7 @@ private:
         if (vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, vk_in_flight_fences[currentFrame]) != VK_SUCCESS) {
             throw std::runtime_error("failed to submit draw command buffer!");
         }
+        vkQueueWaitIdle(vk_graphics_queue);
 
         VkPresentInfoKHR presentInfo{};
         presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
