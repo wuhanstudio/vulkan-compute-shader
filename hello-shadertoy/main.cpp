@@ -23,8 +23,8 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 
 struct UniformBufferObject {
     glm::vec4 iMouse;
-	float iTime;
-    glm::vec3 iResolution;
+    alignas(16) float iTime;
+    alignas(16) glm::vec3 iResolution;
 };
 
 const std::vector<const char*> validationLayers = {
