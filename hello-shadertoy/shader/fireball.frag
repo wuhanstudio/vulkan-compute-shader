@@ -7,6 +7,7 @@ layout(binding = 0) uniform UniformBufferObject {
     vec3 iResolution;
 } ubo;
 
+layout(location = 0) in vec2 fragTexCoord;
 layout(location = 0) out vec4 fragColor;
 
 #define PI 3.14159265359
