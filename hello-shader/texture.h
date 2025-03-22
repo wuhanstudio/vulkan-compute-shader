@@ -26,5 +26,5 @@ VkImage vk_create_texture_image(
 	VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
 	int texWidth, int texHeight, int texChannels, uint8_t* testData,
 	VkQueue vk_graphics_queue, VkCommandPool vk_command_pool,
-	VkDeviceMemory* vk_texture_image_memory
+	VkDeviceMemory& vk_texture_image_memory
 );

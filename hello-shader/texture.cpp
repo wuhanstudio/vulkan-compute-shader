@@ -211,7 +211,7 @@ VkImage vk_create_texture_image(
     VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
     int texWidth, int texHeight, int texChannels, uint8_t* testData, 
     VkQueue vk_graphics_queue, VkCommandPool vk_command_pool,
-    VkDeviceMemory* vk_texture_image_memory
+    VkDeviceMemory& vk_texture_image_memory
 ) {
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -252,7 +252,7 @@ VkImage vk_create_texture_image(
         texWidth, texHeight, 
         VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, 
         VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-        &vk_texture_image, vk_texture_image_memory);
+        &vk_texture_image, &vk_texture_image_memory);
 
     vk_transition_image_layout(
         vk_device, vk_texture_image, 

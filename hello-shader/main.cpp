@@ -285,57 +285,81 @@ int main() {
 		// Print available extensions
         vk_print_extensions();
 
+		// Create Vulkan Instance
         VkDebugUtilsMessengerEXT vk_debug_messenger;
-        VkInstance vk_instance = vk_create_instance(&vk_debug_messenger);
+        VkInstance vk_instance = vk_create_instance(vk_debug_messenger);
 
+		// Create Surface
         VkSurfaceKHR vk_surface = vk_create_surface(vk_instance, gWindow);
 
+		// Create Physical Device and Logical Device
         VkPhysicalDevice vk_physical_device = vk_pick_physical_device(vk_instance, vk_surface);
 
 		VkQueue vk_graphics_queue, vk_present_queue;
-        VkDevice vk_device = vk_create_logical_device(vk_physical_device, vk_surface, &vk_graphics_queue, &vk_present_queue);
+        VkDevice vk_device = vk_create_logical_device(vk_physical_device, vk_surface, vk_graphics_queue, vk_present_queue);
 
+		// Create Swap Chain
         SwapChainSupportDetails vk_swap_chain_support = vk_query_swapchain_support(vk_physical_device, vk_surface);
+        
         VkSurfaceFormatKHR surfaceFormat = vk_choose_swap_surface_format(vk_swap_chain_support.formats);
         VkFormat vk_swapchain_image_format = surfaceFormat.format;
 
+        VkExtent2D vk_swap_chain_extent = vk_choose_swap_extent(vk_swap_chain_support.capabilities, gWindow);
+
         VkSwapchainKHR vk_swapchain = vk_create_swapchain(vk_physical_device, vk_device, vk_surface, gWindow);
         std::vector<VkImage> vk_swapchain_images = vk_create_swapchain_images(vk_device, vk_swapchain);
-        std::vector<VkImageView> vk_swapchain_imageviews = vk_create_image_views(vk_device, vk_swapchain_images, vk_swapchain_image_format);
+        std::vector<VkImageView> vk_swapchain_imageviews = vk_create_image_views(
+            vk_device,
+            vk_swapchain_images,
+            vk_swapchain_image_format
+        );
 
+		// Create Render Pass
         VkRenderPass vk_render_pass = vk_create_render_pass(vk_device, vk_swapchain_image_format);
 
+		// Create Graphics Pipeline
         auto vertShaderCode = read_file("shader/vert.spv");
         auto fragShaderCode = read_file("shader/frag.spv");
         VkDescriptorSetLayout vk_descriptor_set_layout = vk_create_descriptor_set_layout(vk_device);
         VkPipelineLayout vk_pipeline_layout = vk_create_pipeline_layout(vk_device, vk_descriptor_set_layout);
 
         VkPipeline vk_graphics_pipeline = vk_create_graphics_pipeline(
-                                            vk_device, vertShaderCode, fragShaderCode, 
-                                            vk_render_pass, vk_descriptor_set_layout, vk_pipeline_layout);
+                                            vk_device, 
+                                            vertShaderCode, fragShaderCode, 
+                                            vk_render_pass, 
+                                            vk_descriptor_set_layout, vk_pipeline_layout);
 
-        VkExtent2D vk_swap_chain_extent = vk_choose_swap_extent(vk_swap_chain_support.capabilities, gWindow);
-        std::vector<VkFramebuffer> vk_swapchain_framebuffers = vk_create_frame_buffers(vk_device, vk_swap_chain_extent, vk_swapchain_imageviews, vk_render_pass);
-
+		// Create Command Pool and Command Buffers
         VkCommandPool vk_command_pool = vk_create_command_pool(vk_physical_device, vk_device, vk_surface);
         std::vector<VkCommandBuffer> vk_command_buffers = vk_create_command_buffers(vk_device, vk_swap_chain_extent, vk_command_pool);
 
+		// Create Texture Image
         VkDeviceMemory vk_texture_image_memory;
         VkImage vk_texture_image = vk_create_texture_image(
             vk_physical_device, vk_device, 
             WIDTH, HEIGHT, 4, testData, 
             vk_graphics_queue, vk_command_pool,
-            &vk_texture_image_memory);
+            vk_texture_image_memory);
         
-        VkImageView vk_texture_image_view = vk_create_texture_imageview(vk_device, vk_texture_image);
         VkSampler vk_texture_sampler = vk_create_texture_sampler(vk_physical_device, vk_device);
+        VkImageView vk_texture_image_view = vk_create_texture_imageview(vk_device, vk_texture_image);
 
+		// Create Vertex Buffer
         VkDeviceMemory vk_vertex_buffer_memory;
-        VkBuffer vk_vertex_buffer = vk_create_vertex_buffer(vk_physical_device, vk_device, &vk_vertex_buffer_memory);
+        VkBuffer vk_vertex_buffer = vk_create_vertex_buffer(
+            vk_physical_device, vk_device, 
+            vk_vertex_buffer_memory
+        );
         
+		// Create Index Buffer
         VkDeviceMemory vk_index_buffer_memory;
-        VkBuffer vk_index_buffer = vk_create_index_buffer(vk_physical_device, vk_device, vk_graphics_queue, vk_command_pool, &vk_index_buffer_memory);
+        VkBuffer vk_index_buffer = vk_create_index_buffer(
+            vk_physical_device, vk_device, 
+            vk_graphics_queue, vk_command_pool, 
+            vk_index_buffer_memory
+        );
 
+		// Create Descriptor Pool and Descriptor Sets
         VkDescriptorPool vk_descriptor_pool = vk_create_descriptor_pool(vk_device);
         std::vector<VkDescriptorSet> vk_descriptor_sets = vk_create_descriptor_sets(vk_device, 
             vk_descriptor_set_layout, vk_descriptor_pool,
@@ -343,18 +367,25 @@ int main() {
 			vk_vertex_buffer, vk_index_buffer
             );
 
+		// Create Sync Objects
         vk_create_sync_objects(vk_device);
+
+		// Create Framebuffers
+        std::vector<VkFramebuffer> vk_swapchain_framebuffers = vk_create_frame_buffers(vk_device, vk_swap_chain_extent, vk_swapchain_imageviews, vk_render_pass);
 
         while (!glfwWindowShouldClose(gWindow)) {
             glfwPollEvents();
             showFPS(gWindow);
             vk_draw_frame(
-                vk_physical_device, vk_device, vk_surface, 
+                vk_physical_device, vk_device, 
+                vk_surface, 
                 vk_swapchain, vk_swap_chain_extent, 
                 vk_swapchain_images, vk_swapchain_imageviews, 
-                vk_render_pass, vk_pipeline_layout, vk_graphics_pipeline, 
+                vk_render_pass, 
+                vk_pipeline_layout, vk_graphics_pipeline, 
                 vk_swapchain_image_format, vk_descriptor_sets,
-                vk_graphics_queue, vk_present_queue, vk_command_buffers, vk_swapchain_framebuffers,
+                vk_graphics_queue, vk_present_queue, 
+                vk_command_buffers, vk_swapchain_framebuffers,
 				vk_vertex_buffer, vk_index_buffer
                 );
         }

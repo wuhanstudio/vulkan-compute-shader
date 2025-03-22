@@ -23,6 +23,10 @@ bool vk_is_device_suitable(VkPhysicalDevice device, VkSurfaceKHR vk_surface);
 bool vk_check_device_extension(VkPhysicalDevice device);
 
 VkPhysicalDevice vk_pick_physical_device(VkInstance instance, VkSurfaceKHR vk_surface);
-VkDevice vk_create_logical_device(VkPhysicalDevice vk_physical_device, VkSurfaceKHR vk_surface, VkQueue* vk_graphics_queue, VkQueue* vk_present_queue);
+
+VkDevice vk_create_logical_device(
+    VkPhysicalDevice vk_physical_device, VkSurfaceKHR vk_surface, 
+    VkQueue& vk_graphics_queue, VkQueue& vk_present_queue
+);
 
 QueueFamilyIndices vk_find_queue_families(VkPhysicalDevice device, VkSurfaceKHR vk_surface);

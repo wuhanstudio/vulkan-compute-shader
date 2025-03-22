@@ -111,7 +111,10 @@ VkPhysicalDevice vk_pick_physical_device(VkInstance vk_instance, VkSurfaceKHR vk
 	return devices[deviceIndex];
 }
 
-VkDevice vk_create_logical_device(VkPhysicalDevice vk_physical_device, VkSurfaceKHR vk_surface, VkQueue* vk_graphics_queue, VkQueue* vk_present_queue) {
+VkDevice vk_create_logical_device(
+    VkPhysicalDevice vk_physical_device, VkSurfaceKHR vk_surface, 
+    VkQueue& vk_graphics_queue, VkQueue& vk_present_queue)
+{
     QueueFamilyIndices indices = vk_find_queue_families(vk_physical_device, vk_surface);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -153,8 +156,8 @@ VkDevice vk_create_logical_device(VkPhysicalDevice vk_physical_device, VkSurface
         throw std::runtime_error("Failed to create logical device!");
     }
 
-    vkGetDeviceQueue(vk_device, indices.graphicsFamily.value(), 0, vk_graphics_queue);
-    vkGetDeviceQueue(vk_device, indices.presentFamily.value(), 0, vk_present_queue);
+    vkGetDeviceQueue(vk_device, indices.graphicsFamily.value(), 0, &vk_graphics_queue);
+    vkGetDeviceQueue(vk_device, indices.presentFamily.value(), 0, &vk_present_queue);
 
 	return vk_device;
 }

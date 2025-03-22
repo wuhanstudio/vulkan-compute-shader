@@ -35,7 +35,7 @@ std::vector<const char*> vk_get_required_extensions() {
     return extensions;
 }
 
-VkInstance vk_create_instance(VkDebugUtilsMessengerEXT* vk_debug_messenger)
+VkInstance vk_create_instance(VkDebugUtilsMessengerEXT& vk_debug_messenger)
 {
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -76,7 +76,7 @@ VkInstance vk_create_instance(VkDebugUtilsMessengerEXT* vk_debug_messenger)
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         vk_populate_debug_messenger_createInfo(debugCreateInfo);
 
-        if (vk_create_debug_utils_messenger_ext(instance, &debugCreateInfo, nullptr, vk_debug_messenger) != VK_SUCCESS) {
+        if (vk_create_debug_utils_messenger_ext(instance, &debugCreateInfo, nullptr, &vk_debug_messenger) != VK_SUCCESS) {
             throw std::runtime_error("Failed to set up debug messenger!");
         }
     }

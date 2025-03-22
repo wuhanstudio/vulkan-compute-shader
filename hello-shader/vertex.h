@@ -57,13 +57,13 @@ const std::vector<uint16_t> indices = {
 
 VkBuffer vk_create_vertex_buffer(
     VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
-    VkDeviceMemory* vk_vertex_buffer_memory
+    VkDeviceMemory& vk_vertex_buffer_memory
 );
 
 VkBuffer vk_create_index_buffer(
     VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
     VkQueue vk_graphics_queue, VkCommandPool vk_command_pool, 
-    VkDeviceMemory* vk_index_buffer_memory
+    VkDeviceMemory& vk_index_buffer_memory
 );
 
 void vk_create_buffer(
