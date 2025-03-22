@@ -3,12 +3,20 @@
   * [Project 2: hello-validation](#project-2-hello-validation)
   * [Project 3: hello-surface](#project-3-hello-surface)
   * [Project 4: hello-fractal](#project-4-hello-fractal)
+  * [Project 5: hello-shader](#project-5-hello-shader)
+  * [Project 6: hello-shadertoy](#project-6-hello-shadertoy)
+
+
 
 # Vulkan Compute Shader
+
+
 
 ## Windows Users
 
 Install the [Vulkan SDK](https://vulkan.lunarg.com/) (only required for debugging) and Visual Studio, and then open `vulkan-compute-shader.sln`.
+
+
 
 ## Linux Users
 
@@ -33,6 +41,8 @@ Install `vulkan-validationlayers` for debugging:
 ```
 $ sudo apt install vulkan-validationlayers
 ```
+
+
 
 ## Project 1: hello-vkinfo
 
@@ -61,6 +71,8 @@ Device name: NVIDIA RTX 1000 Ada Generation Laptop GPU
 Device type: Discrete GPU
 API version: 1.3.277
 ```
+
+
 
 ## Project 2: hello-validation
 
@@ -116,6 +128,8 @@ D:\vulkan-compute-shader\x64\Debug\hello-validation.exe (process 9640) exited wi
 To automatically close the console when debugging stops, enable Tools->Options->Debugging->Automatically close the console when debugging stops.
 ```
 
+
+
 ## Project 3: hello-surface
 
 This project prints out the surface capabilities of each physical device.
@@ -142,6 +156,8 @@ Queue families: 5
   Queue count: 1| Transfer | Sparse binding | Video Decode
   Queue count: 1| Transfer | Sparse binding | Video Encode
 ```
+
+
 
 ## Project 4: hello-fractal
 
@@ -199,6 +215,8 @@ CPU fractal: 236.100000 ms.
 GPU fractal: 1.890000 ms.
 ```
 
+
+
 ## Project 5: hello-shader
 
 This project displays the data buffer using the image texture.
@@ -242,3 +260,72 @@ $ cmake -B build --preset vcpkg
 $ cmake --build build
 $ ./build/hello-shader
 ```
+
+
+
+## Project 6: hello-shadertoy
+
+This project adds support for shaders on the [shadertoy](https://www.shadertoy.com/) website.
+
+**Important**: Be careful with the [*alignment requirements*](https://vulkan-tutorial.com/Uniform_buffers/Descriptor_pool_and_sets#page_Alignment-requirements) using `alignas(16)`.
+
+```
+struct UniformBufferObject {
+    glm::vec4 iMouse;
+    alignas(16) float iTime;
+    alignas(16) glm::vec3 iResolution;
+};
+```
+
+![](fireball.png)
+
+To use shaders from ShaderToy, we need to make the following changes:
+
+```
+From ==> void mainImage( out vec4 fragColor, in vec2 fragCoord )
+To   ==> void main()
+
+From ==> fragCoord
+To   ==> gl_FragCoord
+```
+
+Below is how we defined the uniform buffer:
+
+```
+#version 450
+
+layout(binding = 0) uniform UniformBufferObject {
+    vec4 iMouse;
+    float iTime;
+    vec3 iResolution;
+} ubo;
+
+layout(location = 0) in vec2 fragTexCoord;
+layout(location = 0) out vec4 fragColor;
+```
+
+Thus, we need to modify how we access uniform buffers.
+
+```
+iMouse ==> ubo.iMouse
+iTime  ==> ubo.iTime
+iResolution ==> ubo.iResolution
+```
+
+Next, let's compile the shader.
+
+```
+$ cd hello-shadertoy/shader
+$ glslc main.vert -o main_vert.spv
+$ glslc fireball.frag -o fireball_frag.spv
+```
+
+Finally, we can compile and run the program.
+
+```
+$ cd hello-shadertoy
+$ cmake -B build --preset vcpkg
+$ cmake --build build
+$ ./build/hello-shadertoy
+```
+
