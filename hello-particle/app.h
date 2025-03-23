@@ -110,7 +110,7 @@ private:
     GLFWwindow* gWindow;
 
     VkInstance vk_instance;
-    VkDebugUtilsMessengerEXT debugMessenger;
+    VkDebugUtilsMessengerEXT vk_debug_messenger;
 
     VkSurfaceKHR vk_surface;
 
@@ -183,6 +183,10 @@ private:
 
     void vk_populate_debug_messenger_createInfo(VkDebugUtilsMessengerCreateInfoEXT& vk_createInfo);
 
+    VkResult vk_create_debug_utils_messenger_ext(const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
+
+    void vk_destroy_debug_utils_messenger_ext(const VkAllocationCallbacks * pAllocator);
+
     void vk_setup_debug_messenger();
 
     void vk_create_surface();
@@ -254,5 +258,5 @@ private:
 
     bool vk_check_validation_layer_support();
 
-    std::vector<char> readFile(const std::string& filename);
+    std::vector<char> read_file(const std::string& filename);
 };

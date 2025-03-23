@@ -134,6 +134,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="app_buffer.cpp" />
+    <ClCompile Include="app_command.cpp" />
+    <ClCompile Include="app_device.cpp" />
+    <ClCompile Include="app_imageviews.cpp" />
+    <ClCompile Include="app_instance.cpp" />
+    <ClCompile Include="app_pipeline.cpp" />
+    <ClCompile Include="app_surface.cpp" />
+    <ClCompile Include="app_swapchain.cpp" />
+    <ClCompile Include="app_validation.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
