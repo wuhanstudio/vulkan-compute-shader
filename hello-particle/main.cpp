@@ -1,6 +1,13 @@
 #include "app.h"
 
-void showFPS(GLFWwindow* window) {
+// Press ESC to close the window
+static void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode) {
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+};
+
+void glfw_show_fps(GLFWwindow* window) {
     static double previousSeconds = 0.0;
     static int frameCount = 0;
     double elapsedSeconds;
@@ -21,6 +28,19 @@ void showFPS(GLFWwindow* window) {
     }
 
     frameCount++;
+}
+
+void VulkanParticleApp::vk_init_window() {
+    glfwInit();
+
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+    gWindow = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+    glfwSetWindowUserPointer(gWindow, this);
+
+    glfwSetKeyCallback(gWindow, glfw_onKey);
+
+    lastTime = glfwGetTime();
 }
 
 void VulkanParticleApp::vk_init() {
@@ -50,7 +70,7 @@ void VulkanParticleApp::vk_main_loop() {
     while (!glfwWindowShouldClose(gWindow)) {
         glfwPollEvents();
 
-        showFPS(gWindow);
+        glfw_show_fps(gWindow);
         vk_draw_frame();
 
         // We want to animate the particle system using the last frames time to get smooth, frame-rate independent animation

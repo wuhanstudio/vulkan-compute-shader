@@ -23,19 +23,6 @@ void vk_destroy_debug_utils_messenger_ext(VkInstance instance, VkDebugUtilsMesse
     }
 }
 
-void VulkanParticleApp::vk_init_window() {
-    glfwInit();
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-    gWindow = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
-    glfwSetWindowUserPointer(gWindow, this);
-
-    glfwSetKeyCallback(gWindow, glfw_onKey);
-
-    lastTime = glfwGetTime();
-}
-
 void VulkanParticleApp::vk_cleanup_swapchain() {
     for (auto framebuffer : vk_swapchain_framebuffers) {
         vkDestroyFramebuffer(vk_device, framebuffer, nullptr);

@@ -248,7 +248,7 @@ static void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, in
     }
 }
 
-void showFPS(GLFWwindow* window) {
+void glfw_show_fps(GLFWwindow* window) {
     static double previousSeconds = 0.0;
     static int frameCount = 0;
     double elapsedSeconds;
@@ -387,7 +387,7 @@ int main() {
 		double start_time = glfwGetTime();
         while (!glfwWindowShouldClose(gWindow)) {
             glfwPollEvents();
-            showFPS(gWindow);
+            glfw_show_fps(gWindow);
             
 			// Update Uniform Buffer
             float iTime = glfwGetTime() - start_time;

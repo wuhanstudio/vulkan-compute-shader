@@ -95,13 +95,6 @@ struct Particle {
     }
 };
 
-// Press ESC to close the window
-static void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, GL_TRUE);
-    }
-};
-
 class VulkanParticleApp {
 public:
     void run() {
