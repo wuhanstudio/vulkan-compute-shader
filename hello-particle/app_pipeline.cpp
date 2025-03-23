@@ -1,8 +1,8 @@
 #include "app.h"
 
-void VulkanParticleApp::vk_create_graphics_pipeline() {
-    auto vertShaderCode = read_file("shader/vert.spv");
-    auto fragShaderCode = read_file("shader/frag.spv");
+void VulkanParticleApp::vk_create_graphics_pipeline(const char* f_vert, const char* f_frag) {
+    auto vertShaderCode = read_file(f_vert);
+    auto fragShaderCode = read_file(f_frag);
 
     VkShaderModule vertShaderModule = vk_create_shader_module(vertShaderCode);
     VkShaderModule fragShaderModule = vk_create_shader_module(fragShaderCode);
@@ -120,16 +120,10 @@ void VulkanParticleApp::vk_create_graphics_pipeline() {
     vkDestroyShaderModule(vk_device, vertShaderModule, nullptr);
 }
 
-void VulkanParticleApp::vk_create_compute_pipeline() {
-    auto computeShaderCode = read_file("shader/comp.spv");
+void VulkanParticleApp::vk_create_compute_pipeline(const char* f_compute) {
+    auto computeShaderCode = read_file(f_compute);
 
     VkShaderModule computeShaderModule = vk_create_shader_module(computeShaderCode);
-
-    VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
-    computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-    computeShaderStageInfo.module = computeShaderModule;
-    computeShaderStageInfo.pName = "main";
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -139,6 +133,12 @@ void VulkanParticleApp::vk_create_compute_pipeline() {
     if (vkCreatePipelineLayout(vk_device, &pipelineLayoutInfo, nullptr, &vk_compute_pipeline_layout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create compute pipeline layout!");
     }
+
+    VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
+    computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+    computeShaderStageInfo.module = computeShaderModule;
+    computeShaderStageInfo.pName = "main";
 
     VkComputePipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;

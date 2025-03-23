@@ -58,8 +58,8 @@ void VulkanParticleApp::vk_init() {
 
     vk_create_compute_descriptor_set_layout();
 
-    vk_create_graphics_pipeline();
-    vk_create_compute_pipeline();
+    vk_create_graphics_pipeline("shader/vert.spv", "shader/frag.spv");
+    vk_create_compute_pipeline("shader/comp.spv");
 
     vk_create_framebuffers();
     vk_create_command_pool();

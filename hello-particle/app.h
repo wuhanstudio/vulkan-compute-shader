@@ -201,9 +201,9 @@ private:
 
     void vk_create_compute_descriptor_set_layout();
 
-    void vk_create_graphics_pipeline();
+    void vk_create_graphics_pipeline(const char* f_vert, const char* f_frag);
 
-    void vk_create_compute_pipeline();
+    void vk_create_compute_pipeline(const char* f_compute);
 
     void vk_create_framebuffers();
 
