@@ -318,6 +318,7 @@ int main() {
 		// Create Graphics Pipeline
         auto vertShaderCode = read_file("shader/main_vert.spv");
         auto fragShaderCode = read_file("shader/fireball_frag.spv");
+
         VkDescriptorSetLayout vk_descriptor_set_layout = vk_create_descriptor_set_layout(vk_device);
         VkPipelineLayout vk_pipeline_layout = vk_create_pipeline_layout(vk_device, vk_descriptor_set_layout);
 

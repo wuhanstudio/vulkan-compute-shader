@@ -5,6 +5,7 @@
   * [Project 4: hello-fractal](#project-4-hello-fractal)
   * [Project 5: hello-shader](#project-5-hello-shader)
   * [Project 6: hello-shadertoy](#project-6-hello-shadertoy)
+  * [Project 7: hello-particle](#project-7-hello-particle)
 
 
 
@@ -329,3 +330,15 @@ $ cmake --build build
 $ ./build/hello-shadertoy
 ```
 
+## Project 7: hello-particle
+
+This project uses the compute shader to simulate particle movements.
+
+![](particle.png)
+
+```
+$ cd hello-particle
+$ cmake -B build --preset vcpkg
+$ cmake --build build
+$ ./build/hello-particle
+```

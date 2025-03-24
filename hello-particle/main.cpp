@@ -39,8 +39,6 @@ void VulkanParticleApp::vk_init_window() {
     glfwSetWindowUserPointer(gWindow, this);
 
     glfwSetKeyCallback(gWindow, glfw_onKey);
-
-    lastTime = glfwGetTime();
 }
 
 void VulkanParticleApp::vk_init() {

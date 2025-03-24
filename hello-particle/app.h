@@ -101,6 +101,9 @@ public:
         vk_init_window();
 
         vk_init();
+
+        lastTime = glfwGetTime();
+
         vk_main_loop();
 
         vk_cleanup();
@@ -224,7 +227,6 @@ private:
 
     void vk_create_command_buffers();
 
-
     void vk_create_compute_command_buffers();
 
     void vk_record_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
@@ -240,7 +242,6 @@ private:
     VkShaderModule vk_create_shader_module(const std::vector<char>& code);
 
     VkSurfaceFormatKHR vk_choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-
 
     VkPresentModeKHR vk_choose_swap_present_mode(const std::vector<VkPresentModeKHR>& availablePresentModes);
 
