@@ -54,4 +54,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\frag.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\frag_particle.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\lbm.comp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\particles.comp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\vert.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shader\vert_particle.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

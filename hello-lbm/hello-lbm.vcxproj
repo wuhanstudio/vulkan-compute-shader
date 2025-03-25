@@ -147,6 +147,14 @@
   <ItemGroup>
     <ClInclude Include="app.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shader\frag.frag" />
+    <None Include="shader\frag_particle.frag" />
+    <None Include="shader\lbm.comp" />
+    <None Include="shader\particles.comp" />
+    <None Include="shader\vert.vert" />
+    <None Include="shader\vert_particle.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
