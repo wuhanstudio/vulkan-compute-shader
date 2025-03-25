@@ -1,7 +1,7 @@
 #version 430 core
 
-in vec4 vColor;       // Interpolated color from vertex shader
-out vec4 FragColor;   // Final fragment color
+layout (location = 0 ) in vec4 vColor;       // Interpolated color from vertex shader
+layout (location = 0 ) out vec4 FragColor;   // Final fragment color
 
 void main() {
     FragColor = vColor; // Set fragment color

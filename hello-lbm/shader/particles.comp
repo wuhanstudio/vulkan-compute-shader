@@ -20,9 +20,12 @@ layout( binding = 5 ) buffer ParticlesPos
     pos Positions [  ];
 };
 
-layout( location = 0 )  uniform int NX;
-layout( location = 1 )  uniform int NY;
-layout( location = 2 ) uniform float DT;
+layout (binding = 0) uniform ParticleUBO {
+	int NX;
+	int NY;
+	float DT;
+} ubo;
+
 
 layout( local_size_x = 1000 ) in;
 
@@ -41,28 +44,28 @@ void main()
 {
 	uint gid = gl_GlobalInvocationID.x;		// move massless particle along 
 	vec2 p = Positions[ gid ].xy;			// an instant velocity field
-	int i = int(p.x * NX);
-	int j = int(p.y * NY);
-	int idx = i+j*NX;
+	int i = int(p.x * ubo.NX);
+	int j = int(p.y * ubo.NY);
+	int idx = i+j*ubo.NX;
 
 	float u;// = dU[idx];
 	float v;// = dV[idx];
 
-    u = BilinearInterpolationC(p.x*(NX),p.y*(NY), i,i+1, j,j+1, dU[j*NX+i],dU[j*NX+i+1],dU[(j+1)*NX+i+1],dU[(j+1)*NX+i]);
-	v = BilinearInterpolationC(p.x*(NX),p.y*(NY), i,i+1, j,j+1, dV[j*NX+i],dV[j*NX+i+1],dV[(j+1)*NX+i+1],dV[(j+1)*NX+i]);
+    u = BilinearInterpolationC(p.x*(ubo.NX),p.y*(ubo.NY), i,i+1, j,j+1, dU[j*ubo.NX+i],dU[j*ubo.NX+i+1],dU[(j+1)*ubo.NX+i+1],dU[(j+1)*ubo.NX+i]);
+	v = BilinearInterpolationC(p.x*(ubo.NX),p.y*(ubo.NY), i,i+1, j,j+1, dV[j*ubo.NX+i],dV[j*ubo.NX+i+1],dV[(j+1)*ubo.NX+i+1],dV[(j+1)*ubo.NX+i]);
 
-    p.x = p.x + u*DT;
-	p.y = p.y + v*DT;
+    p.x = p.x + u*ubo.DT;
+	p.y = p.y + v*ubo.DT;
 
-    i = int(p.x * NX);
-    j = int(p.y * NY);
+    i = int(p.x * ubo.NX);
+    j = int(p.y * ubo.NY);
 
     if(p.x < 0) p.x += 1;
 	if(p.x > 1) p.x -= 1;
 	if(p.y > 1) p.y -= 1;
 	if(p.y < 0) p.y += 1;
 
-    if(F[ i+j*NX ] == C_BND)
+    if(F[ i+j*ubo.NX ] == C_BND)
 	{
 			p.x = rand(p.xy);   // 0-1
 			p.y = rand(p.xy);   // 0-1
