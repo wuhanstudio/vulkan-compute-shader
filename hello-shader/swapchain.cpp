@@ -54,25 +54,34 @@ void vk_cleanup_swap_chain(VkDevice vk_device, VkSwapchainKHR vk_swap_chain, std
 
 void vk_recreate_swapchain(
     VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
-    VkSurfaceKHR vk_surface, GLFWwindow* window,
-    VkSwapchainKHR vk_swap_chain, VkExtent2D vk_swap_chain_extent,
-    std::vector<VkImage> vk_swap_chain_images, std::vector<VkImageView> vk_swapchain_imageviews,
-    VkRenderPass vk_render_pass, VkFormat vk_swapchain_image_format, std::vector<VkFramebuffer> vk_swap_chain_framebuffers
+    VkSurfaceKHR vk_surface, GLFWwindow* gWindow,
+    VkSwapchainKHR& vk_swapchain, 
+    VkExtent2D& vk_swapchain_extent,
+    std::vector<VkImage>& vk_swapchain_images, 
+    std::vector<VkImageView>& vk_swapchain_imageviews,
+    VkRenderPass vk_render_pass, 
+    VkFormat& vk_swapchain_image_format, 
+    std::vector<VkFramebuffer>& vk_swapchain_framebuffers
 ) {
     int width = 0, height = 0;
-    glfwGetFramebufferSize(window, &width, &height);
+    glfwGetFramebufferSize(gWindow, &width, &height);
     while (width == 0 || height == 0) {
-        glfwGetFramebufferSize(window, &width, &height);
+        glfwGetFramebufferSize(gWindow, &width, &height);
         glfwWaitEvents();
     }
 
     vkDeviceWaitIdle(vk_device);
 
-    vk_cleanup_swap_chain(vk_device, vk_swap_chain, vk_swapchain_imageviews, vk_swap_chain_framebuffers);
+    vk_cleanup_swap_chain(vk_device, vk_swapchain, vk_swapchain_imageviews, vk_swapchain_framebuffers);
+    
+    SwapChainSupportDetails vk_swapchain_support = vk_query_swapchain_support(vk_physical_device, vk_surface);
+    vk_swapchain = vk_create_swapchain(vk_physical_device, vk_device, vk_surface, gWindow);
 
-    vk_create_swapchain(vk_physical_device, vk_device, vk_surface, window);
-    vk_create_image_views(vk_device, vk_swap_chain_images, vk_swapchain_image_format);
-    vk_create_frame_buffers(vk_device, vk_swap_chain_extent, vk_swapchain_imageviews, vk_render_pass);
+    vk_swapchain_images = vk_create_swapchain_images(vk_device, vk_swapchain);
+    vk_swapchain_imageviews = vk_create_image_views(vk_device, vk_swapchain_images, vk_swapchain_image_format);
+
+    vk_swapchain_extent = vk_choose_swap_extent(vk_swapchain_support.capabilities, gWindow);
+    vk_swapchain_framebuffers = vk_create_frame_buffers(vk_device, vk_swapchain_extent, vk_swapchain_imageviews, vk_render_pass);
 }
 
 VkSurfaceFormatKHR vk_choose_swap_surface_format(const std::vector<VkSurfaceFormatKHR>& availableFormats) {

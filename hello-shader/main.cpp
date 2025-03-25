@@ -155,24 +155,29 @@ std::vector<VkDescriptorSet> vk_create_descriptor_sets(
 
 void vk_draw_frame(
     VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
-    VkSurfaceKHR vk_surface, VkSwapchainKHR vk_swap_chain, 
-    VkExtent2D vk_swap_chain_extent, std::vector<VkImage> vk_swapchain_images,
-    std::vector<VkImageView> vk_swapchain_imageviews, VkRenderPass vk_render_pass,
+    VkSurfaceKHR vk_surface, 
+    VkSwapchainKHR& vk_swapchain, 
+    VkExtent2D& vk_swap_chain_extent, 
+    std::vector<VkImage>& vk_swapchain_images,
+    std::vector<VkImageView>& vk_swapchain_imageviews, 
+    VkRenderPass vk_render_pass,
     VkPipelineLayout vk_pipeline_layout, VkPipeline vk_graphics_pipeline,
-	VkFormat vk_swapchain_image_format, std::vector<VkDescriptorSet> vk_descriptor_sets,
-	VkQueue vk_graphics_queue, VkQueue vk_present_queue, std::vector<VkCommandBuffer> vk_command_buffers,
-    std::vector<VkFramebuffer> vk_swapchain_framebuffers,
+	VkFormat& vk_swapchain_image_format, 
+    std::vector<VkDescriptorSet> vk_descriptor_sets,
+	VkQueue vk_graphics_queue, VkQueue vk_present_queue, 
+    std::vector<VkCommandBuffer> vk_command_buffers,
+    std::vector<VkFramebuffer>& vk_swapchain_framebuffers,
 	VkBuffer vk_vertex_buffer, VkBuffer vk_index_buffer
 ) {
     vkWaitForFences(vk_device, 1, &vk_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(vk_device, vk_swap_chain, UINT64_MAX, vk_image_available_semaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    VkResult result = vkAcquireNextImageKHR(vk_device, vk_swapchain, UINT64_MAX, vk_image_available_semaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         vk_recreate_swapchain(
             vk_physical_device, vk_device, 
-            vk_surface, gWindow, vk_swap_chain, 
+            vk_surface, gWindow, vk_swapchain, 
             vk_swap_chain_extent, vk_swapchain_images, vk_swapchain_imageviews,
             vk_render_pass, vk_swapchain_image_format, vk_swapchain_framebuffers
         );
@@ -219,7 +224,7 @@ void vk_draw_frame(
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
-    VkSwapchainKHR swapChains[] = { vk_swap_chain };
+    VkSwapchainKHR swapChains[] = { vk_swapchain };
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
 
@@ -231,7 +236,7 @@ void vk_draw_frame(
         vk_recreate_swapchain(
             vk_physical_device, vk_device, 
             vk_surface, gWindow, 
-            vk_swap_chain, vk_swap_chain_extent, 
+            vk_swapchain, vk_swap_chain_extent, 
             vk_swapchain_images, vk_swapchain_imageviews, vk_render_pass, vk_swapchain_image_format,
             vk_swapchain_framebuffers
         );

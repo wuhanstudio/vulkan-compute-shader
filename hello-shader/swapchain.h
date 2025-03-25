@@ -38,9 +38,9 @@ void vk_cleanup_swap_chain(
 void vk_recreate_swapchain(
     VkPhysicalDevice vk_physical_device, VkDevice vk_device, 
     VkSurfaceKHR vk_surface, GLFWwindow* window,
-    VkSwapchainKHR vk_swap_chain, VkExtent2D vk_swap_chain_extent,
-    std::vector<VkImage> vk_swap_chain_images,
-    std::vector<VkImageView> vk_swapchain_imageviews,
-    VkRenderPass vk_render_pass, VkFormat vk_swapchain_image_format,
-    std::vector<VkFramebuffer> vk_swapchain_framebuffers
+    VkSwapchainKHR& vk_swapchain, VkExtent2D& vk_swapchain_extent,
+    std::vector<VkImage>& vk_swapchain_images,
+    std::vector<VkImageView>& vk_swapchain_imageviews,
+    VkRenderPass vk_render_pass, VkFormat& vk_swapchain_image_format,
+    std::vector<VkFramebuffer>& vk_swapchain_framebuffers
 );
