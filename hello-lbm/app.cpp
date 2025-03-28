@@ -410,7 +410,7 @@ void VulkanParticleApp::vk_create_compute_descriptor_sets() {
 
         descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[1].dstSet = vk_lbm_compute_descriptor_sets[i];
-        descriptorWrites[1].dstBinding = 0;
+        descriptorWrites[1].dstBinding = 1;
         descriptorWrites[1].dstArrayElement = 0;
         descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         descriptorWrites[1].descriptorCount = 1;
@@ -423,7 +423,7 @@ void VulkanParticleApp::vk_create_compute_descriptor_sets() {
 
         descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[2].dstSet = vk_lbm_compute_descriptor_sets[i];
-        descriptorWrites[2].dstBinding = 1;
+        descriptorWrites[2].dstBinding = 2;
         descriptorWrites[2].dstArrayElement = 0;
         descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         descriptorWrites[2].descriptorCount = 1;
@@ -436,7 +436,7 @@ void VulkanParticleApp::vk_create_compute_descriptor_sets() {
 
         descriptorWrites[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[3].dstSet = vk_lbm_compute_descriptor_sets[i];
-        descriptorWrites[3].dstBinding = 2;
+        descriptorWrites[3].dstBinding = 3;
         descriptorWrites[3].dstArrayElement = 0;
         descriptorWrites[3].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         descriptorWrites[3].descriptorCount = 1;
@@ -449,7 +449,7 @@ void VulkanParticleApp::vk_create_compute_descriptor_sets() {
 
         descriptorWrites[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[4].dstSet = vk_lbm_compute_descriptor_sets[i];
-        descriptorWrites[4].dstBinding = 3;
+        descriptorWrites[4].dstBinding = 4;
         descriptorWrites[4].dstArrayElement = 0;
         descriptorWrites[4].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         descriptorWrites[4].descriptorCount = 1;
@@ -462,7 +462,7 @@ void VulkanParticleApp::vk_create_compute_descriptor_sets() {
 
         descriptorWrites[5].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[5].dstSet = vk_lbm_compute_descriptor_sets[i];
-        descriptorWrites[5].dstBinding = 4;
+        descriptorWrites[5].dstBinding = 5;
         descriptorWrites[5].dstArrayElement = 0;
         descriptorWrites[5].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         descriptorWrites[5].descriptorCount = 1;
@@ -481,31 +481,31 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_set_layout() {
     layoutBindings[0].pImmutableSamplers = nullptr;
     layoutBindings[0].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
-    layoutBindings[1].binding = 0;
+    layoutBindings[1].binding = 1;
     layoutBindings[1].descriptorCount = 1;
     layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     layoutBindings[1].pImmutableSamplers = nullptr;
     layoutBindings[1].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
-    layoutBindings[2].binding = 1;
+    layoutBindings[2].binding = 2;
     layoutBindings[2].descriptorCount = 1;
     layoutBindings[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     layoutBindings[2].pImmutableSamplers = nullptr;
     layoutBindings[2].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
-    layoutBindings[3].binding = 2;
+    layoutBindings[3].binding = 3;
     layoutBindings[3].descriptorCount = 1;
     layoutBindings[3].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     layoutBindings[3].pImmutableSamplers = nullptr;
     layoutBindings[3].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
-    layoutBindings[4].binding = 3;
+    layoutBindings[4].binding = 4;
     layoutBindings[4].descriptorCount = 1;
     layoutBindings[4].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     layoutBindings[4].pImmutableSamplers = nullptr;
     layoutBindings[4].stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
-    layoutBindings[5].binding = 4;
+    layoutBindings[5].binding = 5;
     layoutBindings[5].descriptorCount = 1;
     layoutBindings[5].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
     layoutBindings[5].pImmutableSamplers = nullptr;

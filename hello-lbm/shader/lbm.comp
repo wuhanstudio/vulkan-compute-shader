@@ -19,11 +19,11 @@ const float w[9] = {4.0/9.0, 1.0/9.0,1.0/9.0,1.0/9.0,1.0/9.0, 1.0/36.0,1.0/36.0,
 #define C_FLD 1
 #define C_BND 0
 
-layout( binding = 0 ) buffer df0 { float f0[  ]; };
-layout( binding = 1 ) buffer df1 { float f1[  ]; };
-layout( binding = 2 ) buffer dcF { int   F[  ]; };
-layout( binding = 3 ) buffer dcU { float U[  ]; };
-layout( binding = 4 ) buffer dcV { float V[  ]; };
+layout( binding = 1 ) buffer df0 { float f0[  ]; };
+layout( binding = 2 ) buffer df1 { float f1[  ]; };
+layout( binding = 3 ) buffer dcF { int   F[  ]; };
+layout( binding = 4 ) buffer dcU { float U[  ]; };
+layout( binding = 5 ) buffer dcV { float V[  ]; };
 
 layout (binding = 0) uniform LBMUBO {
     int NX;
