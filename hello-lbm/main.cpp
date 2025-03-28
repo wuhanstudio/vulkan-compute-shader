@@ -43,7 +43,6 @@ void VulkanParticleApp::vk_init_window() {
 
 void VulkanParticleApp::vk_init() {
     vk_create_instance();
-    vk_setup_debug_messenger();
 
     vk_create_surface();
 
@@ -54,15 +53,15 @@ void VulkanParticleApp::vk_init() {
     vk_create_imageviews();
     vk_create_render_pass();
 
-    vk_create_compute_descriptor_set_layout();
+    vk_create_lbm_compute_descriptor_set_layout();
 
     vk_create_graphics_pipeline("shader/vert.spv", "shader/frag.spv");
-    vk_create_compute_pipeline("shader/comp.spv");
+    vk_create_compute_pipeline("shader/lbm.spv");
 
     vk_create_framebuffers();
     vk_create_command_pool();
 
-    vk_create_shader_storage_buffers();
+    vk_create_lbm_shader_storage_buffers();
     vk_create_uniform_buffers();
 
     vk_create_descriptor_pool();
@@ -114,8 +113,8 @@ void VulkanParticleApp::vk_draw_frame() {
 
     vkResetFences(vk_device, 1, &vk_in_flight_fences[currentFrame]);
 
-    vkResetCommandBuffer(vk_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
-    vk_record_command_buffer(vk_command_buffers[currentFrame], imageIndex);
+    vkResetCommandBuffer(vk_graphics_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+    vk_record_graphics_command_buffer(vk_graphics_command_buffers[currentFrame], imageIndex);
 
     VkSemaphore waitSemaphores[] = { vk_compute_finished_semaphores[currentFrame], vk_image_available_semaphores[currentFrame] };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -126,7 +125,7 @@ void VulkanParticleApp::vk_draw_frame() {
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &vk_command_buffers[currentFrame];
+    submitInfo.pCommandBuffers = &vk_graphics_command_buffers[currentFrame];
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &vk_render_finished_semaphores[currentFrame];
 

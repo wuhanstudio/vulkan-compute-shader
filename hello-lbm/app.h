@@ -23,13 +23,19 @@
 #include <set>
 #include <random>
 
-
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
+
+const int NX = 640;		// solver grid resolution
+const int NY = 360;
 
 const uint32_t PARTICLE_COUNT = 8192;
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
+
+/*--------------------- LBM -----------------------------------------------------------------------------*/
+#define NUMR 20
+#define NUM_VECTORS 9	// lbm basis vectors (d2q9 model)
 
 const std::vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation"
@@ -38,12 +44,6 @@ const std::vector<const char*> validationLayers = {
 const std::vector<const char*> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
-
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
 
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsAndComputeFamily;
@@ -60,7 +60,7 @@ struct SwapChainSupportDetails {
     std::vector<VkPresentModeKHR> presentModes;
 };
 
-struct UniformBufferObject {
+struct LBMUniformBufferObject {
     float deltaTime = 1.0f;
 };
 
@@ -112,6 +112,9 @@ public:
 private:
     GLFWwindow* gWindow;
 
+    int F_cpu[NX * NY];
+    float xMouse, yMouse;
+
     VkInstance vk_instance;
     VkDebugUtilsMessengerEXT vk_debug_messenger;
 
@@ -136,25 +139,37 @@ private:
     VkRenderPass vk_render_pass;
 
     VkPipeline vk_graphics_pipeline;
-    VkPipelineLayout vk_pipeline_layout;
+    VkPipelineLayout vk_graphics_pipeline_layout;
 
-    VkDescriptorPool vk_descriptor_pool;
-    VkDescriptorSetLayout vk_compute_descriptor_set_layout;
-    std::vector<VkDescriptorSet> vk_compute_descriptor_sets;
+    VkDescriptorPool vk_lbm_descriptor_pool;
+    VkDescriptorSetLayout vk_lbm_compute_descriptor_set_layout;
+    std::vector<VkDescriptorSet> vk_lbm_compute_descriptor_sets;
 
-    VkPipeline vk_compute_pipeline;
-    VkPipelineLayout vk_compute_pipeline_layout;
+    VkPipeline vk_lbm_compute_pipeline;
+    VkPipelineLayout vk_lbm_compute_pipeline_layout;
 
     VkCommandPool vk_command_pool;
 
-    std::vector<VkBuffer> vk_shader_storage_buffers;
-    std::vector<VkDeviceMemory> vk_shader_storage_buffers_memory;
+    std::vector<VkBuffer> vk_df0_storage_buffers;
+    std::vector<VkDeviceMemory> vk_df0_storage_buffers_memory;
+
+    std::vector<VkBuffer> vk_df1_storage_buffers;
+    std::vector<VkDeviceMemory> vk_df1_storage_buffers_memory;
+
+    std::vector<VkBuffer> vk_dcf_storage_buffers;
+    std::vector<VkDeviceMemory> vk_dcf_storage_buffers_memory;
+
+    std::vector<VkBuffer> vk_dcu_storage_buffers;
+    std::vector<VkDeviceMemory> vk_dcu_storage_buffers_memory;
+
+    std::vector<VkBuffer> vk_dcv_storage_buffers;
+    std::vector<VkDeviceMemory> vk_dcv_storage_buffers_memory;
 
     std::vector<VkBuffer> vk_uniform_buffers;
     std::vector<VkDeviceMemory> vk_uniform_buffers_memory;
     std::vector<void*> vk_uniform_buffers_mapped;
 
-    std::vector<VkCommandBuffer> vk_command_buffers;
+    std::vector<VkCommandBuffer> vk_graphics_command_buffers;
     std::vector<VkCommandBuffer> vk_compute_command_buffers;
 
     std::vector<VkSemaphore> vk_image_available_semaphores;
@@ -202,7 +217,7 @@ private:
 
     void vk_create_render_pass();
 
-    void vk_create_compute_descriptor_set_layout();
+    void vk_create_lbm_compute_descriptor_set_layout();
 
     void vk_create_graphics_pipeline(const char* f_vert, const char* f_frag);
 
@@ -212,7 +227,7 @@ private:
 
     void vk_create_command_pool();
 
-    void vk_create_shader_storage_buffers();
+    void vk_create_lbm_shader_storage_buffers();
 
     void vk_create_uniform_buffers();
 
@@ -229,7 +244,7 @@ private:
 
     void vk_create_compute_command_buffers();
 
-    void vk_record_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+    void vk_record_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
     void vk_record_compute_command_buffer(VkCommandBuffer commandBuffer);
 
@@ -260,4 +275,6 @@ private:
     bool vk_check_validation_layer_support();
 
     std::vector<char> read_file(const std::string& filename);
+    void lbm_update_obstacle(void);
+    void lbm_init_ssb(void);
 };

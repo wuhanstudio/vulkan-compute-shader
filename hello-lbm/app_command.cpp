@@ -14,15 +14,15 @@ void VulkanParticleApp::vk_create_command_pool() {
 }
 
 void VulkanParticleApp::vk_create_command_buffers() {
-    vk_command_buffers.resize(MAX_FRAMES_IN_FLIGHT);
+    vk_graphics_command_buffers.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = vk_command_pool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)vk_command_buffers.size();
+    allocInfo.commandBufferCount = (uint32_t)vk_graphics_command_buffers.size();
 
-    if (vkAllocateCommandBuffers(vk_device, &allocInfo, vk_command_buffers.data()) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(vk_device, &allocInfo, vk_graphics_command_buffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 }
@@ -41,7 +41,7 @@ void VulkanParticleApp::vk_create_compute_command_buffers() {
     }
 }
 
-void VulkanParticleApp::vk_record_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
+void VulkanParticleApp::vk_record_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -79,7 +79,7 @@ void VulkanParticleApp::vk_record_command_buffer(VkCommandBuffer commandBuffer, 
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
     VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vk_shader_storage_buffers[currentFrame], offsets);
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vk_df0_storage_buffers[currentFrame], offsets);
 
     vkCmdDraw(commandBuffer, PARTICLE_COUNT, 1, 0, 0);
 
@@ -98,9 +98,9 @@ void VulkanParticleApp::vk_record_compute_command_buffer(VkCommandBuffer command
         throw std::runtime_error("failed to begin recording compute command buffer!");
     }
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_compute_pipeline);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_lbm_compute_pipeline);
 
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_compute_pipeline_layout, 0, 1, &vk_compute_descriptor_sets[currentFrame], 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_lbm_compute_pipeline_layout, 0, 1, &vk_lbm_compute_descriptor_sets[currentFrame], 0, nullptr);
 
     vkCmdDispatch(commandBuffer, PARTICLE_COUNT / 256, 1, 1);
 

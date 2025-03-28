@@ -171,14 +171,6 @@ void VulkanParticleApp::vk_pick_physical_device() {
 
     fmt::println("");
 
-    //for (int i = 0; i < deviceCount; i++) {
-    //    if (vk_is_device_suitable(devices[i])) {
-    //        printf("Chosen Device %d\n", i);
-    //        vk_physical_device = devices[i];
-    //        break;
-    //    }
-    //}
-
     // Find a suitable device
     int deviceIndex = -1;
     printf("Choose a physical device:\n");
@@ -228,7 +220,7 @@ void VulkanParticleApp::vk_create_logical_device() {
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-    if (enableValidationLayers) {
+    if (vk_check_validation_layer_support()) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
     }

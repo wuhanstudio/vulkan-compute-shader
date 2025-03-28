@@ -11,11 +11,11 @@ struct pos
 	vec2 xy;
 };
 
-layout( binding = 2 ) buffer dcF { int F[  ]; };
-layout( binding = 3 ) buffer dcU { float dU[  ]; };
-layout( binding = 4 ) buffer dcV { float dV[  ]; };
+layout( binding = 0 ) buffer dcF { int F[  ]; };
+layout( binding = 1 ) buffer dcU { float dU[  ]; };
+layout( binding = 2 ) buffer dcV { float dV[  ]; };
 
-layout( binding = 5 ) buffer ParticlesPos
+layout( binding = 3 ) buffer ParticlesPos
 {
     pos Positions [  ];
 };
