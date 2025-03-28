@@ -26,8 +26,8 @@
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
-const int NX = 640;		// solver grid resolution
-const int NY = 480;
+const int NX = 480;		// solver grid resolution
+const int NY = 360;
 
 const uint32_t PARTICLE_COUNT = 8192;
 
