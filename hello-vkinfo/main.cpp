@@ -148,6 +148,42 @@ int main() {
 			//fmt::println("{}", extension.extensionName);
 		//}
 		//fmt::print("\n");
+
+		// Print memory properties
+		VkPhysicalDeviceMemoryProperties memProperties;
+		vkGetPhysicalDeviceMemoryProperties(device, &memProperties);
+
+		fmt::println("Memory properties:");
+		fmt::println("Memory heap count: {}", memProperties.memoryHeapCount);
+		for (uint32_t i = 0; i < memProperties.memoryHeapCount; i++) {
+			fmt::println("Heap size: {}", memProperties.memoryHeaps[i].size);
+		}
+		fmt::println("Memory type count: {}", memProperties.memoryTypeCount);
+		for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+			fmt::println("Heap index: {}", memProperties.memoryTypes[i].heapIndex);
+			fmt::print("Type flags: {}", memProperties.memoryTypes[i].propertyFlags);
+			// Print property flags
+			if (memProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
+				fmt::print("| Device local ");
+			}
+			if (memProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) {
+				fmt::print("| Host visible ");
+			}
+			if (memProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT) {
+				fmt::print("| Host coherent ");
+			}
+			if (memProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_HOST_CACHED_BIT) {
+				fmt::print("| Host cached ");
+			}
+			if (memProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT) {
+				fmt::print("| Lazily allocated ");
+			}
+			if (memProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_PROTECTED_BIT) {
+				fmt::print("| Protected ");
+			}
+			fmt::println("\n");
+		}
+		fmt::print("\n");
 	}
 
 	// Destroy the Vulkan instance
