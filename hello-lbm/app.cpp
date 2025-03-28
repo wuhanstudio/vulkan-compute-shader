@@ -571,6 +571,18 @@ void VulkanParticleApp::vk_cleanup() {
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroyBuffer(vk_device, vk_df0_storage_buffers[i], nullptr);
         vkFreeMemory(vk_device, vk_df0_storage_buffers_memory[i], nullptr);
+
+        vkDestroyBuffer(vk_device, vk_df1_storage_buffers[i], nullptr);
+        vkFreeMemory(vk_device, vk_df1_storage_buffers_memory[i], nullptr);
+
+        vkDestroyBuffer(vk_device, vk_dcf_storage_buffers[i], nullptr);
+        vkFreeMemory(vk_device, vk_dcf_storage_buffers_memory[i], nullptr);
+    
+        vkDestroyBuffer(vk_device, vk_dcu_storage_buffers[i], nullptr);
+        vkFreeMemory(vk_device, vk_dcu_storage_buffers_memory[i], nullptr);
+
+        vkDestroyBuffer(vk_device, vk_dcv_storage_buffers[i], nullptr);
+        vkFreeMemory(vk_device, vk_dcv_storage_buffers_memory[i], nullptr);
     }
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
