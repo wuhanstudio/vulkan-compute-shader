@@ -46,7 +46,7 @@ void VulkanParticleApp::lbm_update_obstacle(void)
             int xx = x - (xMouse) * NX / 2.0;
             int yy = y - (yMouse) * NY / 2.0;
             int idx = x + y * NX;
-            if (idx > NX * NY)	break;
+            if (idx > NX * NY)    break;
             if (sqrt(float((xx - NX / 2) * (xx - NX / 2) + (yy - NY / 2) * (yy - NY / 2))) < NX / 14)
             {
                 F_cpu[idx] = 0;
@@ -59,29 +59,70 @@ void VulkanParticleApp::lbm_update_obstacle(void)
             }
         }
 
-	// Clear the boundary
+    // Clear the boundary
     for (int x = 0; x < NX; x++)
         F_temp[x + 0 * NX] = F_temp[x + (NY - 1) * NX] = 0;
 
     vkUnmapMemory(vk_device, dcf_BufferMemory);
 
-    //glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-    vk_dcf_storage_buffers.resize(MAX_FRAMES_IN_FLIGHT);
-    vk_dcf_storage_buffers_memory.resize(MAX_FRAMES_IN_FLIGHT);
-
     // Copy initial data to storage buffers
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        vk_create_buffer(bufferSize,
-            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-            vk_dcf_storage_buffers[i],
-            vk_dcf_storage_buffers_memory[i]
-        );
         vk_copy_buffer(dcf_Buffer, vk_dcf_storage_buffers[i], bufferSize);
     }
 
     vkDestroyBuffer(vk_device, dcf_Buffer, nullptr);
     vkFreeMemory(vk_device, dcf_BufferMemory, nullptr);
+
+    vertices.clear();
+    for (int x = 0; x < NX; x++) {
+        for (int y = 0; y < NY; y++) {
+            int idx = x + y * NX;
+
+            float x1 = static_cast<float>(x) / NX * 2.0 - 1.0;
+            float y1 = static_cast<float>(y) / NY * 2.0 - 1.0;
+            float dx = 1.0f / NX * 2.0;
+            float dy = 1.0f / NY * 2.0;
+
+            if (F_cpu[idx] == 0) {
+                // Define quad vertices and color
+                Particle p1;
+                p1.position = glm::vec2(x1, y1);
+                vertices.insert(vertices.end(), p1);
+
+                Particle p2;
+                p2.position = glm::vec2(x1 + dx, y1);
+                vertices.insert(vertices.end(), p2);
+
+                Particle p3;
+                p3.position = glm::vec2(x1 + dx, y1 + dy);
+                vertices.insert(vertices.end(), p3);
+
+                Particle p4;
+                p4.position = glm::vec2(x1 + dx, y1 + dy);
+                vertices.insert(vertices.end(), p4);
+
+                Particle p5;
+                p5.position = glm::vec2(x1, y1 + dy);
+                vertices.insert(vertices.end(), p5);
+
+                Particle p6;
+                p6.position = glm::vec2(x1, y1);
+                vertices.insert(vertices.end(), p6);
+            }
+        }
+    }
+
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    void* data;
+    vkMapMemory(vk_device, vk_obstacle_vertex_buffer_memory, 0, bufferInfo.size, 0, &data);
+    memcpy(data, vertices.data(), (size_t) bufferInfo.size);
+    vkUnmapMemory(vk_device, vk_obstacle_vertex_buffer_memory);
+
 }
 
 void VulkanParticleApp::lbm_init_ssb(void)
@@ -327,7 +368,20 @@ void VulkanParticleApp::vk_create_lbm_shader_storage_buffers() {
     vkDestroyBuffer(vk_device, df1_Buffer, nullptr);
     vkFreeMemory(vk_device, df1_BufferMemory, nullptr);
 
-	lbm_update_obstacle();
+    vk_dcf_storage_buffers.resize(MAX_FRAMES_IN_FLIGHT);
+    vk_dcf_storage_buffers_memory.resize(MAX_FRAMES_IN_FLIGHT);
+
+    // Copy initial data to storage buffers
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        vk_create_buffer(bufferSize,
+            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+            vk_dcf_storage_buffers[i],
+            vk_dcf_storage_buffers_memory[i]
+        );
+    }
+
+    lbm_update_obstacle();
 
     lbm_init_ssb();
 }
@@ -356,17 +410,17 @@ void VulkanParticleApp::vk_update_uniform_buffer(uint32_t currentImage) {
 void VulkanParticleApp::vk_create_obstacle_vertex_buffer() {
 
     vertices.clear();
-	for (int x = 0; x < NX; x++) {
-		for (int y = 0; y < NY; y++) {
-			int idx = x + y * NX;
+    for (int x = 0; x < NX; x++) {
+        for (int y = 0; y < NY; y++) {
+            int idx = x + y * NX;
 
-			float x1 = static_cast<float>(x) / NX * 2.0 - 1.0;
-			float y1 = static_cast<float>(y) / NY * 2.0 - 1.0;
-			float dx = 1.0f / NX * 2.0;
-			float dy = 1.0f / NY * 2.0;
+            float x1 = static_cast<float>(x) / NX * 2.0 - 1.0;
+            float y1 = static_cast<float>(y) / NY * 2.0 - 1.0;
+            float dx = 1.0f / NX * 2.0;
+            float dy = 1.0f / NY * 2.0;
 
-			if (F_cpu[idx] == 0) {
-				// Define quad vertices and color
+            if (F_cpu[idx] == 0) {
+                // Define quad vertices and color
                 Particle p1;
                 p1.position = glm::vec2(x1, y1);
                 vertices.insert(vertices.end(), p1);
@@ -390,9 +444,9 @@ void VulkanParticleApp::vk_create_obstacle_vertex_buffer() {
                 Particle p6;
                 p6.position = glm::vec2(x1, y1);
                 vertices.insert(vertices.end(), p6);
-			}
-		}
-	}
+            }
+        }
+    }
 
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

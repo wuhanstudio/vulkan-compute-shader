@@ -37,6 +37,9 @@ const int MAX_FRAMES_IN_FLIGHT = 2;
 #define NUMR 20
 #define NUM_VECTORS 9	// lbm basis vectors (d2q9 model)
 
+/*--------------------- Particles -----------------------------------------------------------------------*/
+const float dt = 0.1;
+
 const std::vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation"
 };
@@ -181,6 +184,7 @@ private:
 
     double lastTime = 0.0f;
     float lastFrameTime = 0.0f;
+    
 
     void vk_init();
     void vk_main_loop();

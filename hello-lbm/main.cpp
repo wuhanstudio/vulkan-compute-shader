@@ -1,4 +1,7 @@
+#include <fmt/core.h>
 #include "app.h"
+
+int mousedown = 0;
 
 // Press ESC to close the window
 static void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -6,6 +9,19 @@ static void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, in
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 };
+
+void glfw_onMouse(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        if (GLFW_PRESS == action)
+        {
+            mousedown = 1;
+        }
+        else if (GLFW_RELEASE == action)
+            mousedown = 0;
+    }
+}
 
 void glfw_show_fps(GLFWwindow* window) {
     static double previousSeconds = 0.0;
@@ -39,6 +55,7 @@ void VulkanParticleApp::vk_init_window() {
     glfwSetWindowUserPointer(gWindow, this);
 
     glfwSetKeyCallback(gWindow, glfw_onKey);
+    glfwSetMouseButtonCallback(gWindow, glfw_onMouse);
 }
 
 void VulkanParticleApp::vk_init() {
@@ -60,11 +77,10 @@ void VulkanParticleApp::vk_init() {
 
     vk_create_framebuffers();
     vk_create_command_pool();
-
+    
+    vk_create_obstacle_vertex_buffer();
     vk_create_lbm_shader_storage_buffers();
     vk_create_uniform_buffers();
-
-    vk_create_obstacle_vertex_buffer();
 
     vk_create_descriptor_pool();
     vk_create_compute_descriptor_sets();
@@ -76,6 +92,31 @@ void VulkanParticleApp::vk_init() {
 }
 
 void VulkanParticleApp::vk_draw_frame() {
+    if (mousedown) {
+        // glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+        double lastMouseX, lastMouseY;
+        // Get the current mouse cursor position delta
+        glfwGetCursorPos(gWindow, &lastMouseX, &lastMouseY);
+
+        // if (FULLSCREEN) {
+            // xMouse = 2.0 * ((float)lastMouseX / (float)gWindowWidthFull - 0.5);
+            // yMouse = -2.0 * ((float)lastMouseY / (float)gWindowHeightFull - 0.5);
+        // }
+        // else
+        // {
+            xMouse = 2.0 * ((float)lastMouseX / (float)WIDTH - 0.5);
+            yMouse = 2.0 * ((float)lastMouseY / (float)HEIGHT - 0.5);
+        // }
+        // fmt::println("Mouse: {} {}", xMouse, yMouse);
+        lbm_update_obstacle();
+    }
+
+    // if (glfwGetTime() - lastTime > abs(dt) / 10)
+    // {
+    //     lastTime = glfwGetTime();
+    // }
+
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
