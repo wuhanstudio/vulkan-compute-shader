@@ -78,10 +78,14 @@ void VulkanParticleApp::vk_record_graphics_command_buffer(VkCommandBuffer comman
     scissor.extent = vk_swapchain_extent;
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-    VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vk_df0_storage_buffers[currentFrame], offsets);
+    // VkDeviceSize offsets[] = { 0 };
+    // vkCmdBindVertexBuffers(commandBuffer, 0, 1, &vk_df0_storage_buffers[currentFrame], offsets);
 
-    vkCmdDraw(commandBuffer, PARTICLE_COUNT, 1, 0, 0);
+    VkBuffer vertexBuffers[] = {vk_obstacle_vertex_buffer};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+    vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
     vkCmdEndRenderPass(commandBuffer);
 

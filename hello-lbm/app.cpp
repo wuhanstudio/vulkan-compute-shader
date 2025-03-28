@@ -353,6 +353,77 @@ void VulkanParticleApp::vk_update_uniform_buffer(uint32_t currentImage) {
     memcpy(vk_uniform_buffers_mapped[currentImage], &ubo, sizeof(ubo));
 }
 
+void VulkanParticleApp::vk_create_obstacle_vertex_buffer() {
+
+    vertices.clear();
+	for (int x = 0; x < NX; x++) {
+		for (int y = 0; y < NY; y++) {
+			int idx = x + y * NX;
+
+			float x1 = static_cast<float>(x) / NX * 2.0 - 1.0;
+			float y1 = static_cast<float>(y) / NY * 2.0 - 1.0;
+			float dx = 1.0f / NX * 2.0;
+			float dy = 1.0f / NY * 2.0;
+
+			if (F_cpu[idx] == 0) {
+				// Define quad vertices and color
+                Particle p1;
+                p1.position = glm::vec2(x1, y1);
+                vertices.insert(vertices.end(), p1);
+
+                Particle p2;
+                p2.position = glm::vec2(x1 + dx, y1);
+                vertices.insert(vertices.end(), p2);
+
+                Particle p3;
+                p3.position = glm::vec2(x1 + dx, y1 + dy);
+                vertices.insert(vertices.end(), p3);
+
+                Particle p4;
+                p4.position = glm::vec2(x1 + dx, y1 + dy);
+                vertices.insert(vertices.end(), p4);
+
+                Particle p5;
+                p5.position = glm::vec2(x1, y1 + dy);
+                vertices.insert(vertices.end(), p5);
+
+                Particle p6;
+                p6.position = glm::vec2(x1, y1);
+                vertices.insert(vertices.end(), p6);
+			}
+		}
+	}
+
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if (vkCreateBuffer(vk_device, &bufferInfo, nullptr, &vk_obstacle_vertex_buffer) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create vertex buffer!");
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(vk_device, vk_obstacle_vertex_buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = vk_find_memory_type(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+    if (vkAllocateMemory(vk_device, &allocInfo, nullptr, &vk_obstacle_vertex_buffer_memory) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate vertex buffer memory!");
+    }
+
+    vkBindBufferMemory(vk_device, vk_obstacle_vertex_buffer, vk_obstacle_vertex_buffer_memory, 0);
+
+    void* data;
+    vkMapMemory(vk_device, vk_obstacle_vertex_buffer_memory, 0, bufferInfo.size, 0, &data);
+    memcpy(data, vertices.data(), (size_t) bufferInfo.size);
+    vkUnmapMemory(vk_device, vk_obstacle_vertex_buffer_memory);
+}
+
 void VulkanParticleApp::vk_create_descriptor_pool() {
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -584,6 +655,9 @@ void VulkanParticleApp::vk_cleanup() {
         vkDestroyBuffer(vk_device, vk_dcv_storage_buffers[i], nullptr);
         vkFreeMemory(vk_device, vk_dcv_storage_buffers_memory[i], nullptr);
     }
+
+    vkDestroyBuffer(vk_device, vk_obstacle_vertex_buffer, nullptr);
+    vkFreeMemory(vk_device, vk_obstacle_vertex_buffer_memory, nullptr);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroySemaphore(vk_device, vk_render_finished_semaphores[i], nullptr);

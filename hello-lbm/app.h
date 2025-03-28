@@ -66,8 +66,6 @@ struct LBMUniformBufferObject {
 
 struct Particle {
     glm::vec2 position;
-    glm::vec2 velocity;
-    glm::vec4 color;
 
     static VkVertexInputBindingDescription getBindingDescription() {
         VkVertexInputBindingDescription bindingDescription{};
@@ -78,18 +76,13 @@ struct Particle {
         return bindingDescription;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
-        std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+    static std::array<VkVertexInputAttributeDescription, 1> getAttributeDescriptions() {
+        std::array<VkVertexInputAttributeDescription, 1> attributeDescriptions{};
 
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
         attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
         attributeDescriptions[0].offset = offsetof(Particle, position);
-
-        attributeDescriptions[1].binding = 0;
-        attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
-        attributeDescriptions[1].offset = offsetof(Particle, color);
 
         return attributeDescriptions;
     }
@@ -114,6 +107,8 @@ private:
 
     int F_cpu[NX * NY];
     float xMouse, yMouse;
+
+    std::vector<Particle> vertices;
 
     VkInstance vk_instance;
     VkDebugUtilsMessengerEXT vk_debug_messenger;
@@ -168,6 +163,9 @@ private:
     std::vector<VkBuffer> vk_uniform_buffers;
     std::vector<VkDeviceMemory> vk_uniform_buffers_memory;
     std::vector<void*> vk_uniform_buffers_mapped;
+
+    VkBuffer vk_obstacle_vertex_buffer;
+    VkDeviceMemory vk_obstacle_vertex_buffer_memory;
 
     std::vector<VkCommandBuffer> vk_graphics_command_buffers;
     std::vector<VkCommandBuffer> vk_compute_command_buffers;
@@ -226,6 +224,8 @@ private:
     void vk_create_framebuffers();
 
     void vk_create_command_pool();
+
+    void vk_create_obstacle_vertex_buffer();
 
     void vk_create_lbm_shader_storage_buffers();
 

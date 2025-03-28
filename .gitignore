@@ -5,6 +5,7 @@
 
 vcpkg_installed/
 build/
+.vscode/
 
 # User-specific files
 *.rsuser

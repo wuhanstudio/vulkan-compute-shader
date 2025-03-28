@@ -64,6 +64,8 @@ void VulkanParticleApp::vk_init() {
     vk_create_lbm_shader_storage_buffers();
     vk_create_uniform_buffers();
 
+    vk_create_obstacle_vertex_buffer();
+
     vk_create_descriptor_pool();
     vk_create_compute_descriptor_sets();
 
