@@ -105,22 +105,13 @@ void VulkanParticleApp::vk_init() {
 
 void VulkanParticleApp::vk_draw_frame() {
     if (mousedown) {
-        // glfwSetInputMode(gWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-        double lastMouseX, lastMouseY;
         // Get the current mouse cursor position delta
+        double lastMouseX, lastMouseY;
         glfwGetCursorPos(gWindow, &lastMouseX, &lastMouseY);
 
-        // if (FULLSCREEN) {
-            // xMouse = 2.0 * ((float)lastMouseX / (float)gWindowWidthFull - 0.5);
-            // yMouse = -2.0 * ((float)lastMouseY / (float)gWindowHeightFull - 0.5);
-        // }
-        // else
-        // {
-            xMouse = 2.0 * ((float)lastMouseX / (float)gWindowWidth - 0.5);
-            yMouse = 2.0 * ((float)lastMouseY / (float)gWindowHeight - 0.5);
-        // }
-        // fmt::println("Mouse: {} {}", xMouse, yMouse);
+        xMouse = 2.0 * ((float)lastMouseX / (float)gWindowWidth - 0.5);
+        yMouse = 2.0 * ((float)lastMouseY / (float)gWindowHeight - 0.5);
+
         lbm_update_obstacle();
     }
 
