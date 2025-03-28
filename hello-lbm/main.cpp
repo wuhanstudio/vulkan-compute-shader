@@ -3,6 +3,15 @@
 
 int mousedown = 0;
 
+int gWindowWidth = 800;
+int gWindowHeight = 600;
+
+void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
+{
+	gWindowWidth = width;
+	gWindowHeight = height;
+}
+
 // Press ESC to close the window
 static void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -51,11 +60,14 @@ void VulkanParticleApp::vk_init_window() {
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    gWindow = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+    gWindow = glfwCreateWindow(gWindowWidth, gWindowHeight, "Vulkan", nullptr, nullptr);
     glfwSetWindowUserPointer(gWindow, this);
 
     glfwSetKeyCallback(gWindow, glfw_onKey);
     glfwSetMouseButtonCallback(gWindow, glfw_onMouse);
+
+    glfwSetFramebufferSizeCallback(gWindow, glfw_onFramebufferSize);
+	glfwSetCursorPos(gWindow, gWindowWidth / 2.0, gWindowHeight / 2.0);
 }
 
 void VulkanParticleApp::vk_init() {
@@ -105,8 +117,8 @@ void VulkanParticleApp::vk_draw_frame() {
         // }
         // else
         // {
-            xMouse = 2.0 * ((float)lastMouseX / (float)WIDTH - 0.5);
-            yMouse = 2.0 * ((float)lastMouseY / (float)HEIGHT - 0.5);
+            xMouse = 2.0 * ((float)lastMouseX / (float)gWindowWidth - 0.5);
+            yMouse = 2.0 * ((float)lastMouseY / (float)gWindowHeight - 0.5);
         // }
         // fmt::println("Mouse: {} {}", xMouse, yMouse);
         lbm_update_obstacle();

@@ -23,8 +23,8 @@
 #include <set>
 #include <random>
 
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
+extern int gWindowWidth;
+extern int gWindowHeight;
 
 const int NX = 480;		// solver grid resolution
 const int NY = 360;
