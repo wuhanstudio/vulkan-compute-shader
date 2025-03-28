@@ -22,7 +22,11 @@ bool VulkanParticleApp::vk_check_validation_layer_support() {
         }
     }
 
+#ifdef NDEBUG
+    return false;
+#else
     return true;
+#endif
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL vk_debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
@@ -57,7 +61,7 @@ void VulkanParticleApp::vk_populate_debug_messenger_createInfo(VkDebugUtilsMesse
 }
 
 void VulkanParticleApp::vk_setup_debug_messenger() {
-    if (!enableValidationLayers) return;
+    if (!vk_check_validation_layer_support()) return;
 
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     vk_populate_debug_messenger_createInfo(createInfo);

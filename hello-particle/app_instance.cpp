@@ -7,7 +7,7 @@ std::vector<const char*> VulkanParticleApp::vk_get_required_extensions() {
 
     std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-    if (enableValidationLayers) {
+    if (vk_check_validation_layer_support()) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 
@@ -15,10 +15,6 @@ std::vector<const char*> VulkanParticleApp::vk_get_required_extensions() {
 }
 
 void VulkanParticleApp::vk_create_instance() {
-    if (enableValidationLayers && !vk_check_validation_layer_support()) {
-        throw std::runtime_error("validation layers requested, but not available!");
-    }
-
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "Hello Triangle";
@@ -35,11 +31,11 @@ void VulkanParticleApp::vk_create_instance() {
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-    if (enableValidationLayers) {
+    if (vk_check_validation_layer_support()) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
 
+        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
         vk_populate_debug_messenger_createInfo(debugCreateInfo);
         createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
     }

@@ -333,7 +333,7 @@ void VulkanParticleApp::vk_cleanup() {
 
     vkDestroyDevice(vk_device, nullptr);
 
-    if (enableValidationLayers) {
+    if (vk_check_validation_layer_support()) {
         vk_destroy_debug_utils_messenger_ext(nullptr);
     }
 
