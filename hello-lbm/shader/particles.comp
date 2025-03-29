@@ -11,21 +11,17 @@ struct pos
 	vec2 xy;
 };
 
-layout( binding = 0 ) buffer dcF { int F[  ]; };
-layout( binding = 1 ) buffer dcU { float dU[  ]; };
-layout( binding = 2 ) buffer dcV { float dV[  ]; };
-
-layout( binding = 3 ) buffer ParticlesPos
-{
-    pos Positions [  ];
-};
-
 layout (binding = 0) uniform ParticleUBO {
 	int NX;
 	int NY;
 	float DT;
 } ubo;
 
+layout( binding = 1 ) buffer dcF { int F[  ]; };
+layout( binding = 2 ) buffer dcU { float dU[  ]; };
+layout( binding = 3 ) buffer dcV { float dV[  ]; };
+
+layout( binding = 4 ) buffer ParticlesPos { pos Positions [  ]; };
 
 layout( local_size_x = 1000 ) in;
 

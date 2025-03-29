@@ -13,30 +13,44 @@ void VulkanParticleApp::vk_create_command_pool() {
     }
 }
 
-void VulkanParticleApp::vk_create_command_buffers() {
-    vk_graphics_command_buffers.resize(MAX_FRAMES_IN_FLIGHT);
+void VulkanParticleApp::vk_create_obstacle_command_buffers() {
+    vk_obstacle_graphics_command_buffers.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = vk_command_pool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)vk_graphics_command_buffers.size();
+    allocInfo.commandBufferCount = (uint32_t)vk_obstacle_graphics_command_buffers.size();
 
-    if (vkAllocateCommandBuffers(vk_device, &allocInfo, vk_graphics_command_buffers.data()) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(vk_device, &allocInfo, vk_obstacle_graphics_command_buffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate command buffers!");
     }
 }
 
-void VulkanParticleApp::vk_create_compute_command_buffers() {
-    vk_compute_command_buffers.resize(MAX_FRAMES_IN_FLIGHT);
+void VulkanParticleApp::vk_create_lbm_compute_command_buffers() {
+    vk_lbm_compute_command_buffers.resize(MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.commandPool = vk_command_pool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = (uint32_t)vk_compute_command_buffers.size();
+    allocInfo.commandBufferCount = (uint32_t)vk_lbm_compute_command_buffers.size();
 
-    if (vkAllocateCommandBuffers(vk_device, &allocInfo, vk_compute_command_buffers.data()) != VK_SUCCESS) {
+    if (vkAllocateCommandBuffers(vk_device, &allocInfo, vk_lbm_compute_command_buffers.data()) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate compute command buffers!");
+    }
+}
+
+void VulkanParticleApp::vk_create_particle_compute_command_buffers() {
+    vk_particle_compute_command_buffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = vk_command_pool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = (uint32_t)vk_particle_compute_command_buffers.size();
+
+    if (vkAllocateCommandBuffers(vk_device, &allocInfo, vk_particle_compute_command_buffers.data()) != VK_SUCCESS) {
         throw std::runtime_error("failed to allocate compute command buffers!");
     }
 }
@@ -62,7 +76,7 @@ void VulkanParticleApp::vk_record_graphics_command_buffer(VkCommandBuffer comman
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_graphics_pipeline);
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_obstacle_graphics_pipeline);
 
     VkViewport viewport{};
     viewport.x = 0.0f;
@@ -94,7 +108,7 @@ void VulkanParticleApp::vk_record_graphics_command_buffer(VkCommandBuffer comman
     }
 }
 
-void VulkanParticleApp::vk_record_compute_command_buffer(VkCommandBuffer commandBuffer) {
+void VulkanParticleApp::vk_record_lbm_compute_command_buffer(VkCommandBuffer commandBuffer) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -106,10 +120,28 @@ void VulkanParticleApp::vk_record_compute_command_buffer(VkCommandBuffer command
 
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_lbm_compute_pipeline_layout, 0, 1, &vk_lbm_compute_descriptor_sets[currentFrame], 0, nullptr);
 
-    vkCmdDispatch(commandBuffer, PARTICLE_COUNT / 256, 1, 1);
+    vkCmdDispatch(commandBuffer, NX / 10, NY / 10, 1);
 
     if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-        throw std::runtime_error("failed to record compute command buffer!");
+        throw std::runtime_error("failed to record LBM compute command buffer!");
     }
+}
 
+void VulkanParticleApp::vk_record_particle_compute_command_buffer(VkCommandBuffer commandBuffer) {
+	VkCommandBufferBeginInfo beginInfo{};
+	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+	if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
+		throw std::runtime_error("Dailed to begin recording compute command buffer!");
+	}
+
+	vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_particle_compute_pipeline);
+	
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_particle_compute_pipeline_layout, 0, 1, &vk_particle_compute_descriptor_sets[currentFrame], 0, nullptr);
+	
+    vkCmdDispatch(commandBuffer, NUM_PARTICLE / 1000, 1, 1);
+
+	if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to record particle compute command buffer!");
+	}
 }

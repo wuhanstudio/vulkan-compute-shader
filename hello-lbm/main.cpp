@@ -83,22 +83,34 @@ void VulkanParticleApp::vk_init() {
     vk_create_render_pass();
 
     vk_create_lbm_compute_descriptor_set_layout();
+    vk_create_particle_compute_descriptor_set_layout();
 
     vk_create_graphics_pipeline("shader/vert.spv", "shader/frag.spv");
-    vk_create_compute_pipeline("shader/lbm.spv");
+
+    vk_create_lbm_compute_pipeline("shader/lbm.spv");
+	vk_create_particle_compute_pipeline("shader/particles.spv");
 
     vk_create_framebuffers();
     vk_create_command_pool();
     
     vk_create_obstacle_vertex_buffer();
+
     vk_create_lbm_shader_storage_buffers();
-    vk_create_uniform_buffers();
+    vk_create_particle_shader_storage_buffer();
 
-    vk_create_descriptor_pool();
-    vk_create_compute_descriptor_sets();
+    vk_create_lbm_uniform_buffers();
+	vk_create_particle_uniform_buffers();
 
-    vk_create_command_buffers();
-    vk_create_compute_command_buffers();
+    vk_create_lbm_descriptor_pool();
+	vk_create_particle_descriptor_pool();
+
+    vk_create_lbm_compute_descriptor_sets();
+	vk_create_particle_compute_descriptor_sets();
+
+    vk_create_obstacle_command_buffers();
+
+    vk_create_lbm_compute_command_buffers();
+    vk_create_particle_compute_command_buffers();
 
     vk_create_sync_objects();
 }
@@ -115,36 +127,68 @@ void VulkanParticleApp::vk_draw_frame() {
         lbm_update_obstacle();
     }
 
-    // if (glfwGetTime() - lastTime > abs(dt) / 10)
-    // {
-    //     lastTime = glfwGetTime();
-    // }
-
     VkSubmitInfo submitInfo{};
+
+    // LBM Compute submission   
+    // TODO: Implement NUMR  
+    //for (int i = 0; i < NUMR; i++)
+    //{
+        vkWaitForFences(vk_device, 1, &vk_lbm_compute_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
+
+        vk_update_lbm_uniform_buffer(currentFrame);
+
+        vkResetFences(vk_device, 1, &vk_lbm_compute_in_flight_fences[currentFrame]);
+
+        vkResetCommandBuffer(vk_lbm_compute_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+        vk_record_lbm_compute_command_buffer(vk_lbm_compute_command_buffers[currentFrame]);
+
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &vk_lbm_compute_command_buffers[currentFrame];
+        submitInfo.signalSemaphoreCount = 1;
+        submitInfo.pSignalSemaphores = &vk_lbm_compute_finished_semaphores[currentFrame];
+
+        if (vkQueueSubmit(vk_compute_queue, 1, &submitInfo, vk_lbm_compute_in_flight_fences[currentFrame]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to submit compute command buffer!");
+        };
+        vkQueueWaitIdle(vk_compute_queue);
+    //}
+
+	// Particle Compute submission
+	vkWaitForFences(vk_device, 1, &vk_particle_compute_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
+
+    vk_update_particle_uniform_buffer(currentFrame);
+
+	vkResetFences(vk_device, 1, &vk_particle_compute_in_flight_fences[currentFrame]);
+
+	vkResetCommandBuffer(vk_particle_compute_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+	vk_record_particle_compute_command_buffer(vk_particle_compute_command_buffers[currentFrame]);
+
+    VkSemaphore particleWaitSemaphores[] = { vk_lbm_compute_finished_semaphores[currentFrame]};
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT };
+
+    submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    // Compute submission        
-    vkWaitForFences(vk_device, 1, &vk_compute_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
-
-    vk_update_uniform_buffer(currentFrame);
-
-    vkResetFences(vk_device, 1, &vk_compute_in_flight_fences[currentFrame]);
-
-    vkResetCommandBuffer(vk_compute_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
-    vk_record_compute_command_buffer(vk_compute_command_buffers[currentFrame]);
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = particleWaitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
 
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &vk_compute_command_buffers[currentFrame];
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &vk_compute_finished_semaphores[currentFrame];
+    submitInfo.pCommandBuffers = &vk_particle_compute_command_buffers[currentFrame];
 
-    if (vkQueueSubmit(vk_compute_queue, 1, &submitInfo, vk_compute_in_flight_fences[currentFrame]) != VK_SUCCESS) {
-        throw std::runtime_error("failed to submit compute command buffer!");
-    };
-    vkQueueWaitIdle(vk_compute_queue);
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &vk_particle_compute_finished_semaphores[currentFrame];
+
+	if (vkQueueSubmit(vk_compute_queue, 1, &submitInfo, vk_particle_compute_in_flight_fences[currentFrame]) != VK_SUCCESS) {
+		throw std::runtime_error("failed to submit compute command buffer!");
+	};
+	vkQueueWaitIdle(vk_compute_queue);
+
 
     // Graphics submission
-    vkWaitForFences(vk_device, 1, &vk_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkWaitForFences(vk_device, 1, &vk_obstacle_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
 
     uint32_t imageIndex;
     VkResult result = vkAcquireNextImageKHR(vk_device, vk_swapchain, UINT64_MAX, vk_image_available_semaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
@@ -157,25 +201,27 @@ void VulkanParticleApp::vk_draw_frame() {
         throw std::runtime_error("failed to acquire swap chain image!");
     }
 
-    vkResetFences(vk_device, 1, &vk_in_flight_fences[currentFrame]);
+    vkResetFences(vk_device, 1, &vk_obstacle_in_flight_fences[currentFrame]);
 
-    vkResetCommandBuffer(vk_graphics_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
-    vk_record_graphics_command_buffer(vk_graphics_command_buffers[currentFrame], imageIndex);
+    vkResetCommandBuffer(vk_obstacle_graphics_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
+    vk_record_graphics_command_buffer(vk_obstacle_graphics_command_buffers[currentFrame], imageIndex);
 
-    VkSemaphore waitSemaphores[] = { vk_compute_finished_semaphores[currentFrame], vk_image_available_semaphores[currentFrame] };
-    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    VkSemaphore waitSemaphores[] = { vk_particle_compute_finished_semaphores[currentFrame], vk_image_available_semaphores[currentFrame] };
+    VkPipelineStageFlags particleWaitStages[] = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
     submitInfo.waitSemaphoreCount = 2;
     submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.pWaitDstStageMask = particleWaitStages;
+
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &vk_graphics_command_buffers[currentFrame];
+    submitInfo.pCommandBuffers = &vk_obstacle_graphics_command_buffers[currentFrame];
+
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = &vk_render_finished_semaphores[currentFrame];
 
-    if (vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, vk_in_flight_fences[currentFrame]) != VK_SUCCESS) {
+    if (vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, vk_obstacle_in_flight_fences[currentFrame]) != VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
     vkQueueWaitIdle(vk_graphics_queue);

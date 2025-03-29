@@ -92,7 +92,7 @@ void VulkanParticleApp::vk_create_graphics_pipeline(const char* f_vert, const ch
     pipelineLayoutInfo.setLayoutCount = 0;
     pipelineLayoutInfo.pSetLayouts = nullptr;
 
-    if (vkCreatePipelineLayout(vk_device, &pipelineLayoutInfo, nullptr, &vk_graphics_pipeline_layout) != VK_SUCCESS) {
+    if (vkCreatePipelineLayout(vk_device, &pipelineLayoutInfo, nullptr, &vk_obstacle_graphics_pipeline_layout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
@@ -107,20 +107,20 @@ void VulkanParticleApp::vk_create_graphics_pipeline(const char* f_vert, const ch
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = &dynamicState;
-    pipelineInfo.layout = vk_graphics_pipeline_layout;
+    pipelineInfo.layout = vk_obstacle_graphics_pipeline_layout;
     pipelineInfo.renderPass = vk_render_pass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(vk_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &vk_graphics_pipeline) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create graphics pipeline!");
+    if (vkCreateGraphicsPipelines(vk_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &vk_obstacle_graphics_pipeline) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create graphics pipeline!");
     }
 
     vkDestroyShaderModule(vk_device, fragShaderModule, nullptr);
     vkDestroyShaderModule(vk_device, vertShaderModule, nullptr);
 }
 
-void VulkanParticleApp::vk_create_compute_pipeline(const char* f_compute) {
+void VulkanParticleApp::vk_create_lbm_compute_pipeline(const char* f_compute) {
     auto computeShaderCode = read_file(f_compute);
 
     VkShaderModule computeShaderModule = vk_create_shader_module(computeShaderCode);
@@ -148,7 +148,41 @@ void VulkanParticleApp::vk_create_compute_pipeline(const char* f_compute) {
     pipelineInfo.stage = computeShaderStageInfo;
 
     if (vkCreateComputePipelines(vk_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &vk_lbm_compute_pipeline) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create compute pipeline!");
+        throw std::runtime_error("Failed to create LBM compute pipeline!");
+    }
+
+    vkDestroyShaderModule(vk_device, computeShaderModule, nullptr);
+}
+
+void VulkanParticleApp::vk_create_particle_compute_pipeline(const char* f_compute) {
+    auto computeShaderCode = read_file(f_compute);
+
+    VkShaderModule computeShaderModule = vk_create_shader_module(computeShaderCode);
+
+    // Create compute pipeline layout
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 1;
+    pipelineLayoutInfo.pSetLayouts = &vk_particle_compute_descriptor_set_layout;
+
+    if (vkCreatePipelineLayout(vk_device, &pipelineLayoutInfo, nullptr, &vk_particle_compute_pipeline_layout) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create compute pipeline layout!");
+    }
+
+    // Create compute pipeline
+    VkPipelineShaderStageCreateInfo computeShaderStageInfo{};
+    computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+    computeShaderStageInfo.module = computeShaderModule;
+    computeShaderStageInfo.pName = "main";
+
+    VkComputePipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    pipelineInfo.layout = vk_particle_compute_pipeline_layout;
+    pipelineInfo.stage = computeShaderStageInfo;
+
+    if (vkCreateComputePipelines(vk_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &vk_particle_compute_pipeline) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create particle compute pipeline!");
     }
 
     vkDestroyShaderModule(vk_device, computeShaderModule, nullptr);
