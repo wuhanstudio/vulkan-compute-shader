@@ -616,6 +616,22 @@ void VulkanParticleApp::vk_create_lbm_descriptor_pool() {
     }
 }
 
+void VulkanParticleApp::vk_create_particle_graphics_descriptor_pool() {
+    std::array<VkDescriptorPoolSize, 1> poolSizes{};
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * 2;
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = 1;
+    poolInfo.pPoolSizes = poolSizes.data();
+    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    if (vkCreateDescriptorPool(vk_device, &poolInfo, nullptr, &vk_particle_graphics_descriptor_pool) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create descriptor pool!");
+    }
+}
+
 void VulkanParticleApp::vk_create_particle_descriptor_pool() {
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -822,6 +838,55 @@ void VulkanParticleApp::vk_create_particle_compute_descriptor_sets() {
     }
 }
 
+void VulkanParticleApp::vk_create_particle_graphics_descriptor_sets() {
+    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, vk_particle_graphics_descriptor_set_layout);
+
+    VkDescriptorSetAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = vk_particle_graphics_descriptor_pool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    allocInfo.pSetLayouts = layouts.data();
+
+    vk_particle_graphics_descriptor_sets.resize(MAX_FRAMES_IN_FLIGHT);
+
+    if (vkAllocateDescriptorSets(vk_device, &allocInfo, vk_particle_graphics_descriptor_sets.data()) != VK_SUCCESS) {
+        throw std::runtime_error("failed to allocate descriptor sets!");
+    }
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+
+        VkDescriptorBufferInfo storageBufferInfoParticle{};
+        storageBufferInfoParticle.buffer = vk_particle_storage_buffers[i];
+        storageBufferInfoParticle.offset = 0;
+        storageBufferInfoParticle.range = NUM_PARTICLE * sizeof(p);
+
+        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[0].dstSet = vk_particle_graphics_descriptor_sets[i];
+        descriptorWrites[0].dstBinding = 0;
+        descriptorWrites[0].dstArrayElement = 0;
+        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].pBufferInfo = &storageBufferInfoParticle;
+
+        VkDescriptorBufferInfo storageBufferInfoColour{};
+        storageBufferInfoColour.buffer = vk_colour_storage_buffers[i];
+        storageBufferInfoColour.offset = 0;
+        storageBufferInfoColour.range = NUM_PARTICLE * sizeof(struct col);
+
+        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[1].dstSet = vk_particle_graphics_descriptor_sets[i];
+        descriptorWrites[1].dstBinding = 1;
+        descriptorWrites[1].dstArrayElement = 0;
+        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        descriptorWrites[1].descriptorCount = 1;
+        descriptorWrites[1].pBufferInfo = &storageBufferInfoColour;
+
+        vkUpdateDescriptorSets(vk_device, 2, descriptorWrites.data(), 0, nullptr);
+    }
+
+}
+
 void VulkanParticleApp::vk_create_particle_compute_descriptor_set_layout() {
     std::array<VkDescriptorSetLayoutBinding, 5> layoutBindings{};
 
@@ -861,6 +926,31 @@ void VulkanParticleApp::vk_create_particle_compute_descriptor_set_layout() {
     layoutInfo.pBindings = layoutBindings.data();
 
     if (vkCreateDescriptorSetLayout(vk_device, &layoutInfo, nullptr, &vk_particle_compute_descriptor_set_layout) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create compute descriptor set layout!");
+    }
+}
+
+void VulkanParticleApp::vk_create_particle_graphics_descriptor_set_layout() {
+    std::array<VkDescriptorSetLayoutBinding, 2> layoutBindings{};
+
+    layoutBindings[0].binding = 0;
+    layoutBindings[0].descriptorCount = 1;
+    layoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    layoutBindings[0].pImmutableSamplers = nullptr;
+    layoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+    layoutBindings[1].binding = 1;
+    layoutBindings[1].descriptorCount = 1;
+    layoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    layoutBindings[1].pImmutableSamplers = nullptr;
+    layoutBindings[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo{};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layoutInfo.bindingCount = 2;
+    layoutInfo.pBindings = layoutBindings.data();
+
+    if (vkCreateDescriptorSetLayout(vk_device, &layoutInfo, nullptr, &vk_particle_graphics_descriptor_set_layout) != VK_SUCCESS) {
         throw std::runtime_error("failed to create compute descriptor set layout!");
     }
 }
@@ -916,7 +1006,7 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_set_layout() {
 
 void VulkanParticleApp::vk_create_sync_objects() {
     vk_image_available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    vk_render_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    vk_lbm_render_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
     vk_lbm_compute_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	vk_particle_compute_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -935,8 +1025,11 @@ void VulkanParticleApp::vk_create_sync_objects() {
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         if (vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_image_available_semaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_render_finished_semaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(vk_device, &fenceInfo, nullptr, &vk_obstacle_in_flight_fences[i]) != VK_SUCCESS) 
+            vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_lbm_render_finished_semaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_particle_render_finished_semaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(vk_device, &fenceInfo, nullptr, &vk_obstacle_in_flight_fences[i]) != VK_SUCCESS ||
+            vkCreateFence(vk_device, &fenceInfo, nullptr, &vk_particle_in_flight_fences[i]) != VK_SUCCESS
+            ) 
         {
             throw std::runtime_error("failed to create graphics synchronization objects for a frame!");
         }
@@ -955,6 +1048,9 @@ void VulkanParticleApp::vk_cleanup() {
 
     vkDestroyPipeline(vk_device, vk_obstacle_graphics_pipeline, nullptr);
     vkDestroyPipelineLayout(vk_device, vk_obstacle_graphics_pipeline_layout, nullptr);
+
+    vkDestroyPipeline(vk_device, vk_particle_graphics_pipeline, nullptr);
+    vkDestroyPipelineLayout(vk_device, vk_particle_graphics_pipeline_layout, nullptr);
 
 	vkDestroyPipeline(vk_device, vk_particle_compute_pipeline, nullptr);
 	vkDestroyPipelineLayout(vk_device, vk_particle_compute_pipeline_layout, nullptr);
@@ -1005,7 +1101,7 @@ void VulkanParticleApp::vk_cleanup() {
     vkFreeMemory(vk_device, vk_obstacle_vertex_buffer_memory, nullptr);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        vkDestroySemaphore(vk_device, vk_render_finished_semaphores[i], nullptr);
+        vkDestroySemaphore(vk_device, vk_lbm_render_finished_semaphores[i], nullptr);
         vkDestroySemaphore(vk_device, vk_image_available_semaphores[i], nullptr);
 
         vkDestroySemaphore(vk_device, vk_lbm_compute_finished_semaphores[i], nullptr);

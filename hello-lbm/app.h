@@ -154,6 +154,13 @@ private:
     VkPipeline vk_obstacle_graphics_pipeline;
     VkPipelineLayout vk_obstacle_graphics_pipeline_layout;
 
+    VkPipeline vk_particle_graphics_pipeline;
+    VkPipelineLayout vk_particle_graphics_pipeline_layout;
+
+    VkDescriptorPool vk_particle_graphics_descriptor_pool;
+    VkDescriptorSetLayout vk_particle_graphics_descriptor_set_layout;
+    std::vector<VkDescriptorSet> vk_particle_graphics_descriptor_sets;
+
     VkPipeline vk_lbm_compute_pipeline;
     VkPipelineLayout vk_lbm_compute_pipeline_layout;
 
@@ -203,16 +210,22 @@ private:
     VkDeviceMemory vk_obstacle_vertex_buffer_memory;
 
     std::vector<VkCommandBuffer> vk_obstacle_graphics_command_buffers;
+    std::vector<VkCommandBuffer> vk_particle_graphics_command_buffers;
+
     std::vector<VkCommandBuffer> vk_lbm_compute_command_buffers;
     std::vector<VkCommandBuffer> vk_particle_compute_command_buffers;
 
     std::vector<VkSemaphore> vk_image_available_semaphores;
-    std::vector<VkSemaphore> vk_render_finished_semaphores;
+
+    std::vector<VkSemaphore> vk_lbm_render_finished_semaphores;
+    std::vector<VkSemaphore> vk_particle_render_finished_semaphores;
 
     std::vector<VkSemaphore> vk_lbm_compute_finished_semaphores;
     std::vector<VkSemaphore> vk_particle_compute_finished_semaphores;
 
     std::vector<VkFence> vk_obstacle_in_flight_fences;
+    std::vector<VkFence> vk_particle_in_flight_fences;
+
     std::vector<VkFence> vk_lbm_compute_in_flight_fences;
     std::vector<VkFence> vk_particle_compute_in_flight_fences;
 
@@ -257,7 +270,9 @@ private:
 
     void vk_create_lbm_compute_descriptor_set_layout();
 
-    void vk_create_graphics_pipeline(const char* f_vert, const char* f_frag);
+    void vk_create_obstacle_graphics_pipeline(const char* f_vert, const char* f_frag);
+
+    void vk_create_particle_graphics_pipeline(const char* f_vert, const char* f_frag);
 
     void vk_create_lbm_compute_pipeline(const char* f_compute);
 
@@ -279,6 +294,8 @@ private:
 
     void vk_create_lbm_descriptor_pool();
 
+	void vk_create_particle_graphics_descriptor_pool();
+
     void vk_create_particle_descriptor_pool();
 
     void vk_create_lbm_compute_descriptor_sets();
@@ -287,22 +304,30 @@ private:
 
     void vk_create_particle_compute_descriptor_set_layout();
 
+	void vk_create_particle_graphics_descriptor_sets();
+    
+    void vk_create_particle_graphics_descriptor_set_layout();
+
     void vk_create_buffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
     void vk_copy_buffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
     uint32_t vk_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-    void vk_create_obstacle_command_buffers();
+    void vk_create_obstacle_graphics_command_buffers();
+
+	void vk_create_particle_graphics_command_buffers();
 
     void vk_create_lbm_compute_command_buffers();
 
     void vk_create_particle_compute_command_buffers();
 
-    void vk_record_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-
     void vk_record_lbm_compute_command_buffer(VkCommandBuffer commandBuffer);
 
     void vk_record_particle_compute_command_buffer(VkCommandBuffer commandBuffer);
+
+    void vk_record_obstacle_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+
+    void vk_record_particle_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
     void vk_create_sync_objects();
 

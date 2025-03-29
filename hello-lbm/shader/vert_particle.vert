@@ -3,12 +3,12 @@
 layout(location = 0) out vec4 vColor; // Output color to the fragment shader
 
 // SSBO for particle positions
-layout(binding = 0) buffer ParticlePositions {
+layout(binding = 0) readonly buffer ParticlePositions {
     vec2 positions[]; // Array of vec2 for particle positions
 };
 
 // SSBO for particle colors
-layout( binding = 1) buffer ParticleColors {
+layout( binding = 1) readonly buffer ParticleColors {
     vec4 colors[]; // Array of vec4 for particle colors
 };
 
