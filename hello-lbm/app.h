@@ -217,7 +217,7 @@ private:
 
     std::vector<VkSemaphore> vk_image_available_semaphores;
 
-    std::vector<VkSemaphore> vk_lbm_render_finished_semaphores;
+    std::vector<VkSemaphore> vk_obstacle_render_finished_semaphores;
     std::vector<VkSemaphore> vk_particle_render_finished_semaphores;
 
     std::vector<VkSemaphore> vk_lbm_compute_finished_semaphores;

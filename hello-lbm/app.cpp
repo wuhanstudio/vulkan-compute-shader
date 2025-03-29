@@ -1006,12 +1006,14 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_set_layout() {
 
 void VulkanParticleApp::vk_create_sync_objects() {
     vk_image_available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    vk_lbm_render_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    vk_obstacle_render_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+	vk_particle_render_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
     vk_lbm_compute_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
 	vk_particle_compute_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
     vk_obstacle_in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
+    vk_particle_in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
 
     vk_lbm_compute_in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
     vk_particle_compute_in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -1025,7 +1027,7 @@ void VulkanParticleApp::vk_create_sync_objects() {
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         if (vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_image_available_semaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_lbm_render_finished_semaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_obstacle_render_finished_semaphores[i]) != VK_SUCCESS ||
             vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_particle_render_finished_semaphores[i]) != VK_SUCCESS ||
             vkCreateFence(vk_device, &fenceInfo, nullptr, &vk_obstacle_in_flight_fences[i]) != VK_SUCCESS ||
             vkCreateFence(vk_device, &fenceInfo, nullptr, &vk_particle_in_flight_fences[i]) != VK_SUCCESS
@@ -1101,13 +1103,16 @@ void VulkanParticleApp::vk_cleanup() {
     vkFreeMemory(vk_device, vk_obstacle_vertex_buffer_memory, nullptr);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-        vkDestroySemaphore(vk_device, vk_lbm_render_finished_semaphores[i], nullptr);
+        vkDestroySemaphore(vk_device, vk_obstacle_render_finished_semaphores[i], nullptr);
+        vkDestroySemaphore(vk_device, vk_particle_render_finished_semaphores[i], nullptr);
         vkDestroySemaphore(vk_device, vk_image_available_semaphores[i], nullptr);
 
         vkDestroySemaphore(vk_device, vk_lbm_compute_finished_semaphores[i], nullptr);
 		vkDestroySemaphore(vk_device, vk_particle_compute_finished_semaphores[i], nullptr);
 
         vkDestroyFence(vk_device, vk_obstacle_in_flight_fences[i], nullptr);
+        vkDestroyFence(vk_device, vk_particle_in_flight_fences[i], nullptr);
+
         vkDestroyFence(vk_device, vk_lbm_compute_in_flight_fences[i], nullptr);
 		vkDestroyFence(vk_device, vk_particle_compute_in_flight_fences[i], nullptr);
     }

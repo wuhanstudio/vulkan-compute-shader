@@ -226,7 +226,7 @@ void VulkanParticleApp::vk_draw_frame() {
     submitInfo.pCommandBuffers = &vk_obstacle_graphics_command_buffers[currentFrame];
 
     submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &vk_lbm_render_finished_semaphores[currentFrame];
+    submitInfo.pSignalSemaphores = &vk_obstacle_render_finished_semaphores[currentFrame];
 
     if (vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, vk_obstacle_in_flight_fences[currentFrame]) != VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer!");
@@ -235,16 +235,6 @@ void VulkanParticleApp::vk_draw_frame() {
 
 	// Particle Graphics submission
     vkWaitForFences(vk_device, 1, &vk_particle_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
-
-    result = vkAcquireNextImageKHR(vk_device, vk_swapchain, UINT64_MAX, vk_image_available_semaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        vk_recreate_swapchain();
-        return;
-    }
-    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        throw std::runtime_error("Failed to acquire swap chain image!");
-    }
 
     vkResetFences(vk_device, 1, &vk_particle_in_flight_fences[currentFrame]);
 
@@ -276,7 +266,7 @@ void VulkanParticleApp::vk_draw_frame() {
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-    VkSemaphore presentWaitSemaphores[] = { vk_lbm_render_finished_semaphores[currentFrame], vk_particle_render_finished_semaphores[currentFrame] };
+    VkSemaphore presentWaitSemaphores[] = { vk_obstacle_render_finished_semaphores[currentFrame], vk_particle_render_finished_semaphores[currentFrame] };
 
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = presentWaitSemaphores;
