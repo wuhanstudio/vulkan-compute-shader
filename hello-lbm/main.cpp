@@ -268,7 +268,7 @@ void VulkanParticleApp::vk_draw_frame() {
 
     VkSemaphore presentWaitSemaphores[] = { vk_obstacle_render_finished_semaphores[currentFrame], vk_particle_render_finished_semaphores[currentFrame] };
 
-    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.waitSemaphoreCount = 2;
     presentInfo.pWaitSemaphores = presentWaitSemaphores;
 
     VkSwapchainKHR swapChains[] = { vk_swapchain };
