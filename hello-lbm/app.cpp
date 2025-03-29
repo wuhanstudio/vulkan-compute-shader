@@ -1071,10 +1071,12 @@ void VulkanParticleApp::vk_cleanup() {
     }
 
     vkDestroyDescriptorPool(vk_device, vk_lbm_compute_descriptor_pool, nullptr);
-	vkDestroyDescriptorPool(vk_device, vk_particle_compute_descriptor_pool, nullptr);
+    vkDestroyDescriptorPool(vk_device, vk_particle_compute_descriptor_pool, nullptr);
+    vkDestroyDescriptorPool(vk_device, vk_particle_graphics_descriptor_pool, nullptr);
 
     vkDestroyDescriptorSetLayout(vk_device, vk_lbm_compute_descriptor_set_layout, nullptr);
     vkDestroyDescriptorSetLayout(vk_device, vk_particle_compute_descriptor_set_layout, nullptr);
+    vkDestroyDescriptorSetLayout(vk_device, vk_particle_graphics_descriptor_set_layout, nullptr);
     
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
         vkDestroyBuffer(vk_device, vk_df0_storage_buffers[i], nullptr);
