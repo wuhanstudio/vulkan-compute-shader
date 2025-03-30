@@ -126,6 +126,7 @@ public:
 private:
     GLFWwindow* gWindow;
 
+    int c = 0;
     int F_cpu[NX * NY];
     float xMouse, yMouse;
 

@@ -689,8 +689,9 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_sets() {
         descriptorWrites[0].descriptorCount = 1;
         descriptorWrites[0].pBufferInfo = &uniformBufferInfo;
 
+        // DF0
         VkDescriptorBufferInfo storageBufferInfoDF0{};
-        storageBufferInfoDF0.buffer = vk_df0_storage_buffers[(i - 1) % MAX_FRAMES_IN_FLIGHT];
+        storageBufferInfoDF0.buffer = vk_df0_storage_buffers[i];
         storageBufferInfoDF0.offset = 0;
         storageBufferInfoDF0.range = sizeof(float) * NX * NY;
 
@@ -702,8 +703,9 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_sets() {
         descriptorWrites[1].descriptorCount = 1;
         descriptorWrites[1].pBufferInfo = &storageBufferInfoDF0;
 
+        // DF1
         VkDescriptorBufferInfo storageBufferInfoDF1{};
-        storageBufferInfoDF1.buffer = vk_df0_storage_buffers[i];
+        storageBufferInfoDF1.buffer = vk_df1_storage_buffers[i];
         storageBufferInfoDF1.offset = 0;
         storageBufferInfoDF1.range = sizeof(float) * NX * NY;
 
@@ -715,8 +717,9 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_sets() {
         descriptorWrites[2].descriptorCount = 1;
         descriptorWrites[2].pBufferInfo = &storageBufferInfoDF1;
 
+        // DCF
         VkDescriptorBufferInfo storageBufferInfoDCF{};
-        storageBufferInfoDCF.buffer = vk_df0_storage_buffers[i];
+        storageBufferInfoDCF.buffer = vk_dcf_storage_buffers[i];
         storageBufferInfoDCF.offset = 0;
         storageBufferInfoDCF.range = sizeof(float) * NX * NY;
 
@@ -728,8 +731,9 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_sets() {
         descriptorWrites[3].descriptorCount = 1;
         descriptorWrites[3].pBufferInfo = &storageBufferInfoDCF;
 
+        // DCU
         VkDescriptorBufferInfo storageBufferInfoDCU{};
-        storageBufferInfoDCU.buffer = vk_df0_storage_buffers[i];
+        storageBufferInfoDCU.buffer = vk_dcu_storage_buffers[i];
         storageBufferInfoDCU.offset = 0;
         storageBufferInfoDCU.range = sizeof(float) * NX * NY;
 
@@ -741,8 +745,9 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_sets() {
         descriptorWrites[4].descriptorCount = 1;
         descriptorWrites[4].pBufferInfo = &storageBufferInfoDCU;
 
+        // DCV
         VkDescriptorBufferInfo storageBufferInfoDCV{};
-        storageBufferInfoDCV.buffer = vk_df0_storage_buffers[i];
+        storageBufferInfoDCV.buffer = vk_dcv_storage_buffers[i];
         storageBufferInfoDCV.offset = 0;
         storageBufferInfoDCV.range = sizeof(float) * NX * NY;
 
@@ -789,8 +794,9 @@ void VulkanParticleApp::vk_create_particle_compute_descriptor_sets() {
         descriptorWrites[0].descriptorCount = 1;
         descriptorWrites[0].pBufferInfo = &uniformBufferInfo;
 
+        // DCF
         VkDescriptorBufferInfo storageBufferInfoDCF{};
-        storageBufferInfoDCF.buffer = vk_dcf_storage_buffers[(i - 1) % MAX_FRAMES_IN_FLIGHT];
+        storageBufferInfoDCF.buffer = vk_dcf_storage_buffers[i];
         storageBufferInfoDCF.offset = 0;
         storageBufferInfoDCF.range = sizeof(float) * NX * NY;
 
@@ -802,6 +808,7 @@ void VulkanParticleApp::vk_create_particle_compute_descriptor_sets() {
         descriptorWrites[1].descriptorCount = 1;
         descriptorWrites[1].pBufferInfo = &storageBufferInfoDCF;
 
+        // DCU
         VkDescriptorBufferInfo storageBufferInfoDCU{};
         storageBufferInfoDCU.buffer = vk_dcu_storage_buffers[i];
         storageBufferInfoDCU.offset = 0;
@@ -815,6 +822,7 @@ void VulkanParticleApp::vk_create_particle_compute_descriptor_sets() {
         descriptorWrites[2].descriptorCount = 1;
         descriptorWrites[2].pBufferInfo = &storageBufferInfoDCU;
 
+        // DCV
         VkDescriptorBufferInfo storageBufferInfoDCV{};
         storageBufferInfoDCV.buffer = vk_dcv_storage_buffers[i];
         storageBufferInfoDCV.offset = 0;
@@ -828,6 +836,7 @@ void VulkanParticleApp::vk_create_particle_compute_descriptor_sets() {
         descriptorWrites[3].descriptorCount = 1;
         descriptorWrites[3].pBufferInfo = &storageBufferInfoDCV;
 
+        // Particle
         VkDescriptorBufferInfo storageBufferInfoParticle{};
         storageBufferInfoParticle.buffer = vk_particle_storage_buffers[i];
         storageBufferInfoParticle.offset = 0;
