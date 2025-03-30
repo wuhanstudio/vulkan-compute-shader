@@ -63,7 +63,10 @@ struct SwapChainSupportDetails {
 };
 
 struct LBMUniformBufferObject {
-    float deltaTime = 1.0f;
+    int NX;
+    alignas(16) int NY;
+    alignas(16) float devFx;
+    alignas(16) float devFy;
 };
 
 struct ParticleUniformBufferObject {

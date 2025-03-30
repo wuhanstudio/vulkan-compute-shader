@@ -498,8 +498,15 @@ void VulkanParticleApp::vk_create_lbm_uniform_buffers() {
 }
 
 void VulkanParticleApp::vk_update_lbm_uniform_buffer(uint32_t currentImage) {
+    float fx = 1, fx2 = 1;
+    float fy = 0, fy2 = 0;
+    float force = -0.000007;		// body force magnitude
+    
     LBMUniformBufferObject ubo{};
-    ubo.deltaTime = lastFrameTime * 2.0f;
+    ubo.NX = NX;
+    ubo.NY = NY;
+    ubo.devFx = fx2 * force;
+    ubo.devFy = fy2 * force;
 
     memcpy(vk_lbm_uniform_buffers_mapped[currentImage], &ubo, sizeof(ubo));
 }
