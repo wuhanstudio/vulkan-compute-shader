@@ -140,10 +140,9 @@ void VulkanParticleApp::vk_draw_frame() {
     //for (int i = 0; i < NUMR; i++)
     //{
         vkWaitForFences(vk_device, 1, &vk_lbm_compute_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
+        vkResetFences(vk_device, 1, &vk_lbm_compute_in_flight_fences[currentFrame]);
 
         vk_update_lbm_uniform_buffer(currentFrame);
-
-        vkResetFences(vk_device, 1, &vk_lbm_compute_in_flight_fences[currentFrame]);
 
         vkResetCommandBuffer(vk_lbm_compute_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
         vk_record_lbm_compute_command_buffer(vk_lbm_compute_command_buffers[currentFrame]);
@@ -163,10 +162,9 @@ void VulkanParticleApp::vk_draw_frame() {
 
 	// Particle Compute submission
 	vkWaitForFences(vk_device, 1, &vk_particle_compute_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkResetFences(vk_device, 1, &vk_particle_compute_in_flight_fences[currentFrame]);
 
     vk_update_particle_uniform_buffer(currentFrame);
-
-	vkResetFences(vk_device, 1, &vk_particle_compute_in_flight_fences[currentFrame]);
 
 	vkResetCommandBuffer(vk_particle_compute_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
 	vk_record_particle_compute_command_buffer(vk_particle_compute_command_buffers[currentFrame]);
@@ -235,19 +233,18 @@ void VulkanParticleApp::vk_draw_frame() {
 
 	// Particle Graphics submission
     vkWaitForFences(vk_device, 1, &vk_particle_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
-
     vkResetFences(vk_device, 1, &vk_particle_in_flight_fences[currentFrame]);
 
     vkResetCommandBuffer(vk_particle_graphics_command_buffers[currentFrame], /*VkCommandBufferResetFlagBits*/ 0);
     vk_record_particle_graphics_command_buffer(vk_particle_graphics_command_buffers[currentFrame], imageIndex);
 
-    VkSemaphore particleGraphicsWaitSemaphores[] = { vk_particle_compute_finished_semaphores[currentFrame], vk_image_available_semaphores[currentFrame] };
+    VkSemaphore particleGraphicsWaitSemaphores[] = { vk_obstacle_render_finished_semaphores[currentFrame]};
     VkPipelineStageFlags particleGraphicsWaitStages[] = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
     submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    submitInfo.waitSemaphoreCount = 2;
+    submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = particleGraphicsWaitSemaphores;
     submitInfo.pWaitDstStageMask = particleGraphicsWaitStages;
 
@@ -266,9 +263,9 @@ void VulkanParticleApp::vk_draw_frame() {
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-    VkSemaphore presentWaitSemaphores[] = { vk_obstacle_render_finished_semaphores[currentFrame], vk_particle_render_finished_semaphores[currentFrame] };
+    VkSemaphore presentWaitSemaphores[] = { vk_particle_render_finished_semaphores[currentFrame] };
 
-    presentInfo.waitSemaphoreCount = 2;
+    presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = presentWaitSemaphores;
 
     VkSwapchainKHR swapChains[] = { vk_swapchain };

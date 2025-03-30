@@ -30,7 +30,7 @@ const int NX = 480;		// solver grid resolution
 const int NY = 360;
 
 const int NUM_PARTICLE = 1000000;
-const int MAX_FRAMES_IN_FLIGHT = 2;
+const int MAX_FRAMES_IN_FLIGHT = 1;
 
 /*--------------------- LBM -----------------------------------------------------------------------------*/
 #define NUMR 20
