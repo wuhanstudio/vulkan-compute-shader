@@ -658,7 +658,7 @@ void VulkanParticleApp::vk_create_particle_descriptor_pool() {
     }
 }
 
-void VulkanParticleApp::vk_create_lbm_compute_descriptor_sets() {
+void VulkanParticleApp::vk_create_lbm_compute_descriptor_sets(int c) {
     std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, vk_lbm_compute_descriptor_set_layout);
 
     VkDescriptorSetAllocateInfo allocInfo{};
@@ -667,6 +667,7 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_sets() {
     allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
     allocInfo.pSetLayouts = layouts.data();
 
+    vk_lbm_compute_descriptor_sets.clear();
     vk_lbm_compute_descriptor_sets.resize(MAX_FRAMES_IN_FLIGHT);
 
     if (vkAllocateDescriptorSets(vk_device, &allocInfo, vk_lbm_compute_descriptor_sets.data()) != VK_SUCCESS) {
@@ -697,7 +698,7 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_sets() {
 
         descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[1].dstSet = vk_lbm_compute_descriptor_sets[i];
-        descriptorWrites[1].dstBinding = 1;
+        descriptorWrites[1].dstBinding = 1 + c;
         descriptorWrites[1].dstArrayElement = 0;
         descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         descriptorWrites[1].descriptorCount = 1;
@@ -711,7 +712,7 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_sets() {
 
         descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         descriptorWrites[2].dstSet = vk_lbm_compute_descriptor_sets[i];
-        descriptorWrites[2].dstBinding = 2;
+        descriptorWrites[2].dstBinding = 1 + (1 - c);
         descriptorWrites[2].dstArrayElement = 0;
         descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         descriptorWrites[2].descriptorCount = 1;

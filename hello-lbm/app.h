@@ -302,7 +302,7 @@ private:
 
     void vk_create_particle_descriptor_pool();
 
-    void vk_create_lbm_compute_descriptor_sets();
+    void vk_create_lbm_compute_descriptor_sets(int c);
 
     void vk_create_particle_compute_descriptor_sets();
 
