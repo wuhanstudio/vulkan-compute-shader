@@ -112,8 +112,7 @@ void VulkanParticleApp::vk_init() {
 	vk_create_particle_compute_descriptor_sets();
     vk_create_particle_graphics_descriptor_sets();
 
-    vk_create_obstacle_graphics_command_buffers();
-    vk_create_particle_graphics_command_buffers();
+    vk_create_graphics_command_buffers();
 
     vk_create_lbm_compute_command_buffers();
     vk_create_particle_compute_command_buffers();
@@ -210,60 +209,30 @@ void VulkanParticleApp::vk_draw_frame() {
         throw std::runtime_error("Failed to acquire swap chain image!");
     }
 
-    // Obstacle Graphics submission
-    vkWaitForFences(vk_device, 1, &vk_obstacle_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
+	// Graphics submission
+    vkWaitForFences(vk_device, 1, &vk_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkResetFences(vk_device, 1, &vk_in_flight_fences[currentFrame]);
 
-    vkResetFences(vk_device, 1, &vk_obstacle_in_flight_fences[currentFrame]);
+    vkResetCommandBuffer(vk_graphics_command_buffers[currentFrame], 0);
+    vk_record_graphics_command_buffer(vk_graphics_command_buffers[currentFrame], imageIndex);
 
-    vkResetCommandBuffer(vk_obstacle_graphics_command_buffers[currentFrame], 0);
-    vk_record_obstacle_graphics_command_buffer(vk_obstacle_graphics_command_buffers[currentFrame], imageIndex);
-
-    VkSemaphore waitSemaphores[] = { vk_image_available_semaphores[currentFrame] };
-    VkPipelineStageFlags particleWaitStages[] = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-
-    submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = particleWaitStages;
-
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &vk_obstacle_graphics_command_buffers[currentFrame];
-
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &vk_obstacle_render_finished_semaphores[currentFrame];
-
-    if (vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, vk_obstacle_in_flight_fences[currentFrame]) != VK_SUCCESS) {
-        throw std::runtime_error("failed to submit draw command buffer!");
-    }
-    vkQueueWaitIdle(vk_graphics_queue);
-
-
-	// Particle Graphics submission
-    vkWaitForFences(vk_device, 1, &vk_particle_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
-    vkResetFences(vk_device, 1, &vk_particle_in_flight_fences[currentFrame]);
-
-    vkResetCommandBuffer(vk_particle_graphics_command_buffers[currentFrame], 0);
-    vk_record_particle_graphics_command_buffer(vk_particle_graphics_command_buffers[currentFrame], imageIndex);
-
-    VkSemaphore particleGraphicsWaitSemaphores[] = { vk_obstacle_render_finished_semaphores[currentFrame]};
-    VkPipelineStageFlags particleGraphicsWaitStages[] = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    VkSemaphore graphicsWaitSemaphores[] = { vk_image_available_semaphores[currentFrame]};
+    VkPipelineStageFlags graphicsWaitStages[] = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
     submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
     submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = particleGraphicsWaitSemaphores;
-    submitInfo.pWaitDstStageMask = particleGraphicsWaitStages;
+    submitInfo.pWaitSemaphores = graphicsWaitSemaphores;
+    submitInfo.pWaitDstStageMask = graphicsWaitStages;
 
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &vk_particle_graphics_command_buffers[currentFrame];
+    submitInfo.pCommandBuffers = &vk_graphics_command_buffers[currentFrame];
 
     submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = &vk_particle_render_finished_semaphores[currentFrame];
+    submitInfo.pSignalSemaphores = &vk_render_finished_semaphores[currentFrame];
 
-    if (vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, vk_particle_in_flight_fences[currentFrame]) != VK_SUCCESS) {
+    if (vkQueueSubmit(vk_graphics_queue, 1, &submitInfo, vk_in_flight_fences[currentFrame]) != VK_SUCCESS) {
         throw std::runtime_error("failed to submit draw command buffer!");
     }
     vkQueueWaitIdle(vk_graphics_queue);
@@ -272,7 +241,7 @@ void VulkanParticleApp::vk_draw_frame() {
     VkPresentInfoKHR presentInfo{};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-    VkSemaphore presentWaitSemaphores[] = { vk_particle_render_finished_semaphores[currentFrame] };
+    VkSemaphore presentWaitSemaphores[] = { vk_render_finished_semaphores[currentFrame] };
 
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = presentWaitSemaphores;

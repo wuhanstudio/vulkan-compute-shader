@@ -213,22 +213,19 @@ private:
     VkBuffer vk_obstacle_vertex_buffer;
     VkDeviceMemory vk_obstacle_vertex_buffer_memory;
 
-    std::vector<VkCommandBuffer> vk_obstacle_graphics_command_buffers;
-    std::vector<VkCommandBuffer> vk_particle_graphics_command_buffers;
+    std::vector<VkCommandBuffer> vk_graphics_command_buffers;
 
     std::vector<VkCommandBuffer> vk_lbm_compute_command_buffers;
     std::vector<VkCommandBuffer> vk_particle_compute_command_buffers;
 
     std::vector<VkSemaphore> vk_image_available_semaphores;
 
-    std::vector<VkSemaphore> vk_obstacle_render_finished_semaphores;
-    std::vector<VkSemaphore> vk_particle_render_finished_semaphores;
+    std::vector<VkSemaphore> vk_render_finished_semaphores;
 
     std::vector<VkSemaphore> vk_lbm_compute_finished_semaphores;
     std::vector<VkSemaphore> vk_particle_compute_finished_semaphores;
 
-    std::vector<VkFence> vk_obstacle_in_flight_fences;
-    std::vector<VkFence> vk_particle_in_flight_fences;
+    std::vector<VkFence> vk_in_flight_fences;
 
     std::vector<VkFence> vk_lbm_compute_in_flight_fences;
     std::vector<VkFence> vk_particle_compute_in_flight_fences;
@@ -317,9 +314,7 @@ private:
 
     uint32_t vk_find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-    void vk_create_obstacle_graphics_command_buffers();
-
-	void vk_create_particle_graphics_command_buffers();
+	void vk_create_graphics_command_buffers();
 
     void vk_create_lbm_compute_command_buffers();
 
@@ -329,9 +324,7 @@ private:
 
     void vk_record_particle_compute_command_buffer(VkCommandBuffer commandBuffer);
 
-    void vk_record_obstacle_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
-
-    void vk_record_particle_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+    void vk_record_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
     void vk_create_sync_objects();
 
