@@ -120,6 +120,8 @@ public:
         vk_cleanup();
     }
 
+    void reset_particles();
+
 private:
     GLFWwindow* gWindow;
 
@@ -360,6 +362,4 @@ private:
     std::vector<char> read_file(const std::string& filename);
     void lbm_update_obstacle(void);
     void lbm_init_ssb(void);
-
-    void reset_particles();
 };

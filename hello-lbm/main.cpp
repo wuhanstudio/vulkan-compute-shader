@@ -6,6 +6,8 @@ int mousedown = 0;
 int gWindowWidth = 1200;
 int gWindowHeight = 900;
 
+VulkanParticleApp app;
+
 void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
 {
     gWindowWidth = width;
@@ -16,6 +18,9 @@ void glfw_onFramebufferSize(GLFWwindow* window, int width, int height)
 static void glfw_onKey(GLFWwindow* window, int key, int scancode, int action, int mode) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) { 
+        app.reset_particles(); 
     }
 };
 
@@ -304,8 +309,6 @@ void VulkanParticleApp::vk_main_loop() {
 };
 
 int main() {
-    VulkanParticleApp app;
-
     try {
         app.run();
     }
