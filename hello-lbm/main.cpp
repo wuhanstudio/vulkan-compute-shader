@@ -141,8 +141,28 @@ void VulkanParticleApp::vk_draw_frame() {
 
     // LBM Compute submission   
     // TODO: Implement NUMR  
-    //for (int i = 0; i < NUMR; i++)
-    //{
+    vkWaitForFences(vk_device, 1, &vk_lbm_compute_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkResetFences(vk_device, 1, &vk_lbm_compute_in_flight_fences[currentFrame]);
+
+    vk_update_lbm_uniform_buffer(currentFrame);
+
+    vkResetCommandBuffer(vk_lbm_compute_command_buffers[currentFrame], 0);
+    vk_record_lbm_compute_command_buffer(vk_lbm_compute_command_buffers[currentFrame]);
+
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &vk_lbm_compute_command_buffers[currentFrame];
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = &vk_lbm_compute_finished_semaphores[currentFrame];
+
+    if (vkQueueSubmit(vk_compute_queue, 1, &submitInfo, vk_lbm_compute_in_flight_fences[currentFrame]) != VK_SUCCESS) {
+        throw std::runtime_error("failed to submit compute command buffer!");
+    };
+    vkQueueWaitIdle(vk_compute_queue);
+
+    for (int i = 0; i < (NUMR - 1); i++)
+    {
         vkWaitForFences(vk_device, 1, &vk_lbm_compute_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
         vkResetFences(vk_device, 1, &vk_lbm_compute_in_flight_fences[currentFrame]);
 
@@ -153,6 +173,13 @@ void VulkanParticleApp::vk_draw_frame() {
 
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
+        VkSemaphore waitSemaphores[] = { vk_lbm_compute_finished_semaphores[currentFrame] };
+        VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT };
+
+        submitInfo.waitSemaphoreCount = 1;
+        submitInfo.pWaitSemaphores = waitSemaphores;
+        submitInfo.pWaitDstStageMask = waitStages;
+
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &vk_lbm_compute_command_buffers[currentFrame];
         submitInfo.signalSemaphoreCount = 1;
@@ -162,7 +189,7 @@ void VulkanParticleApp::vk_draw_frame() {
             throw std::runtime_error("failed to submit compute command buffer!");
         };
         vkQueueWaitIdle(vk_compute_queue);
-    //}
+    }
 
     // Particle Compute submission
     vkWaitForFences(vk_device, 1, &vk_particle_compute_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
