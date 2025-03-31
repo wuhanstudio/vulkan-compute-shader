@@ -19,5 +19,5 @@ void main() {
 
     vColor = color;                    // Pass color to fragment shader
     gl_Position = vec4(position, 0.0, 1.0); // Convert to clip space
-    gl_PointSize = 3.0;                // Set point size
+    gl_PointSize = 1.0;                // Set point size
 }

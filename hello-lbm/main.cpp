@@ -216,7 +216,7 @@ void VulkanParticleApp::vk_draw_frame() {
     vkResetCommandBuffer(vk_graphics_command_buffers[currentFrame], 0);
     vk_record_graphics_command_buffer(vk_graphics_command_buffers[currentFrame], imageIndex, num_obstacle);
 
-    VkSemaphore graphicsWaitSemaphores[] = { vk_image_available_semaphores[currentFrame]};
+    VkSemaphore graphicsWaitSemaphores[] = { vk_image_available_semaphores[currentFrame] };
     VkPipelineStageFlags graphicsWaitStages[] = { VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
     submitInfo = {};

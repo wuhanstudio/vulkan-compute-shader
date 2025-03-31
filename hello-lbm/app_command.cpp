@@ -119,7 +119,7 @@ void VulkanParticleApp::vk_record_graphics_command_buffer(VkCommandBuffer comman
     scissor.extent = vk_swapchain_extent;
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-    vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+    vkCmdDraw(commandBuffer, static_cast<uint32_t>(NUM_PARTICLE), 1, 0, 0);
 
     vkCmdEndRenderPass(commandBuffer);
 
