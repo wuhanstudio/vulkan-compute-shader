@@ -6,6 +6,8 @@
   * [Project 5: hello-shader](#project-5-hello-shader)
   * [Project 6: hello-shadertoy](#project-6-hello-shadertoy)
   * [Project 7: hello-particle](#project-7-hello-particle)
+  * [Project 8: hello-lbm](#project-8-hello-lbm)
+
 
 
 
@@ -341,4 +343,19 @@ $ cd hello-particle
 $ cmake -B build --preset vcpkg
 $ cmake --build build
 $ ./build/hello-particle
+```
+
+
+
+## Project 8: hello-lbm
+
+This project implements LBM fluid flow simulation.
+
+![](lbm.gif)
+
+```
+$ cd hello-lbm
+$ cmake -B build --preset vcpkg
+$ cmake --build build
+$ ./build/hello-lbm
 ```
