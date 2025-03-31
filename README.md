@@ -7,8 +7,10 @@
   * [Project 6: hello-shadertoy](#project-6-hello-shadertoy)
   * [Project 7: hello-particle](#project-7-hello-particle)
   * [Project 8: hello-lbm](#project-8-hello-lbm)
+  
+  
 
-
+![](overview.gif)
 
 
 # Vulkan Compute Shader
