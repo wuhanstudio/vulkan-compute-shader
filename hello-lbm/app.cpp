@@ -59,7 +59,7 @@ void VulkanParticleApp::reset_particles(void)
 /*--------------------- Update obstacle flags -------------------------------------------------------------*/
 void VulkanParticleApp::lbm_update_obstacle(void)
 {
-    VkDeviceSize bufferSize = sizeof(float) * NX * NY * NUM_VECTORS;
+    VkDeviceSize bufferSize = sizeof(float) * NX * NY;
 
     // Create a staging buffer used to upload data to the gpu
     VkBuffer dcf_Buffer;
@@ -71,10 +71,10 @@ void VulkanParticleApp::lbm_update_obstacle(void)
         dcf_BufferMemory
     );
 
-    void* dcu_temp;
-    vkMapMemory(vk_device, dcf_BufferMemory, 0, bufferSize, 0, &dcu_temp);
+    void* dcf_temp;
+    vkMapMemory(vk_device, dcf_BufferMemory, 0, bufferSize, 0, &dcf_temp);
 
-    float* F_temp = (float*)dcu_temp;
+    float* F_temp = (float*)dcf_temp;
 
     for (int x = 0; x < NX; x++)
         for (int y = 0; y < NY; y++)
@@ -503,7 +503,7 @@ void VulkanParticleApp::vk_create_lbm_uniform_buffers() {
 void VulkanParticleApp::vk_update_lbm_uniform_buffer(uint32_t currentImage) {
     float fx = 1, fx2 = 1;
     float fy = 0, fy2 = 0;
-    float force = -0.000007;		// body force magnitude
+    float force = -0.000007;        // body force magnitude
     
     LBMUniformBufferObject ubo{};
     ubo.NX = NX;
@@ -529,11 +529,11 @@ void VulkanParticleApp::vk_create_particle_uniform_buffers() {
 }
 
 void VulkanParticleApp::vk_update_particle_uniform_buffer(uint32_t currentImage) {
-	ParticleUniformBufferObject ubo{};
-	ubo.NX = NX;
-	ubo.NY = NY;
-	ubo.DT = dt;
-	memcpy(vk_particle_uniform_buffers_mapped[currentImage], &ubo, sizeof(ubo));
+    ParticleUniformBufferObject ubo{};
+    ubo.NX = NX;
+    ubo.NY = NY;
+    ubo.DT = dt;
+    memcpy(vk_particle_uniform_buffers_mapped[currentImage], &ubo, sizeof(ubo));
 }
 
 void VulkanParticleApp::vk_create_obstacle_vertex_buffer() {
@@ -1026,10 +1026,10 @@ void VulkanParticleApp::vk_create_lbm_compute_descriptor_set_layout() {
 
 void VulkanParticleApp::vk_create_sync_objects() {
     vk_image_available_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
-	vk_render_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    vk_render_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
     vk_lbm_compute_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
-	vk_particle_compute_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    vk_particle_compute_finished_semaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
     vk_in_flight_fences.resize(MAX_FRAMES_IN_FLIGHT);
 
@@ -1052,9 +1052,9 @@ void VulkanParticleApp::vk_create_sync_objects() {
             throw std::runtime_error("failed to create graphics synchronization objects for a frame!");
         }
         if (vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_lbm_compute_finished_semaphores[i]) != VK_SUCCESS ||
-			vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_particle_compute_finished_semaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(vk_device, &semaphoreInfo, nullptr, &vk_particle_compute_finished_semaphores[i]) != VK_SUCCESS ||
             vkCreateFence(vk_device, &fenceInfo, nullptr, &vk_lbm_compute_in_flight_fences[i]) != VK_SUCCESS ||
-			vkCreateFence(vk_device, &fenceInfo, nullptr, &vk_particle_compute_in_flight_fences[i]) != VK_SUCCESS)
+            vkCreateFence(vk_device, &fenceInfo, nullptr, &vk_particle_compute_in_flight_fences[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create compute synchronization objects for a frame!");
         }
@@ -1070,8 +1070,8 @@ void VulkanParticleApp::vk_cleanup() {
     vkDestroyPipeline(vk_device, vk_particle_graphics_pipeline, nullptr);
     vkDestroyPipelineLayout(vk_device, vk_particle_graphics_pipeline_layout, nullptr);
 
-	vkDestroyPipeline(vk_device, vk_particle_compute_pipeline, nullptr);
-	vkDestroyPipelineLayout(vk_device, vk_particle_compute_pipeline_layout, nullptr);
+    vkDestroyPipeline(vk_device, vk_particle_compute_pipeline, nullptr);
+    vkDestroyPipelineLayout(vk_device, vk_particle_compute_pipeline_layout, nullptr);
 
     vkDestroyPipeline(vk_device, vk_lbm_compute_pipeline, nullptr);
     vkDestroyPipelineLayout(vk_device, vk_lbm_compute_pipeline_layout, nullptr);
@@ -1082,8 +1082,8 @@ void VulkanParticleApp::vk_cleanup() {
         vkDestroyBuffer(vk_device, vk_lbm_uniform_buffers[i], nullptr);
         vkFreeMemory(vk_device, vk_lbm_uniform_buffers_memory[i], nullptr);
 
-		vkDestroyBuffer(vk_device, vk_particle_uniform_buffers[i], nullptr);
-		vkFreeMemory(vk_device, vk_particle_uniform_buffers_memory[i], nullptr);
+        vkDestroyBuffer(vk_device, vk_particle_uniform_buffers[i], nullptr);
+        vkFreeMemory(vk_device, vk_particle_uniform_buffers_memory[i], nullptr);
     }
 
     vkDestroyDescriptorPool(vk_device, vk_lbm_compute_descriptor_pool, nullptr);
@@ -1110,11 +1110,11 @@ void VulkanParticleApp::vk_cleanup() {
         vkDestroyBuffer(vk_device, vk_dcv_storage_buffers[i], nullptr);
         vkFreeMemory(vk_device, vk_dcv_storage_buffers_memory[i], nullptr);
 
-		vkDestroyBuffer(vk_device, vk_particle_storage_buffers[i], nullptr);
-		vkFreeMemory(vk_device, vk_particle_storage_buffers_memory[i], nullptr);
+        vkDestroyBuffer(vk_device, vk_particle_storage_buffers[i], nullptr);
+        vkFreeMemory(vk_device, vk_particle_storage_buffers_memory[i], nullptr);
 
-		vkDestroyBuffer(vk_device, vk_colour_storage_buffers[i], nullptr);
-		vkFreeMemory(vk_device, vk_colour_storage_buffers_memory[i], nullptr);
+        vkDestroyBuffer(vk_device, vk_colour_storage_buffers[i], nullptr);
+        vkFreeMemory(vk_device, vk_colour_storage_buffers_memory[i], nullptr);
     }
 
     vkDestroyBuffer(vk_device, vk_obstacle_vertex_buffer, nullptr);
@@ -1125,11 +1125,11 @@ void VulkanParticleApp::vk_cleanup() {
         vkDestroySemaphore(vk_device, vk_image_available_semaphores[i], nullptr);
 
         vkDestroySemaphore(vk_device, vk_lbm_compute_finished_semaphores[i], nullptr);
-		vkDestroySemaphore(vk_device, vk_particle_compute_finished_semaphores[i], nullptr);
+        vkDestroySemaphore(vk_device, vk_particle_compute_finished_semaphores[i], nullptr);
 
         vkDestroyFence(vk_device, vk_in_flight_fences[i], nullptr);
         vkDestroyFence(vk_device, vk_lbm_compute_in_flight_fences[i], nullptr);
-		vkDestroyFence(vk_device, vk_particle_compute_in_flight_fences[i], nullptr);
+        vkDestroyFence(vk_device, vk_particle_compute_in_flight_fences[i], nullptr);
     }
 
     vkDestroyCommandPool(vk_device, vk_command_pool, nullptr);

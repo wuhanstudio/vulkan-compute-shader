@@ -64,15 +64,15 @@ struct SwapChainSupportDetails {
 
 struct LBMUniformBufferObject {
     int NX;
-    alignas(16) int NY;
-    alignas(16) float devFx;
-    alignas(16) float devFy;
+    int NY;
+    float devFx;
+    float devFy;
 };
 
 struct ParticleUniformBufferObject {
     int NX;
-    alignas(16) int NY;
-    alignas(16) float DT;
+    int NY;
+    float DT;
 };
 
 struct p
