@@ -139,7 +139,11 @@ void VulkanParticleApp::vk_record_lbm_compute_command_buffer(VkCommandBuffer com
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_lbm_compute_pipeline);
 
-    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_lbm_compute_pipeline_layout, 0, 1, &vk_lbm_compute_descriptor_sets[currentFrame], 0, nullptr);
+    if(c == 0)
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_lbm_compute_pipeline_layout, 0, 1, &vk_lbm_compute_descriptor_sets_0_1[currentFrame], 0, nullptr);
+    if (c == 1)
+		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_lbm_compute_pipeline_layout, 0, 1, &vk_lbm_compute_descriptor_sets_1_0[currentFrame], 0, nullptr);
+    c = 1 - c;
 
     vkCmdDispatch(commandBuffer, NX / 10, NY / 10, 1);
 

@@ -115,9 +115,6 @@ public:
         vk_init_window();
 
         vk_init();
-
-        lastTime = glfwGetTime();
-
         vk_main_loop();
 
         vk_cleanup();
@@ -177,9 +174,13 @@ private:
     VkDescriptorSetLayout vk_particle_compute_descriptor_set_layout;
     std::vector<VkDescriptorSet> vk_particle_compute_descriptor_sets;
 
-    VkDescriptorPool vk_lbm_compute_descriptor_pool;
     VkDescriptorSetLayout vk_lbm_compute_descriptor_set_layout;
-    std::vector<VkDescriptorSet> vk_lbm_compute_descriptor_sets;
+
+    VkDescriptorPool vk_lbm_compute_descriptor_pool_0_1;
+    std::vector<VkDescriptorSet> vk_lbm_compute_descriptor_sets_0_1;
+
+    VkDescriptorPool vk_lbm_compute_descriptor_pool_1_0;
+    std::vector<VkDescriptorSet> vk_lbm_compute_descriptor_sets_1_0;
 
     VkCommandPool vk_command_pool;
 
@@ -233,10 +234,6 @@ private:
     std::vector<VkFence> vk_particle_compute_in_flight_fences;
 
     uint32_t currentFrame = 0;
-
-    double lastTime = 0.0f;
-    float lastFrameTime = 0.0f;
-    
 
     void vk_init();
     void vk_main_loop();
@@ -295,13 +292,17 @@ private:
 
 	void vk_create_particle_uniform_buffers();
 
-    void vk_create_lbm_descriptor_pool();
+    void vk_create_lbm_descriptor_pool_0_1();
+
+    void vk_create_lbm_descriptor_pool_1_0();
 
 	void vk_create_particle_graphics_descriptor_pool();
 
     void vk_create_particle_descriptor_pool();
 
-    void vk_create_lbm_compute_descriptor_sets(int c);
+    void vk_create_lbm_compute_descriptor_sets_0_1();
+  
+    void vk_create_lbm_compute_descriptor_sets_1_0();
 
     void vk_create_particle_compute_descriptor_sets();
 

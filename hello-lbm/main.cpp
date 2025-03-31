@@ -83,6 +83,7 @@ void VulkanParticleApp::vk_init() {
     vk_create_render_pass();
 
     vk_create_lbm_compute_descriptor_set_layout();
+
     vk_create_particle_compute_descriptor_set_layout();
 
     vk_create_particle_graphics_descriptor_set_layout();
@@ -104,11 +105,15 @@ void VulkanParticleApp::vk_init() {
     vk_create_lbm_uniform_buffers();
     vk_create_particle_uniform_buffers();
 
-    vk_create_lbm_descriptor_pool();
+    vk_create_lbm_descriptor_pool_0_1();
+    vk_create_lbm_descriptor_pool_1_0();
+
     vk_create_particle_descriptor_pool();
     vk_create_particle_graphics_descriptor_pool();
 
-    vk_create_lbm_compute_descriptor_sets(c);
+    vk_create_lbm_compute_descriptor_sets_0_1();
+    vk_create_lbm_compute_descriptor_sets_1_0();
+
     vk_create_particle_compute_descriptor_sets();
     vk_create_particle_graphics_descriptor_sets();
 
@@ -134,7 +139,6 @@ void VulkanParticleApp::vk_draw_frame() {
 
     VkSubmitInfo submitInfo{};
 
-    /*
     // LBM Compute submission   
     // TODO: Implement NUMR  
     //for (int i = 0; i < NUMR; i++)
@@ -143,10 +147,6 @@ void VulkanParticleApp::vk_draw_frame() {
         vkResetFences(vk_device, 1, &vk_lbm_compute_in_flight_fences[currentFrame]);
 
         vk_update_lbm_uniform_buffer(currentFrame);
-
-        //vk_create_lbm_descriptor_pool();
-        //vk_create_lbm_compute_descriptor_sets(c);
-        //c = 1 - c;
 
         vkResetCommandBuffer(vk_lbm_compute_command_buffers[currentFrame], 0);
         vk_record_lbm_compute_command_buffer(vk_lbm_compute_command_buffers[currentFrame]);
@@ -163,7 +163,6 @@ void VulkanParticleApp::vk_draw_frame() {
         };
         vkQueueWaitIdle(vk_compute_queue);
     //}
-    */
 
     // Particle Compute submission
     vkWaitForFences(vk_device, 1, &vk_particle_compute_in_flight_fences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -180,9 +179,9 @@ void VulkanParticleApp::vk_draw_frame() {
     submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    //submitInfo.waitSemaphoreCount = 1;
-    //submitInfo.pWaitSemaphores = particleWaitSemaphores;
-    //submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = particleWaitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
 
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &vk_particle_compute_command_buffers[currentFrame];
@@ -272,11 +271,6 @@ void VulkanParticleApp::vk_main_loop() {
 
         glfw_show_fps(gWindow);
         vk_draw_frame();
-
-        // We want to animate the particle system using the last frames time to get smooth, frame-rate independent animation
-        double currentTime = glfwGetTime();
-        lastFrameTime = (currentTime - lastTime) * 1000.0;
-        lastTime = currentTime;
     }
 
     vkDeviceWaitIdle(vk_device);
