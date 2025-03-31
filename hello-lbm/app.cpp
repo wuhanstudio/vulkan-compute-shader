@@ -148,17 +148,20 @@ void VulkanParticleApp::lbm_update_obstacle(void)
         }
     }
 
-    VkBufferCreateInfo bufferInfo{};
-    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferInfo.size = sizeof(vertices[0]) * vertices.size();
-    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    if (vertices.size() > 0) {
+        VkBufferCreateInfo bufferInfo{};
+        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+        bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+        bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    void* data;
-    vkMapMemory(vk_device, vk_obstacle_vertex_buffer_memory, 0, bufferInfo.size, 0, &data);
-    memcpy(data, vertices.data(), (size_t) bufferInfo.size);
-    vkUnmapMemory(vk_device, vk_obstacle_vertex_buffer_memory);
+        void* data;
+        vkMapMemory(vk_device, vk_obstacle_vertex_buffer_memory, 0, bufferInfo.size, 0, &data);
+        memcpy(data, vertices.data(), (size_t) bufferInfo.size);
+        vkUnmapMemory(vk_device, vk_obstacle_vertex_buffer_memory);
+    }
 
+    num_obstacle = vertices.size();
 }
 
 void VulkanParticleApp::lbm_init_ssb(void)

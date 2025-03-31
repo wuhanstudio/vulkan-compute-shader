@@ -55,7 +55,7 @@ void VulkanParticleApp::vk_create_particle_compute_command_buffers() {
     }
 }
 
-void VulkanParticleApp::vk_record_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex) {
+void VulkanParticleApp::vk_record_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, int num_obstacle) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -76,28 +76,32 @@ void VulkanParticleApp::vk_record_graphics_command_buffer(VkCommandBuffer comman
 
     vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    // Draw Obstacles
-    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_obstacle_graphics_pipeline);
-
     VkViewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = (float)vk_swapchain_extent.width;
-    viewport.height = (float)vk_swapchain_extent.height;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
     VkRect2D scissor{};
-    scissor.offset = { 0, 0 };
-    scissor.extent = vk_swapchain_extent;
-    vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
-    VkBuffer vertexBuffers[] = { vk_obstacle_vertex_buffer };
-    VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+    if (num_obstacle > 0) {
 
-    vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+        // Draw Obstacles
+        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_obstacle_graphics_pipeline);
+
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = (float)vk_swapchain_extent.width;
+        viewport.height = (float)vk_swapchain_extent.height;
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
+        scissor.offset = { 0, 0 };
+        scissor.extent = vk_swapchain_extent;
+        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+
+        VkBuffer vertexBuffers[] = { vk_obstacle_vertex_buffer };
+        VkDeviceSize offsets[] = { 0 };
+        vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+
+        vkCmdDraw(commandBuffer, static_cast<uint32_t>(vertices.size()), 1, 0, 0);
+    }
 
     // Draw particles
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_particle_graphics_pipeline);

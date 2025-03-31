@@ -126,9 +126,11 @@ public:
 private:
     GLFWwindow* gWindow;
 
+    float xMouse, yMouse;
+    int num_obstacle = 0;
+
     int c = 0;
     int F_cpu[NX * NY];
-    float xMouse, yMouse;
 
     std::vector<Particle> vertices;
 
@@ -324,7 +326,7 @@ private:
 
     void vk_record_particle_compute_command_buffer(VkCommandBuffer commandBuffer);
 
-    void vk_record_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+    void vk_record_graphics_command_buffer(VkCommandBuffer commandBuffer, uint32_t imageIndex, int num_obstacle);
 
     void vk_create_sync_objects();
 
