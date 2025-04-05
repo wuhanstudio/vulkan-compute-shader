@@ -45,7 +45,7 @@ VkCommandBuffer vk_prepare_command_buffer(
     vkCmdBindPipeline(vk_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_pipeline);
     vkCmdBindDescriptorSets(vk_command_buffer, VK_PIPELINE_BIND_POINT_COMPUTE, vk_pipeline_layout,
                             0, 1, &vk_descriptor_set, 0, NULL);
-    vkCmdDispatch(vk_command_buffer, 1000, 1, 1);
+    vkCmdDispatch(vk_command_buffer, 256, 1, 1);
 
     if (vkEndCommandBuffer(vk_command_buffer) != VK_SUCCESS)
     {

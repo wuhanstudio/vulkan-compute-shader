@@ -13,8 +13,8 @@
 #include "memory.h"
 #include "pipeline.h"
 
-#define width 1000
-#define height 1000
+#define width 256
+#define height 256
 
 uint32_t vk_input_data[width];
 uint32_t vk_output_data[height][width];
@@ -39,8 +39,8 @@ void generate_fractal_cpu()
     {
         for (uint32_t col = 0; col < width; col++)
         {
-            float r = (float)row / 500.0 - 1.0;
-            float i = (float)col / 500.0 - 1.0;
+            float r = (float)row / 128.0 - 1.0;
+            float i = (float)col / 128.0 - 1.0;
 
             uint32_t cnt = 0;
             while (((r * r + i * i) < 4.0) && (cnt < 63))

@@ -1,6 +1,6 @@
 #version 450
 
-layout( local_size_x = 1000, local_size_y = 1, local_size_z = 1 ) in;
+layout( local_size_x = 256, local_size_y = 1, local_size_z = 1 ) in;
 
 layout( binding = 0 ) buffer inputBuffer
 {
@@ -9,13 +9,13 @@ layout( binding = 0 ) buffer inputBuffer
 
 layout( binding = 1 ) buffer outputBuffer
 {
-    uint valuesOut[1000][1000];
+    uint valuesOut[256][256];
 };
 
 void main()
 {
-    float r = gl_WorkGroupID.x / 500.0f - 1.0f;
-    float i = gl_LocalInvocationID.x / 500.0f - 1.0f;
+    float r = gl_WorkGroupID.x / 128.0f - 1.0f;
+    float i = gl_LocalInvocationID.x / 128.0f - 1.0f;
 
     uint cnt = 0;
     while (((r * r + i * i) < 4.0f) && (cnt < 63))
